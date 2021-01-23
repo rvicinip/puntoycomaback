@@ -10,30 +10,27 @@
 ### Se importan los plugins necesarios
 from src import app
 from src.model import user
-from flask import jsonify, request, session
+from flask import jsonify, request
 
 @app.route('/user/<company>', methods = ['POST'])
 def createUser(company):
     '''
-       :createUser: Crea un usuario de una empresa en la coleeción de usaurio
-       :params: company: Contiene el identificador de la empresa
+       createUser: Crea un usuario de una empresa en la coleeción de usaurio \n
+       @params: 
+         company: Contiene el identificador de la empresa
     '''
     print("In createUser:", company)
     dato = request.json
     usuario = user.addUser(dato, company)
-    return jsonify({'response': usuario})
+    return jsonify(usuario)
 
 @app.route('/users/<company>', methods = ['GET'])
 def obtainUsers(company):
     '''
-       :obtainUsers: Optiene los usuarios de una empresa en la coleeción de usaurio
-       :params: company: Contiene el identificador de la empresa
+       obtainUsers: Optiene los usuarios de una empresa en la coleeción de usaurio \n
+       @params: 
+         company: Contiene el identificador de la empresa
     '''
     print("In obtainUsers:", company)
     usuario = user.getUsersByCompany(company)
-    return jsonify({'response': usuario})
-
-@app.route('/users', methods = ['POST'])
-def obtaineUsers():
-    session.clear()
- 
+    return jsonify(usuario)

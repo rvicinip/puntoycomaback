@@ -14,8 +14,9 @@ import traceback
 ### Método de tranfosrmación del cursor a diccionario
 def parserObjectId(data):
     '''
-       :parserObjectId: transforma un cursor de mongo en un diccionario
-       :params: cursorWithIdObject: cursor que posee un ObjectId de Mongo  
+       parserObjectId: transforma un cursor de mongo en un diccionario \n
+       @params: 
+         cursorWithIdObject: cursor que posee un ObjectId de Mongo  
     '''
     print("In parserObjectId:", data)
     element = {}
@@ -32,8 +33,8 @@ def parserObjectId(data):
 ### Método de tranfosrmación del cursor a diccionario
 def removeObjectId(data):
     '''
-       :removeObjectId: Retira de un diccionario el campo _id para la actualización 
-       :params: 
+       removeObjectId: Retira de un diccionario el campo _id para la actualización \n
+       @params: 
          data: cursor que posee un ObjectId de Mongo  
     '''
     print("In removeObjectId:", data)

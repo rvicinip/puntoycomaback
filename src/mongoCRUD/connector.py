@@ -15,8 +15,8 @@ import traceback
 
 def addToCollection(url, dbName, collection, values):
   '''
-     :addToCollection: Agrega un registro en una colección de la DB
-     :params: 
+     addToCollection: Agrega un registro en una colección de la DB \n
+     @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
@@ -36,8 +36,8 @@ def addToCollection(url, dbName, collection, values):
 
 def getCollectionById(url, dbName, collection, idMongo):
   '''
-     :getCollectionById: Busca un registro en una colección por el id de mongo (_id)
-     :params: 
+     getCollectionById: Busca un registro en una colección por el id de mongo '_id' \n
+     @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
@@ -60,8 +60,8 @@ def getCollectionById(url, dbName, collection, idMongo):
 
 def getCollecctionByField(url, dbName, collection, field):
   '''
-     :getCollecctionByField: Busca un único registro en la coleeción acorde con un campo en partícular
-     :params: 
+     getCollecctionByField: Busca un único registro en la coleeción acorde con un campo en partícular \n
+     @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
@@ -84,8 +84,8 @@ def getCollecctionByField(url, dbName, collection, field):
 
 def getCollecctionsByField(url, dbName, collection,field):
   ''' 
-     :getCollecctionsByField: Busca todos los registros en una colección acorde a un campo
-     :params: 
+     :getCollecctionsByField: Busca todos los registros en una colección acorde a un campo \n
+     @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
@@ -108,8 +108,8 @@ def getCollecctionsByField(url, dbName, collection,field):
 
 def getAllInCollecction(url, dbName, collection):
   '''
-     :getAllInCollecction: Busca todos los registros en una colección
-     :params: 
+     getAllInCollecction: Busca todos los registros en una colección \n
+     @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
@@ -131,8 +131,8 @@ def getAllInCollecction(url, dbName, collection):
 
 def deleteById(url, dbName, collection, idMongo):
   '''
-     :deleteById: Elimina un registro en la colección
-     :params: 
+     deleteById: Elimina un registro en la colección \n
+     @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
@@ -151,8 +151,8 @@ def deleteById(url, dbName, collection, idMongo):
 
 def updateById(url, dbName, collection, objeto):
   '''
-     :updateUserById: Actualiza un registro en la colección
-     :params: 
+     updateUserById: Actualiza un registro en la colección \n
+     @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos

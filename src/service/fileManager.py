@@ -9,12 +9,16 @@
 '''
 import pandas as pandas
 from src import app
+from flask import jsonify, request
 
-@app.route('/fileManager/usuario', methods = ['POST'])
-def createUser(company):
-    '''
-       :createUser: Crea un usuario de una empresa en la coleeción de usaurio
-       :params: company: Contiene el identificador de la empresa
-    '''
-    print("In createUser:", company)
-    dato = request.json
+@app.route('/fileManager/<company>', methods = ['POST'])
+def createUsers(company):
+   '''
+       createUsers: Recibe un archivo con los usuarios de una empresa para agregarlos a la DB \n
+       @params: 
+         company: Contiene el identificador de la empresa
+   '''
+   print("In createUsers:", company)
+   archivo = request.files()
+   if archivo == None:
+      return jsonify({'response': 'ERROR', 'message': 'Los archivos son requeridos para el proceso'})
