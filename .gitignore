@@ -4,4 +4,5 @@
 /src/model/__pycache__
 /src/mongoCRUD/__pycache__
 /src/service/__pycache__
+/src/utility/__pycache__
 /bckenv
