@@ -28,11 +28,12 @@ def addToCollection(url, dbName, collection, values):
     db     = client[dbName]
     mdb    = db[collection]
     res    = mdb.insert(values)
-    resp   = parsser.parserObjectId(res)
+    resp   = str(ObjectId(res))
     client.close()
     return resp
   except Exception:
-    return 'ERROR: Se presentó un error al crear un registro en ' + collection + '\n' + traceback.print_exc()
+    traceback.print_exc()
+    return {'ERROR': 'Se presentó un error al crear un registro en ' + collection}
 
 def getCollectionById(url, dbName, collection, idMongo):
   '''
@@ -56,7 +57,8 @@ def getCollectionById(url, dbName, collection, idMongo):
     client.close()
     return resp
   except Exception:
-    return 'ERROR: Se presentó un error al consultar en ' + collection + '\n' + traceback.print_exc()
+    traceback.print_exc()
+    return {'ERROR': 'Se presentó un error al consultar en ' + collection}
 
 def getCollecctionByField(url, dbName, collection, field):
   '''
@@ -80,7 +82,8 @@ def getCollecctionByField(url, dbName, collection, field):
     client.close()
     return resp
   except Exception:
-    return 'ERROR: Se presentó un error al consultar en ' + collection + '\n' + traceback.print_exc()
+    traceback.print_exc()
+    return {'ERROR': 'Se presentó un error al consultar en ' + collection }
 
 def getCollecctionsByField(url, dbName, collection,field):
   ''' 
@@ -104,7 +107,8 @@ def getCollecctionsByField(url, dbName, collection,field):
     client.close()
     return resp
   except Exception:
-    return 'ERROR: Se presentó un error al consultar en ' + collection + '\n' + traceback.print_exc()
+    traceback.print_exc()
+    return {'ERROR': 'Se presentó un error al consultar en ' + collection}
 
 def getAllInCollecction(url, dbName, collection):
   '''
@@ -127,7 +131,8 @@ def getAllInCollecction(url, dbName, collection):
     client.close()
     return resp
   except Exception:
-    return 'ERROR: Se presentó un error al consultar en ' + collection + '\n' + traceback.print_exc()
+    traceback.print_exc()
+    return {'ERROR': 'Se presentó un error al consultar en ' + collection}
 
 def deleteById(url, dbName, collection, idMongo):
   '''
@@ -147,7 +152,8 @@ def deleteById(url, dbName, collection, idMongo):
     client.close()
     return resp
   except Exception:
-    return 'ERROR: Se presentó un error al eliminar un registro en ' + collection + '\n ' + traceback.print_exc()
+    traceback.print_exc()
+    return {'ERROR': 'Se presentó un error al eliminar un registro en ' + collection}
 
 def updateById(url, dbName, collection, objeto):
   '''
@@ -167,5 +173,6 @@ def updateById(url, dbName, collection, objeto):
     resp = mdb.update_one({'_id': ObjectId(objeto['_id'])}, {"$set": valores})
     mdb.client.close()
     return resp
-  except:
-    return 'ERROR: Se presentó un error al modificar la colección ' + collection + '\n ' + traceback.print_exc()
+  except Exception:
+    traceback.print_exc()
+    return {'ERROR': 'Se presentó un error al modificar la colección ' + collection}

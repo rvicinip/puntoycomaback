@@ -28,7 +28,8 @@ def parserObjectId(data):
           element[c] = data[c]
       return element
     except Exception:
-      return traceback.print_exc()
+      traceback.print_exc()
+      return 
 
 ### Método de tranfosrmación del cursor a diccionario
 def removeObjectId(data):
@@ -45,4 +46,5 @@ def removeObjectId(data):
           element[c] = data[c]
       return element
     except Exception:
-      return traceback.print_exc()
+      traceback.print_exc()
+      return

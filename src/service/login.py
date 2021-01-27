@@ -10,7 +10,8 @@
 ### Se importan los plugins necesarios
 from flask import jsonify, request, session
 from src import app
-from src.model import user
+from src.mongoCRUD import connector
+from config import MONGO, DB
 
 
 @app.route('/')
@@ -21,8 +22,7 @@ def inicio():
          idCompany: Id de la empresa a la que está asociado el usuario en la DB 
     '''
     print("In inicio")
-    idMongo = request.json['_id']
-    resultado = user.getUserById(idMongo)
+    resultado = connector.getAllInCollecction(MONGO, DB, 'diccionario')
     return jsonify({"inicio": "Servidor iniciado", "data": resultado})
 
 @app.route('/access', methods = ['POST'])

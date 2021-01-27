@@ -8,11 +8,13 @@
    :author: Wiliam Arévalo Camacho
 '''
 ### Se importan los plugins necesarios
+from bson import ObjectId
 from src.mongoCRUD import connector
-from config import MONGO, DB, SECRET_KEY
+from config import MONGO, DB
 import bcrypt
+import traceback
 ### Nombre de la colección en la DB que se utilizará
-coleccion = 'usuario'
+USUCOLL = 'usuario'
 
 # Métodos CRUD en la coleeción usuario
 def adduserClient(usuario, empresa):
@@ -26,16 +28,20 @@ def adduserClient(usuario, empresa):
   usuario['salario'] = int(usuario['salario'])
   usuario['empresa'] = empresa
   clave = str(usuario['clave']).encode()
-  encripted = bcrypt.hashpw(clave, SECRET_KEY)
+  encripted = bcrypt.hashpw(clave, bcrypt.gensalt(12))
   usuario['clave'] = encripted
   try:
-    verify = getUserByUsuario({'id_usuario': usuario['id_usuario']})
-    if verify == None:
-      user = connector.addToCollection(MONGO, DB, coleccion, usuario)
-      return {'response': 'OK', 'message': 'Usuario creado ' + str(user)}
-    else:
-      return {'response': 'ERROR', 'message': 'Ya existe un usuario con el mismo id'}
-  except:
+    verifica = getUserByUsuario(usuario['id_usuario'])
+    if not 'data' in verifica:
+      resp = connector.addToCollection(MONGO, DB, USUCOLL, usuario)
+      if not ObjectId.is_valid(str(resp)):
+        return resp
+      usuario['_id'] = str(ObjectId(resp))
+      usuario.pop('clave')
+      return {'response': 'OK', 'message': 'Usuario creado ', 'data': usuario}
+    return {'response': 'ERROR', 'message': 'Ya existe un usuario con el mismo id'}
+  except Exception:
+    traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
 
 def getUserById(idMongo):
@@ -46,9 +52,13 @@ def getUserById(idMongo):
   '''
   print("In getUserById:", idMongo)
   try:
-    resp = connector.getCollectionById(MONGO, DB, coleccion, idMongo)
+    resp = connector.getCollectionById(MONGO, DB, USUCOLL, idMongo)
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    resp.pop('clave')
     return {'response': 'OK', 'data': resp}
-  except:
+  except Exception:
+    traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idMongo}
 
 def getUserByUsuario(usuario):
@@ -59,22 +69,31 @@ def getUserByUsuario(usuario):
   '''
   print("In getUserByUsuario:", usuario)
   try:
-    resp = connector.getCollecctionByField(MONGO, DB, coleccion, {"id_usuario" : usuario})
+    resp = connector.getCollecctionByField(MONGO, DB, USUCOLL, {"id_usuario" : usuario})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    resp.pop('clave')
     return {'response': 'OK', 'data': resp}
-  except:
+  except Exception:
+    traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + usuario}
 
 def getUsersByCompany(idCompany):
   '''
-     getUsers: Busca todos los usuario de una empresa en la coleeción de usaurio \n
+     getUsersByCompany: Busca todos los usuario de una empresa en la coleeción de usaurio \n
      @params: 
        idCompany: Id de la empresa a la que está asociado el usuario en la DB 
   '''
   print("In getUsersByCompany:", idCompany)
   try:
-    result = connector.getCollecctionsByField(MONGO, DB, coleccion, {'empresa': idCompany})
-    return {'response': 'OK', 'data': result}
-  except:
+    resp = connector.getCollecctionsByField(MONGO, DB, USUCOLL, {'empresa': idCompany})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    for r in resp:
+      r.pop('clave')
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar los usuarios de la empresa: ' + idCompany}
 
 def deleteUserById(idUsuario):
@@ -85,22 +104,31 @@ def deleteUserById(idUsuario):
   '''
   print("In deleteUserById:", idUsuario)
   try:
-    result = connector.deleteById(MONGO, DB, coleccion, idUsuario)
-    return {'response': 'OK', 'message': 'User Deleted', 'data': result}
-  except:
+    resp = connector.deleteById(MONGO, DB, USUCOLL, idUsuario)
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    return {'response': 'OK', 'message': 'Usuario borrado'}
+  except Exception:
+    traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar el usuario: ' + idUsuario}
 
 def updateUserById(usuario):
   '''
      updateUserById: Actualiza un usuario en la colección de usaurio \n
-     @params: 
+     @params:
        usuario: objeto usuario con todos los datos a modificar en la DB 
   '''
   print("In updateUserById:", usuario['_id'])
   try:
-    result = connector.updateById(MONGO, DB, coleccion, usuario)
-    return {'response': 'OK', 'message': 'User Updated', 'data': result}
-  except:
+    if 'clave' in usuario:
+      usuario.pop('clave')
+    resp = connector.updateById(MONGO, DB, USUCOLL, usuario)
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    resp.pop('clave')
+    return {'response': 'OK', 'message': 'User Updated', 'data': resp}
+  except Exception:
+    traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + usuario['id_usuario']}
 
 def updateUserPassword(usuario):
@@ -111,13 +139,14 @@ def updateUserPassword(usuario):
   '''
   print("In updateUserPassword:", usuario['_id'])
   try:
-    verifica = validatePassword({'id_usuario': usuario['id_usuario'], 'clave': usuario['clave_actual']}
-    if  verifica == 'OK':
-      result = connector.updateById(MONGO, DB, coleccion, usuario)
-      return {'response': 'OK', 'message': 'Password Updated', 'data': result}
+    verifica = validatePassword({'id_usuario': usuario['id_usuario'], 'clave': usuario['clave_actual']})
+    if  verifica['response'] == 'OK':
+      resp = connector.updateById(MONGO, DB, USUCOLL, usuario)
+      return {'response': 'OK', 'message': 'Password Updated', 'data': resp}
     else:
       return {'response': 'ERROR', 'message': verifica}
-  except:
+  except Exception:
+    traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + usuario['id_usuario']}
 
 ### Este método no responde con objetos Json, para poder evaluar la respuesta directamente
@@ -137,5 +166,6 @@ def validatePassword(usuario):
         return {'response':'ERROR', 'message':'Contraseña errada'}
     else:
       return {'response':'ERROR', 'message':'No existe el usuario'}
-  except:
+  except Exception:
+    traceback.print_exc()
     return {'response':'ERROR', 'message':'Se presentó un error validando el usuario'}

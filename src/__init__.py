@@ -27,6 +27,6 @@ app.config['MONGO_URI'] = MONGO
 ### Inicializa la conexión de la DB
 mongo = PyMongo(app)
 ### Vincular las clases del sistema
-from src.service import login, user
+from src.service import login, user, empresa
 ### Versión de la aplicación
 __version__ = "1.0.0"

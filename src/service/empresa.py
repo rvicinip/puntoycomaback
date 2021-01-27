@@ -66,4 +66,5 @@ def manageFiles(company):
    if not validator.validateExcel(frecuencias.filename):
       return jsonify({'response': 'ERROR', 'message': 'El archivo frecuencias no es de tipo Excel'})
    
-   return "OK"
+   dic = empresa.addDiccionario(diccionario, company, 4)
+   return dic
