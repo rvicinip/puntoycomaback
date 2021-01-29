@@ -17,16 +17,18 @@ import traceback
 USUCOLL = 'usuario'
 
 # Métodos CRUD en la coleeción usuario
-def adduserClient(usuario, empresa):
+def addUserClient(usuario, empresa):
   '''
-     addUser: Crea un usuario en la coleeción de usaurio \n
+     addUser: Crea un usuario en la colección de usaurio \n
      @params: 
        usuario: objeto Json con los campos a insertar en la DB 
        empresa: Id mongo de la empresa a la que se asocia el usuario a crear
   '''
-  print("In addUser:", empresa)
+  print("In addUserClient:", empresa)
   usuario['salario'] = int(usuario['salario'])
   usuario['empresa'] = empresa
+  usuario['perfil'] = 'client'
+  usuario['estado'] = 'A' ## A indica que el estado del usuario es activo
   clave = str(usuario['clave']).encode()
   encripted = bcrypt.hashpw(clave, bcrypt.gensalt(12))
   usuario['clave'] = encripted
@@ -40,6 +42,36 @@ def adduserClient(usuario, empresa):
       usuario.pop('clave')
       return {'response': 'OK', 'message': 'Usuario creado ', 'data': usuario}
     return {'response': 'ERROR', 'message': 'Ya existe un usuario con el mismo id'}
+  except Exception:
+    print(__name__)
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
+
+def addUserEmpresa(usuario):
+  '''
+     addUserEmpresa: Crea un usuario consultor en la colección de usaurio \n
+     @params: 
+       usuario: objeto Json con los campos a insertar en la DB 
+       empresa: Id mongo de la empresa a la que se asocia el usuario a crear
+  '''
+  print("In addUserEmpresa")
+  if 'salario' in usuario:
+    usuario['salario'] = int(usuario['salario'])
+  usuario['perfil'] = 'consult'
+  usuario['estado'] = 'A' ## A indica que el estado del usuario es activo
+  clave = str(usuario['clave']).encode()
+  encripted = bcrypt.hashpw(clave, bcrypt.gensalt(12))
+  usuario['clave'] = encripted
+  try:
+    verifica = getUserByUsuario(usuario['id_usuario'])
+    if not 'data' in verifica:
+      resp = connector.addToCollection(MONGO, DB, USUCOLL, usuario)
+      if not ObjectId.is_valid(str(resp)):
+        return {'response': 'ERROR', 'message': resp['ERROR']}
+      usuario['_id'] = str(ObjectId(resp))
+      usuario.pop('clave')
+      return {'response': 'OK', 'message': 'Usuario creado ', 'data': usuario}
+    return {'response': 'ERROR', 'message': 'Ya existe el usuario', 'data': verifica}
   except Exception:
     print(__name__)
     traceback.print_exc()
@@ -147,10 +179,14 @@ def updateUserPassword(usuario):
   try:
     verifica = validatePassword({'id_usuario': usuario['id_usuario'], 'clave': usuario['clave_actual']})
     if  verifica['response'] == 'OK':
+      nuevaClave = str(usuario['nueva_clave']).encode()
+      encripted = bcrypt.hashpw(nuevaClave, bcrypt.gensalt(12))
+      usuario['clave'] = encripted
       resp = connector.updateById(MONGO, DB, USUCOLL, usuario)
+      if 'ERROR' in resp:
+        return {'response': 'ERROR', 'message': resp['ERROR']}
       return {'response': 'OK', 'message': 'Password Updated', 'data': resp}
-    else:
-      return {'response': 'ERROR', 'message': verifica}
+    return verifica
   except Exception:
     print(__name__)
     traceback.print_exc()

@@ -14,15 +14,57 @@ from flask import jsonify, request
 
 @app.route('/user', methods = ['POST'])
 def createUser():
-    '''
-       createUser: Crea un usuario de una empresa en la coleeción de usaurio \n
-       @params: 
-         company: Contiene el identificador de la empresa
-    '''
-    print("In createUser")
-    dato = request.json
-    usuario = user.addUser(dato, company)
-    return jsonify(usuario)
+   '''
+      createUser: Crea un usuario de la empresa en la coleeción de usaurio \n
+   '''
+   ## Validad que se enviarion todos los campos
+   if not 'id_usuario' in request.json:
+      return {'response':'ERROR', 'message': 'Cédula es obligatoria¿o, por favor verifíque'}
+   if not 'nombre' in request.json:
+      return {'response':'ERROR', 'message': 'Nombre del empleado es obligatorio, por favor verifíque'}
+   if not 'empresa' in request.json:
+      return {'response':'ERROR', 'message': 'Empresa es obligatorio, por favor verifíque'}
+   if not 'clave' in request.json:
+      return {'response':'ERROR', 'message': 'Contraseña es obligatorio, por favor verifíque'}
+   dato = request.json
+   print("In createUser:", dato['id_usuario'])
+   if not dato['id_usuario']:
+      return {'response':'ERROR', 'message': 'Cédula es obligatorio, por favor verifíque'}
+   if not dato['nombre']:
+      return {'response':'ERROR', 'message': 'Nombre del empleado es obligatorio, por favor verifíque'}
+   if not dato['empresa']:
+      return {'response':'ERROR', 'message': 'Empresa es obligatorio, por favor verifíque'}
+   if not dato['clave']:
+      return {'response':'ERROR', 'message': 'Contraseña es obligatorio, por favor verifíque'}
+   ## Guarda un nuevo usuario en la DB
+   dato = request.json
+   usuario = user.addUserEmpresa(dato)
+   return jsonify(usuario)
+
+@app.route('/user/clave', methods = ['POST'])
+def changePassword():
+   '''
+      changePassword: Actualiza la contraseña de un usuario \n
+   '''
+   print("In changePassword")
+   ## Validad que se enviarion todos los campos
+   if not 'id_usuario' in request.json:
+      return {'response':'ERROR', 'message': 'Cédula es obligatoria¿o, por favor verifíque'}
+   if not 'clave' in request.json:
+      return {'response':'ERROR', 'message': 'Contraseña es obligatorio, por favor verifíque'}
+   if not 'nueva_clave' in request.json:
+      return {'response':'ERROR', 'message': 'Nueva contraseña es obligatorio, por favor verifíque'}
+   dato = request.json
+   print("In createUser:", dato['id_usuario'])
+   if not dato['id_usuario']:
+      return {'response':'ERROR', 'message': 'Cédula es obligatorio, por favor verifíque'}
+   if not dato['clave']:
+      return {'response':'ERROR', 'message': 'Contraseña es obligatorio, por favor verifíque'}
+   if not dato['nueva_clave']:
+      return {'response':'ERROR', 'message': 'Nueva contraseña es obligatorio, por favor verifíque'}
+   ## Guarda una nueva empresa en la DB
+   resp = user.updateUserPassword(dato)
+   return jsonify(resp)
 
 @app.route('/users/<company>', methods = ['GET'])
 def obtainUsers(company):

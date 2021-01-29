@@ -335,7 +335,7 @@ def addEmpleados(usuario, company):
     lista = []
     err   = []
     for usu in lector:
-      resp = user.adduserClient(usu, company)
+      resp = user.addUserClient(usu, company)
       if resp['response'] == 'ERROR':
         err.append({'response': resp['message'], 'data': usu})
       else:

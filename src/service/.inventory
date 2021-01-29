@@ -61,7 +61,10 @@ route: /full/employes/<idCompany>, method: 'GET'
    USUARIO
 #############
 route: /user, method: 'POST'
-    Crea un usuario de una empresa en la coleeción de usaurio
+    Crea un usuario de la empresa en la coleeción de usaurio
+
+route: /user/clave, method: 'POST'
+    Actualiza la contraseña de un usuario
 
 route: /users/<company>, method: 'GET'
     Obtiene los usuarios de una empresa en la colección de usaurio

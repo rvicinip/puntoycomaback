@@ -10,8 +10,8 @@
 ### Se importan los plugins necesarios
 from flask import jsonify, request, session
 from src import app
-from src.service import user
-from src.model import user as usuario
+##from src.service import user 
+from src.model import user
 @app.route('/')
 def inicio():
     '''
@@ -20,8 +20,8 @@ def inicio():
          idCompany: Id de la empresa a la que está asociado el usuario en la DB 
     '''
     print("In inicio")
-    resp = usuario.getUsersByCompany('1asdc23')
-    return jsonify({"inicio": "Servidor iniciado", 'data': resp})
+    ## resp = usuario.getUsersByCompany('1asdc23')
+    return jsonify({"inicio": "Servidor iniciado", 'data': 'resp'})
 
 @app.route('/access', methods = ['POST'])
 def login():
