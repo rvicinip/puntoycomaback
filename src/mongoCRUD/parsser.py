@@ -28,6 +28,7 @@ def parserObjectId(data):
           element[c] = data[c]
       return element
     except Exception:
+      print(__name__)
       traceback.print_exc()
       return 
 
@@ -46,5 +47,6 @@ def removeObjectId(data):
           element[c] = data[c]
       return element
     except Exception:
+      print(__name__)
       traceback.print_exc()
       return

@@ -32,6 +32,7 @@ def addToCollection(url, dbName, collection, values):
     client.close()
     return resp
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error al crear un registro en ' + collection}
 
@@ -57,6 +58,7 @@ def getCollectionById(url, dbName, collection, idMongo):
     client.close()
     return resp
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error al consultar en ' + collection}
 
@@ -82,6 +84,7 @@ def getCollecctionByField(url, dbName, collection, field):
     client.close()
     return resp
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error al consultar en ' + collection }
 
@@ -92,7 +95,7 @@ def getCollecctionsByField(url, dbName, collection,field):
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
-       field: Objeto Json con el campo y el valor a buscar en la DB
+       field: Objeto Json con los valores a buscar en la DB
   '''
   print("In getCollecctionsByField:", collection)
   try:
@@ -107,6 +110,7 @@ def getCollecctionsByField(url, dbName, collection,field):
     client.close()
     return resp
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error al consultar en ' + collection}
 
@@ -131,6 +135,7 @@ def getAllInCollecction(url, dbName, collection):
     client.close()
     return resp
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error al consultar en ' + collection}
 
@@ -152,19 +157,20 @@ def deleteById(url, dbName, collection, idMongo):
     client.close()
     return resp
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error al eliminar un registro en ' + collection}
 
 def updateById(url, dbName, collection, objeto):
   '''
-     updateUserById: Actualiza un registro en la colección \n
+     updateById: Actualiza un registro en la colección \n
      @params: 
        url: ruta de conxión a la DB
        dbName: Nombre de la DB a la  que se conectará
        collection: Nombre de la colección en la que se buscarán los datos
        objeto: Objeto con los datos a actualizar
   '''
-  print("In updateUserById:", collection)
+  print("In updateUById:", collection)
   try:
     valores = parsser.removeObjectId(objeto)
     client = MongoClient(url)
@@ -174,5 +180,6 @@ def updateById(url, dbName, collection, objeto):
     mdb.client.close()
     return resp
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error al modificar la colección ' + collection}

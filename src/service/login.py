@@ -10,10 +10,8 @@
 ### Se importan los plugins necesarios
 from flask import jsonify, request, session
 from src import app
-from src.mongoCRUD import connector
-from config import MONGO, DB
-
-
+from src.service import user
+from src.model import user as usuario
 @app.route('/')
 def inicio():
     '''
@@ -22,8 +20,8 @@ def inicio():
          idCompany: Id de la empresa a la que está asociado el usuario en la DB 
     '''
     print("In inicio")
-    resultado = connector.getAllInCollecction(MONGO, DB, 'diccionario')
-    return jsonify({"inicio": "Servidor iniciado", "data": resultado})
+    resp = usuario.getUsersByCompany('1asdc23')
+    return jsonify({"inicio": "Servidor iniciado", 'data': resp})
 
 @app.route('/access', methods = ['POST'])
 def login():
@@ -37,18 +35,14 @@ def login():
       ingreso = user.validatePassword(usuario)
       if ingreso['response'] == 'ERROR':
         return jsonify(ingreso)
-      else:
-        session['usuario'] = usuario
-        return jsonify(ingreso)
-    else:
-      return jsonify({'response': 'ERROR', 'message': 'Usuario y Contraseña son requeridos'})
+      session['usuario'] = usuario
+      return jsonify(ingreso)
+    return jsonify({'response': 'ERROR', 'message': 'Usuario y Contraseña son requeridos'})
 
 @app.route('/exit', methods = ['POST', 'GET'])
 def logout():
     '''
-       getUsers: Busca todos los usuario de una empresa en la coleeción de usaurio \n
-       @params: 
-         idCompany: Id de la empresa a la que está asociado el usuario en la DB 
+       logout: Cierra la sesión de un usuario \n
     '''
     print("In logout")
     session.clear()

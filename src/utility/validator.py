@@ -16,7 +16,7 @@ def validateExcel(name):
        @params: 
          name: Nombre del archivo a validar
    '''
-   excel = set(['xls', 'xlsx', 'xlsm', 'xlsxm'])
+   excel = set(['xls', 'xlsm'])
    return validateFileType(name, excel)
 
 def validateFileType(name, type):

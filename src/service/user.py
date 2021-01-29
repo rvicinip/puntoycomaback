@@ -12,14 +12,14 @@ from src import app
 from src.model import user
 from flask import jsonify, request
 
-@app.route('/user/<company>', methods = ['POST'])
-def createUser(company):
+@app.route('/user', methods = ['POST'])
+def createUser():
     '''
        createUser: Crea un usuario de una empresa en la coleeción de usaurio \n
        @params: 
          company: Contiene el identificador de la empresa
     '''
-    print("In createUser:", company)
+    print("In createUser")
     dato = request.json
     usuario = user.addUser(dato, company)
     return jsonify(usuario)
@@ -27,9 +27,9 @@ def createUser(company):
 @app.route('/users/<company>', methods = ['GET'])
 def obtainUsers(company):
     '''
-       obtainUsers: Optiene los usuarios de una empresa en la coleeción de usaurio \n
+       obtainUsers: Obtiene los usuarios de una empresa en la colección de usaurio \n
        @params: 
-         company: Contiene el identificador de la empresa
+         company: Contiene el id mongo de la empresa
     '''
     print("In obtainUsers:", company)
     usuario = user.getUsersByCompany(company)

@@ -22,7 +22,7 @@ def adduserClient(usuario, empresa):
      addUser: Crea un usuario en la coleeción de usaurio \n
      @params: 
        usuario: objeto Json con los campos a insertar en la DB 
-       empresa: Id de la empresa a la que se asocia el usuario a crear
+       empresa: Id mongo de la empresa a la que se asocia el usuario a crear
   '''
   print("In addUser:", empresa)
   usuario['salario'] = int(usuario['salario'])
@@ -35,12 +35,13 @@ def adduserClient(usuario, empresa):
     if not 'data' in verifica:
       resp = connector.addToCollection(MONGO, DB, USUCOLL, usuario)
       if not ObjectId.is_valid(str(resp)):
-        return resp
+        return {'response': 'ERROR', 'message': resp['ERROR']}
       usuario['_id'] = str(ObjectId(resp))
       usuario.pop('clave')
       return {'response': 'OK', 'message': 'Usuario creado ', 'data': usuario}
     return {'response': 'ERROR', 'message': 'Ya existe un usuario con el mismo id'}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
 
@@ -58,6 +59,7 @@ def getUserById(idMongo):
     resp.pop('clave')
     return {'response': 'OK', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idMongo}
 
@@ -75,6 +77,7 @@ def getUserByUsuario(usuario):
     resp.pop('clave')
     return {'response': 'OK', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + usuario}
 
@@ -82,7 +85,7 @@ def getUsersByCompany(idCompany):
   '''
      getUsersByCompany: Busca todos los usuario de una empresa en la coleeción de usaurio \n
      @params: 
-       idCompany: Id de la empresa a la que está asociado el usuario en la DB 
+       idCompany: Id mongo de la empresa a la que está asociado el usuario en la DB 
   '''
   print("In getUsersByCompany:", idCompany)
   try:
@@ -93,6 +96,7 @@ def getUsersByCompany(idCompany):
       r.pop('clave')
     return {'response': 'OK', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar los usuarios de la empresa: ' + idCompany}
 
@@ -109,6 +113,7 @@ def deleteUserById(idUsuario):
       return {'response': 'ERROR', 'message': resp['ERROR']}
     return {'response': 'OK', 'message': 'Usuario borrado'}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar el usuario: ' + idUsuario}
 
@@ -128,6 +133,7 @@ def updateUserById(usuario):
     resp.pop('clave')
     return {'response': 'OK', 'message': 'User Updated', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + usuario['id_usuario']}
 
@@ -146,6 +152,7 @@ def updateUserPassword(usuario):
     else:
       return {'response': 'ERROR', 'message': verifica}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + usuario['id_usuario']}
 
@@ -167,5 +174,6 @@ def validatePassword(usuario):
     else:
       return {'response':'ERROR', 'message':'No existe el usuario'}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response':'ERROR', 'message':'Se presentó un error validando el usuario'}

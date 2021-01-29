@@ -57,4 +57,5 @@ def validateXLS(hoja, fields):
     return {'OK': 'Todos los registros tiene los campos solicitados'}
   except Exception:
     traceback.print_exc()
+    print(__name__)
     return {'ERROR': 'Se presentó un error validando los campos ' + fields}  

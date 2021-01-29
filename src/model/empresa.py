@@ -21,10 +21,10 @@ DICCOLL = 'diccionario'
 EMPCOLL = 'empresa'
 FRECOLL = 'frecuencia'
 
-# Métodos CRUD en la coleeción usuario
+# Métodos CRUD en las coleeciones diccionario, empresa y frecuencias
 def addCompany(empresa):
   '''
-     addCompany: Crea un usuario en la coleeción de usaurio \n
+     addCompany: Crea una empresa en la DB \n
      @params: 
        empresa: objeto Json con los campos a insertar en la DB 
   '''
@@ -39,6 +39,28 @@ def addCompany(empresa):
     empresa['_id'] = str(ObjectId(resp))
     return {'response': 'OK', 'message': 'Usuario creado ', 'data': empresa}
   except Exception:
+    print(__name__)
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
+
+def updateCompany(empresa):
+  '''
+     updateCompany: Modifica una empresa en la DB \n
+     @params: 
+       empresa: objeto Json con los campos a actualizar en la DB 
+  '''
+  print("In updateCompany:", empresa['nit'])
+  try:
+    verifica = getCompanyById(empresa['_id'])
+    if verifica['response'] == 'OK':
+      resp = connector.updateById(MONGO, DB, EMPCOLL, empresa)
+      print("Resultado actusalización", resp)
+      if not ObjectId.is_valid(resp['_id']):
+        return {'response': 'ERROR', 'message': resp['ERROR']}
+      return {'response': 'OK', 'message': 'Empresa actualizada ', 'data': resp}
+    return {'response': 'ERROR', 'message': 'No se existe la empresa' + empresa['_id']}
+  except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
 
@@ -55,6 +77,7 @@ def getCompanyById(idMongo):
       return {'response': 'ERROR', 'message': resp['ERROR']}
     return {'response': 'OK', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idMongo}
 
@@ -71,15 +94,100 @@ def getCompanyByNIT(nit):
       return {'response': 'ERROR', 'message': resp['ERROR']}
     return {'response': 'OK', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
+  
+def getFullCompanyByNIT(nit):
+  '''
+     getFullCompanyByNIT: Busca una empresa acorde a su 'nit' y devuelve toda su información, diccionario, empleados y frecuencias \n
+     @params: 
+       nit: Nit de la empresa a buscar en la DB 
+  '''
+  print("In getCompanyByNIT:", nit)
+  try:
+    company = getCompanyByNIT(nit)
+    if company['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': company['ERROR']}
+    diccionario = getDiccionarioByCompany(nit)
+    if diccionario['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': diccionario['ERROR']}
+    frecuencia = getFrecuenciasByCompany(nit)
+    if frecuencia['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': frecuencia['ERROR']}
+    empleado = getEmpleadosByCompany(nit)
+    if empleado['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': empleado['ERROR']}
+    resp = {'company': company, 'diccionario': diccionario, 'frecuencia': frecuencia, 'empleado': empleado}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    print(__name__)
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
+
+def getDiccionarioByCompany(company, niveles):
+  '''
+     getDiccionarioByCompany: Busca un diccionario de una empresa por su '_id' \n
+     @params:
+       company: Id de la empresa a buscar en la DB
+       niveles: Caantidad de niveles que tiene el diccionario
+  '''
+  print("In getDiccionarioByCompany:", company)
+  try:
+    resp = {}
+    for i in range(niveles):
+      n = (i+1)
+      nivel = connector.getCollecctionsByField(MONGO, DB, DICCOLL, {'empresa': company, 'nivel': n})
+      if 'ERROR' in resp:
+        i = n + niveles
+        return {'response': 'ERROR', 'message': nivel['ERROR'], 'nivel': nivel}
+      resp['nivel'+n] = nivel
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    print(__name__)
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
+
+def getFrecuenciasByCompany(company):
+  '''
+     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su '_id' \n
+     @params:
+       company: Id de la empresa a buscar en la DB 
+  '''
+  print("In getFrecuenciasByCompany:", company)
+  try:
+    resp = connector.getCollecctionsByField(MONGO, DB, FRECOLL, {'empresa': company})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    print(__name__)
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
+
+def getEmpleadosByCompany(company):
+  '''
+     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su '_id' \n
+     @params:
+       company: Id de la empresa a buscar en la DB 
+  '''
+  print("In getFrecuenciasByCompany:", company)
+  try:
+    resp = user.getUsersByCompany(company)
+    if resp['response'] == 'ERROR':
+      return resp
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    print(__name__)
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
 
 def addDiccionario(diccionario, company, niveles):
   '''
      addDiccionario: Crea los registro de un diccionario, asociaciados a una empresa \n
      @params: 
        diccionario: objeto con los datos de los proceso de la compañia
-       company: id de la empresa a la que pertenece el diccionario
+       company: id mongo de la empresa a la que pertenece el diccionario
        niveles: Cantidad de niveles que tiene el documento que se está guardando
   '''
   print("In addDiccionario:", company)
@@ -123,6 +231,7 @@ def addDiccionario(diccionario, company, niveles):
         err.append({'response': 'Ya existe una actividad con ese id en la empresa', 'data': dic})
     return {'response': 'OK','data': lista, 'error': err}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando el diccionario ' + diccionario.filename}
   
@@ -140,6 +249,7 @@ def getActivity(company, activity):
       return {'response': 'ERROR', 'message': resp['ERROR']}
     return {'response': 'OK', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + activity}
 
@@ -148,7 +258,7 @@ def addFrecuacia(frecuencia, company):
      addFrecuacia: Crea los registro de un diccionario, asociaciados a una empresa \n
      @params: 
        frecuencia: objeto con los datos de los tiempos y frecuencias de la compañia
-       company: id de la empresa a la que pertenecen las frecuencias
+       company: id mongo de la empresa a la que pertenecen las frecuencias
   '''
   print("In addFrecuacia:", company)
   try:
@@ -160,29 +270,31 @@ def addFrecuacia(frecuencia, company):
       return {'response': 'ERROR', 'message': valida['ERROR'], 'data': valida['data']}
     lista = []
     err   = []
-    for dic in lector:
-      dic['empresa'] = company
-      valor = float(dic['valor'])
+    for frec in lector:
+      frec['empresa'] = company
+      valor = float(frec['valor'])
+      frec['valor'] = valor
       if valor <= 0 :
-        err.append({'response': 'el valor de la frecuencia debe ser mayor a 0', 'data': dic})
-        dic = {}
-      tipo = int(dic['tipo'])
+        err.append({'response': 'el valor de la frecuencia debe ser mayor a 0', 'data': frec})
+        frec = {}
+      tipo = int(frec['tipo'])
       if tipo == 1:
-         dic['tipo']= {'tipo': tipo, 'nombre': 'Tiempo'}
+         frec['tipo']= {'tipo': tipo, 'nombre': 'Tiempo'}
       elif tipo == 2:
-         dic['tipo']= {'tipo': tipo, 'nombre': 'Frecuencia'}
-      revisa = getFrecuencia(dic['empresa'], dic['nombre'])
+         frec['tipo']= {'tipo': tipo, 'nombre': 'Frecuencia'}
+      revisa = getFrecuencia(frec['empresa'], frec['nombre'])
       if revisa['response'] == 'ERROR':
-        resp = connector.addToCollection(MONGO, DB, FRECOLL, dic)
+        resp = connector.addToCollection(MONGO, DB, FRECOLL, frec)
         if not ObjectId.is_valid(resp):
-          err.append({'response': resp['ERROR'], 'data': dic})
+          err.append({'response': resp['ERROR'], 'data': frec})
         else:
-          dic['_id'] = resp
+          frec['_id'] = resp
           lista.append(resp)
       else:
-        err.append({'response': 'Ya existe esta frecuencia en la empresa', 'data': dic})
+        err.append({'response': 'Ya existe esta frecuencia en la empresa', 'data': frec})
     return {'message': 'OK', 'data': lista, 'error': err}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando la frecuencia ' + frecuencia.filename}
 
@@ -200,15 +312,16 @@ def getFrecuencia(company, frecuency):
       return {'response': 'ERROR', 'message': resp['ERROR']}
     return {'response': 'OK', 'data': resp}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + frecuency}
 
-def addEmpleado(usuario, company):
+def addEmpleados(usuario, company):
   '''
      addEmpleados: Crea los registro de los empleados asociaciados a una empresa \n
      @params: 
        usuario: objeto con los datos de los empleados de la compañia
-       company: id de la empresa a la que pertenecen los usuarios
+       company: id mongo de la empresa a la que pertenecen los usuarios
   '''
   print("In addEmpleados:", company)
   try:
@@ -221,14 +334,15 @@ def addEmpleado(usuario, company):
       return {'response': 'ERROR', 'message': valida['ERROR'], 'data': valida['data']}
     lista = []
     err   = []
-    for dic in lector:
-      resp = user.adduserClient(dic, company)
-      if not ObjectId.is_valid(resp):
-        err.append({'response': resp['ERROR'], 'data': dic})
+    for usu in lector:
+      resp = user.adduserClient(usu, company)
+      if resp['response'] == 'ERROR':
+        err.append({'response': resp['message'], 'data': usu})
       else:
-        dic['_id'] = resp
+        usu['_id'] = resp
         lista.append(resp)
     return {'response': 'OK','data': lista, 'error': err}
   except Exception:
+    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando los empleados ' + usuario.filename}
