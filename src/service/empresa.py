@@ -6,6 +6,7 @@
       licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
    author: Wiliam Arévalo Camacho
 '''
+from src.service import privated
 from config import DB, MONGO
 import traceback
 from src import app
@@ -14,6 +15,7 @@ from src.model import empresa
 from flask import jsonify, request
 
 @app.route('/company', methods = ['POST'])
+@privated
 def createCompany():
    '''
        createCompany: Recibe los datos de una empresa cliente para guardarlos en la DB \n
@@ -39,6 +41,7 @@ def createCompany():
    return jsonify(resp)
 
 @app.route('/company/<idCompany>', methods = ['GET'])
+@privated
 def getCompany(idCompany):
    '''
        getCompany: Recupera los datos de una empresa en la DB \n
@@ -50,6 +53,7 @@ def getCompany(idCompany):
    return jsonify(resp)
 
 @app.route('/company', methods = ['PUT'])
+@privated
 def updateCompany():
    '''
        updateCompany: Actualiza los datos de una empresa en la DB \n
@@ -68,6 +72,7 @@ def updateCompany():
    return jsonify(resp)
 
 @app.route('/company/<idCompany>', methods = ['DELETE'])
+@privated
 def deleteCompany(idCompany):
    '''
        deleteCompany: Actualiza una empresa llevandola a estado 'D' de inactiva o eliminada en la DB \n
@@ -82,6 +87,7 @@ def deleteCompany(idCompany):
    return jsonify(resp)
 
 @app.route('/files/<idCompany>/<niveles>', methods = ['POST'])
+@privated
 def manageFiles(idCompany, niveles):
    '''
        manageFiles: Recibe los archivos de una empresa para procesarlos y guardarlos en la DB \n
@@ -125,6 +131,7 @@ def manageFiles(idCompany, niveles):
       return {'response': 'ERROR', 'message': 'Se presentó un error al procesar los archivos'}
 
 @app.route('/files/dictionary/<idCompany>/<niveles>', methods = ['POST'])
+@privated
 def loadDictionary(idCompany, niveles):
    '''
        loadDictionary: Recibe el archivo diccionario de una empresa para guardarlo en la DB \n
@@ -152,6 +159,7 @@ def loadDictionary(idCompany, niveles):
       return {'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + diccionario.filename}
 
 @app.route('/files/employes/<idCompany>', methods = ['POST'])
+@privated
 def loadEmployes(idCompany):
    '''
        loadEmployes: Recibe el archivo empleado de una empresa para procesarlos y guardarlos en la DB \n
@@ -178,6 +186,7 @@ def loadEmployes(idCompany):
       return {'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + usuarios.filename}
 
 @app.route('/files/frecuency/<idCompany>', methods = ['POST'])
+@privated
 def loadFrecuency(idCompany):
    '''
        loadFrecuency: Recibe el archivo frecuencias de una empresa para procesarlo y guardarlo en la DB \n
@@ -204,6 +213,7 @@ def loadFrecuency(idCompany):
       return {'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + frecuencias.filename}
 
 @app.route('/full/company/<idCompany>', methods = ['GET'])
+@privated
 def getCompanyFull(idCompany):
    '''
        getCompanyFull: Recupera todos los datos de una empresa junto con su diccionario, frecuecias y empleados \n
@@ -215,6 +225,7 @@ def getCompanyFull(idCompany):
    return jsonify(resp)
 
 @app.route('/full/dictionary/<idCompany>', methods = ['GET'])
+@privated
 def getDictionary(idCompany):
    '''
        getDictionary: Recupera todos los datos de una empresa junto con su diccionario \n
@@ -226,6 +237,7 @@ def getDictionary(idCompany):
    return jsonify(resp)
 
 @app.route('/full/frecuency/<idCompany>', methods = ['GET'])
+@privated
 def getFrecuency(idCompany):
    '''
        getFrecuency: Recupera todos los datos de una empresa junto con sus frecuencias \n
@@ -237,6 +249,7 @@ def getFrecuency(idCompany):
    return jsonify(resp)
 
 @app.route('/full/employes/<idCompany>', methods = ['GET'])
+@privated
 def getEmployes(idCompany):
    '''
        getEmployes: Recupera todos los datos de una empresa junto con sus empleados \n

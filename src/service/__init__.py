@@ -1,0 +1,30 @@
+'''
+__init__
+   Inicializa los servicios ofrecidos por la app y contiene métodos medianeros para la gestión de las rutas
+
+   :copyright: Vitt Inversiones SAS - vitt.co
+   :license: Velasquez Naranjo y Cia SAS - Venaycia.com
+   :author: Wiliam Arévalo Camacho
+'''
+### Se importan los plugins necesarios
+import jwt
+from flask import request, jsonify
+from functools import wraps
+from src import app
+from src.model import user
+
+def privated(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'token' in request.headers:
+            token = request.headers['token']
+        if not token:
+            return jsonify({'response': 'ERROR','message' : 'No se recibió el Token'}), 402
+        try: 
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            usuario = user.getUserByUsuario(data['id_usuario'])
+        except:
+            return jsonify({'response': 'ERROR','message' : 'Token no válido'}), 401
+        return f(usuario, *args, **kwargs)
+    return decorated

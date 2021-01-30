@@ -8,11 +8,13 @@
    :author: Wiliam Arévalo Camacho
 '''
 ### Se importan los plugins necesarios
+from src.service import privated
 from src import app
 from src.model import user
 from flask import jsonify, request
 
 @app.route('/user', methods = ['POST'])
+@privated
 def createUser():
    '''
       createUser: Crea un usuario de la empresa en la coleeción de usaurio \n
@@ -38,11 +40,12 @@ def createUser():
       return {'response':'ERROR', 'message': 'Contraseña es obligatorio, por favor verifíque'}
    ## Guarda un nuevo usuario en la DB
    dato = request.json
-   usuario = user.addUserEmpresa(dato)
-   return jsonify(usuario)
+   resp = user.addUserEmpresa(dato)
+   return jsonify(resp)
 
 @app.route('/user/clave', methods = ['POST'])
-def changePassword():
+@privated
+def changePassword(usuario):
    '''
       changePassword: Actualiza la contraseña de un usuario \n
    '''
@@ -56,6 +59,8 @@ def changePassword():
       return {'response':'ERROR', 'message': 'Nueva contraseña es obligatorio, por favor verifíque'}
    dato = request.json
    print("In createUser:", dato['id_usuario'])
+   if usuario['id_usuario'] != dato['id_usuario']:
+      return {'response':'ERROR', 'message': 'Usuario autenticado no corresponde, por favor verifíque'}
    if not dato['id_usuario']:
       return {'response':'ERROR', 'message': 'Cédula es obligatorio, por favor verifíque'}
    if not dato['clave']:
@@ -67,6 +72,7 @@ def changePassword():
    return jsonify(resp)
 
 @app.route('/users/<company>', methods = ['GET'])
+@privated
 def obtainUsers(company):
     '''
        obtainUsers: Obtiene los usuarios de una empresa en la colección de usaurio \n
@@ -74,5 +80,5 @@ def obtainUsers(company):
          company: Contiene el id mongo de la empresa
     '''
     print("In obtainUsers:", company)
-    usuario = user.getUsersByCompany(company)
-    return jsonify(usuario)
+    resp = user.getUsersByCompany(company)
+    return jsonify(resp)

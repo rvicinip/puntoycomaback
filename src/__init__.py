@@ -19,7 +19,7 @@ from flask_pymongo import PyMongo
 ### Se instancia la aplicación
 app = Flask(__name__)
 ### Se establece la clave secreta de generación
-app.secret_key = SECRET_KEY
+app.config['secret_key'] = SECRET_KEY
 ### Configura CORS para acceder al backend
 CORS(app)
 ### Configura los datos de conexión de la DB
