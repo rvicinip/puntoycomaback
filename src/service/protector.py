@@ -7,11 +7,12 @@ __init__
    :author: Wiliam Arévalo Camacho
 '''
 ### Se importan los plugins necesarios
-import jwt
 from flask import request, jsonify
 from functools import wraps
 from src import app
 from src.model import user
+import jwt
+import traceback
 
 def privated(f):
     @wraps(f)
@@ -23,8 +24,9 @@ def privated(f):
             return jsonify({'response': 'ERROR','message' : 'No se recibió el Token'}), 402
         try: 
             data = jwt.decode(token, app.config['SECRET_KEY'])
-            usuario = user.getUserByUsuario(data['id_usuario'])
-        except:
+            usuario = user.getUserByUsuario(data['user'])
+        except Exception:
+            traceback.print_exc()
             return jsonify({'response': 'ERROR','message' : 'Token no válido'}), 401
-        return f(usuario, *args, **kwargs)
+        return f(usuario['data'], *args, **kwargs)
     return decorated

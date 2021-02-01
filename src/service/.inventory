@@ -63,9 +63,6 @@ route: /full/employes/<idCompany>, method: 'GET'
 route: /user, method: 'POST'
     Crea un usuario de la empresa en la coleeción de usaurio
 
-route: /user/clave, method: 'POST'
-    Actualiza la contraseña de un usuario
-
 route: /users/<company>, method: 'GET'
     Obtiene los usuarios de una empresa en la colección de usaurio
     company: Id mongo de la empresa
@@ -77,6 +74,18 @@ route: /access, method: 'POST'
     realiza las validaciones de usuario para permitir o no el ingreso a la aplicacion
     ['id_usuario', 'clave']
 
+route: /user/clave, method: 'POST'
+    Actualiza la contraseña de un usuario
+    ['id_usuario', 'clave', 'nueva_clave']:
+
 route: /exit, methods = 'POST', 'GET'
     Cierra la sesión de un usuario
+
+route: /user/forget/<idUsuario>, method = 'POST'
+    Genera un código para habilitar la actualización de la contraseña de un usuario
+    idUsuario: id del usuario que utiliza para ingresar al sistema
+
+route: /user/restore, method = 'POST'
+    Valida el código y habilita la actualización de la contraseña de un usuario
+    ['id_usuario', 'codigo']
 

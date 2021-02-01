@@ -22,6 +22,7 @@ EMPCOLL = 'empresa'
 FRECOLL = 'frecuencia'
 
 # Métodos CRUD en las coleeciones diccionario, empresa y frecuencias
+### CREA
 def addCompany(empresa):
   '''
      addCompany: Crea una empresa en la DB \n
@@ -37,150 +38,10 @@ def addCompany(empresa):
     if not ObjectId.is_valid(resp):
       return {'response': 'ERROR', 'message': resp['ERROR']}
     empresa['_id'] = str(ObjectId(resp))
-    return {'response': 'OK', 'message': 'Usuario creado ', 'data': empresa}
+    return {'response': 'OK', 'message': 'Empresa creada ', 'data': empresa}
   except Exception:
-    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
-
-def updateCompany(empresa):
-  '''
-     updateCompany: Modifica una empresa en la DB \n
-     @params: 
-       empresa: objeto Json con los campos a actualizar en la DB 
-  '''
-  print("In updateCompany:", empresa['nit'])
-  try:
-    verifica = getCompanyById(empresa['_id'])
-    if verifica['response'] == 'OK':
-      resp = connector.updateById(MONGO, DB, EMPCOLL, empresa)
-      print("Resultado actusalización", resp)
-      if not ObjectId.is_valid(resp['_id']):
-        return {'response': 'ERROR', 'message': resp['ERROR']}
-      return {'response': 'OK', 'message': 'Empresa actualizada ', 'data': resp}
-    return {'response': 'ERROR', 'message': 'No se existe la empresa' + empresa['_id']}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
-
-def getCompanyById(idMongo):
-  '''
-     getCompanyById: Busca una empresa en la coleeción de empresas por el '_id' \n
-     @params:
-       idMongo: Id del objeto usuario a buscar en la DB 
-  '''
-  print("In getCompanyById:", idMongo)
-  try:
-    resp = connector.getCollectionById(MONGO, DB, EMPCOLL, idMongo)
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idMongo}
-
-def getCompanyByNIT(nit):
-  '''
-     getCompanyByNIT: Busca una empresa en la coleeción de empresas por el 'nit' \n
-     @params: 
-       nit: Nit de la empresa a buscar en la DB 
-  '''
-  print("In getCompanyByNIT:", nit)
-  try:
-    resp = connector.getCollecctionByField(MONGO, DB, EMPCOLL, {"nit" : nit})
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
-  
-def getFullCompanyByNIT(nit):
-  '''
-     getFullCompanyByNIT: Busca una empresa acorde a su 'nit' y devuelve toda su información, diccionario, empleados y frecuencias \n
-     @params: 
-       nit: Nit de la empresa a buscar en la DB 
-  '''
-  print("In getCompanyByNIT:", nit)
-  try:
-    company = getCompanyByNIT(nit)
-    if company['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': company['ERROR']}
-    diccionario = getDiccionarioByCompany(nit)
-    if diccionario['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': diccionario['ERROR']}
-    frecuencia = getFrecuenciasByCompany(nit)
-    if frecuencia['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': frecuencia['ERROR']}
-    empleado = getEmpleadosByCompany(nit)
-    if empleado['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': empleado['ERROR']}
-    resp = {'company': company, 'diccionario': diccionario, 'frecuencia': frecuencia, 'empleado': empleado}
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
-
-def getDiccionarioByCompany(company, niveles):
-  '''
-     getDiccionarioByCompany: Busca un diccionario de una empresa por su '_id' \n
-     @params:
-       company: Id de la empresa a buscar en la DB
-       niveles: Caantidad de niveles que tiene el diccionario
-  '''
-  print("In getDiccionarioByCompany:", company)
-  try:
-    resp = {}
-    for i in range(niveles):
-      n = (i+1)
-      nivel = connector.getCollecctionsByField(MONGO, DB, DICCOLL, {'empresa': company, 'nivel': n})
-      if 'ERROR' in resp:
-        i = n + niveles
-        return {'response': 'ERROR', 'message': nivel['ERROR'], 'nivel': nivel}
-      resp['nivel'+n] = nivel
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
-
-def getFrecuenciasByCompany(company):
-  '''
-     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su '_id' \n
-     @params:
-       company: Id de la empresa a buscar en la DB 
-  '''
-  print("In getFrecuenciasByCompany:", company)
-  try:
-    resp = connector.getCollecctionsByField(MONGO, DB, FRECOLL, {'empresa': company})
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
-
-def getEmpleadosByCompany(company):
-  '''
-     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su '_id' \n
-     @params:
-       company: Id de la empresa a buscar en la DB 
-  '''
-  print("In getFrecuenciasByCompany:", company)
-  try:
-    resp = user.getUsersByCompany(company)
-    if resp['response'] == 'ERROR':
-      return resp
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
 
 def addDiccionario(diccionario, company, niveles):
   '''
@@ -231,27 +92,8 @@ def addDiccionario(diccionario, company, niveles):
         err.append({'response': 'Ya existe una actividad con ese id en la empresa', 'data': dic})
     return {'response': 'OK','data': lista, 'error': err}
   except Exception:
-    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando el diccionario ' + diccionario.filename}
-  
-def getActivity(company, activity):
-  '''
-     getActivity: Crea los registro de un diccionario, asociaciados a una empresa \n
-     @params: 
-       company: id de la empresa a la que pertenece la actividad
-       activity: Código de la actividad 'id_actividad'
-  '''
-  print("In getActivity:", activity, company)
-  try:
-    resp = connector.getCollecctionByField(MONGO, DB, DICCOLL, {'empresa': company, 'id_actividad': activity})
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + activity}
 
 def addFrecuacia(frecuencia, company):
   '''
@@ -294,27 +136,8 @@ def addFrecuacia(frecuencia, company):
         err.append({'response': 'Ya existe esta frecuencia en la empresa', 'data': frec})
     return {'message': 'OK', 'data': lista, 'error': err}
   except Exception:
-    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando la frecuencia ' + frecuencia.filename}
-
-def getFrecuencia(company, frecuency):
-  '''
-     getFrecuencia: Crea los registro de un diccionario, asociaciados a una empresa \n
-     @params: 
-       company: id de la empresa a la que pertenece la actividad
-       frecuency: Nombre de la frecuencia 'nombre'
-  '''
-  print("In getFrecuencia:", frecuency, company)
-  try:
-    resp = connector.getCollecctionByField(MONGO, DB, FRECOLL, {'empresa': company, 'nombre': frecuency})
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    return {'response': 'OK', 'data': resp}
-  except Exception:
-    print(__name__)
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + frecuency}
 
 def addEmpleados(usuario, company):
   '''
@@ -343,6 +166,174 @@ def addEmpleados(usuario, company):
         lista.append(resp)
     return {'response': 'OK','data': lista, 'error': err}
   except Exception:
-    print(__name__)
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando los empleados ' + usuario.filename}
+
+### LEE
+def getCompanyById(idMongo):
+  '''
+     getCompanyById: Busca una empresa en la coleeción de empresas por el '_id' \n
+     @params:
+       idMongo: Id del objeto usuario a buscar en la DB 
+  '''
+  print("In getCompanyById:", idMongo)
+  try:
+    resp = connector.getCollectionById(MONGO, DB, EMPCOLL, idMongo)
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idMongo}
+
+def getCompanyByNIT(nit):
+  '''
+     getCompanyByNIT: Busca una empresa en la coleeción de empresas por el 'nit' \n
+     @params: 
+       nit: Nit de la empresa a buscar en la DB 
+  '''
+  print("In getCompanyByNIT:", nit)
+  try:
+    resp = connector.getCollecctionByField(MONGO, DB, EMPCOLL, {"nit" : nit})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
+  
+def getFullCompanyByNIT(nit):
+  '''
+     getFullCompanyByNIT: Busca una empresa acorde a su 'nit' y devuelve toda su información, diccionario, empleados y frecuencias \n
+     @params: 
+       nit: Nit de la empresa a buscar en la DB 
+  '''
+  print("In getCompanyByNIT:", nit)
+  try:
+    company = getCompanyByNIT(nit)
+    if company['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': company['ERROR']}
+    diccionario = getDiccionarioByCompany(nit)
+    if diccionario['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': diccionario['ERROR']}
+    frecuencia = getFrecuenciasByCompany(nit)
+    if frecuencia['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': frecuencia['ERROR']}
+    empleado = getEmpleadosByCompany(nit)
+    if empleado['response'] == 'ERROR':
+      return {'response': 'ERROR', 'message': empleado['ERROR']}
+    resp = {'company': company, 'diccionario': diccionario, 'frecuencia': frecuencia, 'empleado': empleado}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
+
+def getDiccionarioByCompany(company, niveles):
+  '''
+     getDiccionarioByCompany: Busca un diccionario de una empresa por su '_id' \n
+     @params:
+       company: Id de la empresa a buscar en la DB
+       niveles: Caantidad de niveles que tiene el diccionario
+  '''
+  print("In getDiccionarioByCompany:", company)
+  try:
+    resp = {}
+    for i in range(niveles):
+      n = (i + 1)
+      nivel = connector.getCollecctionsByField(MONGO, DB, DICCOLL, {'empresa': company, 'nivel': n})
+      if 'ERROR' in resp:
+        return {'response': 'ERROR', 'message': nivel['ERROR'], 'nivel': nivel}
+      resp['nivel' + n] = nivel
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
+
+def getFrecuenciasByCompany(company):
+  '''
+     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su '_id' \n
+     @params:
+       company: Id de la empresa a buscar en la DB 
+  '''
+  print("In getFrecuenciasByCompany:", company)
+  try:
+    resp = connector.getCollecctionsByField(MONGO, DB, FRECOLL, {'empresa': company})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
+
+def getEmpleadosByCompany(company):
+  '''
+     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su '_id' \n
+     @params:
+       company: Id de la empresa a buscar en la DB 
+  '''
+  print("In getFrecuenciasByCompany:", company)
+  try:
+    resp = user.getUsersByCompany(company)
+    if resp['response'] == 'ERROR':
+      return resp
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}
+
+def getActivity(company, activity):
+  '''
+     getActivity: Crea los registro de un diccionario, asociaciados a una empresa \n
+     @params: 
+       company: id de la empresa a la que pertenece la actividad
+       activity: Código de la actividad 'id_actividad'
+  '''
+  print("In getActivity:", activity, company)
+  try:
+    resp = connector.getCollecctionByField(MONGO, DB, DICCOLL, {'empresa': company, 'id_actividad': activity})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + activity}
+
+def getFrecuencia(company, frecuency):
+  '''
+     getFrecuencia: Crea los registro de un diccionario, asociaciados a una empresa \n
+     @params: 
+       company: id de la empresa a la que pertenece la actividad
+       frecuency: Nombre de la frecuencia 'nombre'
+  '''
+  print("In getFrecuencia:", frecuency, company)
+  try:
+    resp = connector.getCollecctionByField(MONGO, DB, FRECOLL, {'empresa': company, 'nombre': frecuency})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR']}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + frecuency}
+
+### ACTUALIZA
+def updateCompany(empresa):
+  '''
+     updateCompany: Modifica una empresa en la DB \n
+     @params: 
+       empresa: objeto Json con los campos a actualizar en la DB 
+  '''
+  print("In updateCompany:", empresa['nit'])
+  try:
+    verifica = getCompanyById(empresa['_id'])
+    if verifica['response'] == 'OK':
+      value = verifica['data']
+      if value['nit'] != empresa['nit']:
+        return {'response': 'ERROR', 'message': 'No se puede modificar el NIT'}
+      resp = connector.updateById(MONGO, DB, EMPCOLL, empresa)
+      if not resp.acknowledged:
+        return {'response': 'ERROR', 'message': 'No se actualizó la empresa'}
+      return {'response': 'OK', 'message': 'Empresa actualizada ', 'data': empresa}
+    return {'response': 'ERROR', 'message': 'No se existe la empresa' + empresa['_id']}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
