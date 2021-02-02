@@ -62,7 +62,7 @@ def changePassword(usuario):
    '''
       changePassword: Actualiza la contraseña de un usuario \n
    '''
-   print("In changePassword", usuario)
+   print("In changePassword")
    ## Validad que se enviarion todos los campos
    dato = request.json
    campos = ['id_usuario', 'clave', 'nueva_clave']
@@ -71,10 +71,9 @@ def changePassword(usuario):
       return jsonify(valida)
    if dato['nueva_clave'] == dato['clave']:
       return jsonify({'response':'ERROR', 'message': 'La contraseña nueva debe ser diferente de la actual'})
-   logued = usuario['data']
-   if logued['id_usuario'] != dato['id_usuario']:
+   if usuario['id_usuario'] != dato['id_usuario']:
       return jsonify({'response':'ERROR', 'message': 'Usuario autenticado no corresponde, por favor verifíque'})
-   dato['_id'] = logued['_id']
+   dato['_id'] = usuario['_id']
    ## Actualiza la clave del usuario
    resp = user.updateUserPassword(dato)
    return jsonify(resp)

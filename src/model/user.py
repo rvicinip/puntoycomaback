@@ -144,16 +144,16 @@ def recallUserPassword(idUsuario):
   if urc['email'] == '':
     return {'response': 'NOMAIL', 'data': urc}
   codigo = randint(100000, 999999)
-  mensaje = 'Usted solicito el cambio de contraseña de su cuenta, por favvor confirme con el siguente código ' + str(codigo)
-  urc['codigo'] = codigo
+  mensaje = 'Para el cambio de la clave de seguiridad tu cuenta, por favor confirme con el siguente codigo ' + str(codigo)
+  urc['codigo'] = int(codigo)
   urc.pop('clave')
   upd = updateUserById(urc)
   if upd['response'] == 'OK':
     valida = upd['data']  
-    ##mail = mailer.sendMail(valida['email'], mensaje)
-    ##if mail['response'] == 'OK':
-    return {'response': 'OK', 'message': valida}
-    ##return mail
+    mail = mailer.sendMail(valida['email'], mensaje)
+    if mail['response'] == 'OK':
+      return {'response': 'OK', 'message': 'correo enviado a ' + valida['email']}
+    return mail
   return upd
 
 def validateCodigo(usuario):

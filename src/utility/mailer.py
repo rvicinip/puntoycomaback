@@ -16,7 +16,6 @@ def sendMail(correo, mensaje):
        senMail: Envía un correo electrónico a los datos recibidos
     '''
     print('In sendMail:', correo)
-    print(app.config['EMAIL_USER'], app.config['EMAIL_KEY'])
     sender = app.config['EMAIL_USER']
     to = correo
     message = mensaje

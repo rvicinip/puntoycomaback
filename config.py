@@ -9,8 +9,8 @@ MONGO = "mongodb+srv://VenaUser:C0l0mbi421@cluster0.0jieb.mongodb.net/BPM?retryW
 ### DB Nombre de la DB que utiliza el sistema
 DB = 'BPM'
 ### EMAIL_USER Nombre de usuario del correo de donde se envía el mensaje
-EMAIL_USER = 'nancymartinezacevedo@gmail.com'
+EMAIL_USER = 'bpmservice.nr@gmail.com'
 ### EMAIL_KEY Contraseña del correo electrónico
-EMAIL_KEY = '3122853170'
+EMAIL_KEY = 'C0l0mbi4#'
 # Lo generado por MongoDB
 # client = PyMongo.MongoClient("mongodb+srv://VenaUser:C0l0mbi421@cluster0.0jieb.mongodb.net/BPM?retryWrites=true&w=majority")

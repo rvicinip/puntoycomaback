@@ -3,7 +3,7 @@
 #############
 route: /company, method: 'POST'
     Recibe los datos de una empresa cliente para guardarlos en la DB
-    ['nit', 'nombre','niveles']
+    {'nit', 'nombre','niveles'}
 
 route: /company/<idCompany>, method: 'GET'
     Recupera los datos de una empresa en la DB
@@ -11,7 +11,7 @@ route: /company/<idCompany>, method: 'GET'
 
 route: /company, method: 'PUT'
     Actualiza los datos de una empresa en la DB
-    ['niveles', 'nombre']
+    {'niveles', 'nombre'}
 
 route: /company/<idCompany>, method: 'DELETE'
     Actualiza una empresa llevandola a estado 'D' de inactiva o eliminada en la DB
@@ -21,25 +21,25 @@ route: /files/<idCompany>/<niveles>, method: 'POST'
     Recibe los archivos de una empresa para procesarlos y guardarlos en la DB
     idCompany: Id mongo de la empresa
     niveles: Define la cantidad de nivels que tiene el diccionario
-    files['usuarios']
-    files['diccionario']
-    files['frecuencias']
+    files{'usuarios'}
+    files{'diccionario'}
+    files{'frecuencias'}
 
 route: /files/dictionary/<idCompany>/<niveles>, method: 'POST'
     Recibe el archivo diccionario de una empresa para guardarlo en la DB
     idCompany: Id mongo de la empresa
     niveles: Define la cantidad de nivels que tiene el diccionario
-    files['diccionario']
+    files{'diccionario'}
 
 route: /files/employes/<idCompany>, method: 'POST'
     Recibe el archivo empleado de una empresa para procesarlos y guardarlos en la DB
     idCompany: Id mongo de la empresa
-    files['usuarios']
+    files{'usuarios'}
 
 route: /files/frecuency/<idCompany>, method: 'POST'
     Recibe el archivo frecuencias de una empresa para procesarlo y guardarlo en la DB
     idCompany: Id mongo de la empresa
-    files['frecuencias']
+    files{'frecuencias'}
 
 route: /full/company/<idCompany>, method: 'GET'
     Recupera todos los datos de una empresa junto con su diccionario, frecuecias y empleados
@@ -72,11 +72,51 @@ route: /users/<company>, method: 'GET'
 ###########
 route: /access, method: 'POST'
     realiza las validaciones de usuario para permitir o no el ingreso a la aplicacion
-    ['id_usuario', 'clave']
+    {'id_usuario', 'clave'}
+    ### Petición ###
+    curl --location --request POST 'http://localhost/access' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "id_usuario": "12345678",
+        "clave": "Entrada21"
+    }'
+    ### Respuesta ###
+    {
+    "data": {
+        "_id": "601575771a74ac9e08ff723f",
+        "cargo": "Gerente",
+        "clave": "$2b$12$SaSYijQ3TTYhHISzy/UwZejwS26.6uJBEiA4Hdc05GYrE4B2PSqZK",
+        "codigo": 0,
+        "email": "isabel@vitt.co",
+        "empresa": "60155c7052eab65a94b04d10",
+        "estado": "A",
+        "id_usuario": "12345678",
+        "jornada": "Diurna",
+        "nombre": "Isabel Escobar",
+        "perfil": "consult",
+        "salario": 3125000
+    },
+    "response": "OK",
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiMTIzNDU2NzgiLCJleHAiOjE2MTI3MTQ0ODd9.dg7KbSHEOJvIq5Yelr4p6nHzDUaxg9zLiSMFGbP4tKU"
+    }
 
 route: /user/clave, method: 'POST'
     Actualiza la contraseña de un usuario
-    ['id_usuario', 'clave', 'nueva_clave']:
+    {'id_usuario', 'clave', 'nueva_clave'}
+    ### Petición ###
+    curl --location --request POST 'localhost/user/clave' \
+    --header 'token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiMTIzNDU2NzgiLCJleHAiOjE2MTI3MTQ0ODd9.dg7KbSHEOJvIq5Yelr4p6nHzDUaxg9zLiSMFGbP4tKU' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "id_usuario"   : "12345678",
+        "clave"        : "nuevaClave852",
+        "nueva_clave"  : "nuevaClave741"
+    }'
+    ### Respuesta ###
+    {
+        "message": "Contraseña actualizada",
+        "response": "OK"
+    }
 
 route: /exit, methods = 'POST', 'GET'
     Cierra la sesión de un usuario
@@ -84,8 +124,43 @@ route: /exit, methods = 'POST', 'GET'
 route: /user/forget/<idUsuario>, method = 'POST'
     Genera un código para habilitar la actualización de la contraseña de un usuario
     idUsuario: id del usuario que utiliza para ingresar al sistema
+    ### Petición ###
+    curl --location --request POST 'localhost/user/forget/12345678'
+    ### Respuesta ###
+    {
+        "message": "correo enviado a isabel@vitt.co",
+        "response": "OK"
+    }
 
 route: /user/restore, method = 'POST'
     Valida el código y habilita la actualización de la contraseña de un usuario
-    ['id_usuario', 'codigo']
+    {'id_usuario', 'codigo'}curl --location --request POST 'localhost/user/restore' \
+    --header 'Content-Type: application/json' \
+    --data-raw '{
+        "id_usuario": "12345678",
+        "nueva_clave": "Entrada21",
+        "codigo": "183409"
+    }'
+    ### Petición ###
+    {
+        "message": "Contraseña actualizada",
+        "response": "OK"
+    }
 
+##############
+   ENCUESTA
+##############
+
+route: /inquest/select, method = 'POST'
+    Crea las actividades del usuario para empezar las respuestas de reporte de tiempos 
+    usuario: Objeto Json con los datos del usuario cliente ( Se obtiene del token)
+    ['actividades': {}]
+  
+route: /inquest/answer, method = 'POST'
+    Actualiza las actividades del usuario guardando las respuestas de reporte de tiempos 
+     Objeto Json con los datos del usuario cliente (Se obtienen del token)
+    ['actividades': {}]
+
+route: /inquest/list, method = 'GET'
+    Lista las actividades del usuario con las respuestas de reporte de tiempos \n
+    usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)

@@ -27,6 +27,6 @@ app.config['EMAIL_USER'] = EMAIL_USER
 app.config['EMAIL_KEY'] = EMAIL_KEY
 
 ### Vincular las clases del sistema
-from src.service import login, user, empresa
+from src.service import login, user, empresa, encuesta
 ### Versión de la aplicación
 __version__ = "1.0.0"

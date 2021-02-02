@@ -25,6 +25,8 @@ def privated(f):
         try: 
             data = jwt.decode(token, app.config['SECRET_KEY'])
             usuario = user.getUserByUsuario(data['user'])
+            if usuario['response'] == 'ERROR':
+                return jsonify({'response': 'ERROR', 'message': 'El usuario no está registrado en el sistema'})
         except Exception:
             traceback.print_exc()
             return jsonify({'response': 'ERROR','message' : 'Token no válido'}), 401
