@@ -12,6 +12,7 @@ from bson import ObjectId
 from operator import itemgetter
 from src.mongoCRUD import connector
 from src.utility import xlsReader
+from src.utility.validator import codeTransform
 from src.model import user
 from config import MONGO, DB
 import traceback
@@ -64,30 +65,25 @@ def addDiccionario(diccionario, company, niveles):
     err   = []
     for dic in lector:
       dic['empresa'] = company
-      padre = str(dic['padre'])
-      if ',' in padre:
-        padre.replace(',', '.')
-        dic['padre'] = padre
-      actividad = str(dic['id_actividad'])
-      if ',' in actividad:
-        actividad.replace(',', '.')
-        dic['id_actividad'] = actividad
+      dic['padre'] = codeTransform(dic['padre'])
+      dic['id_actividad'] = codeTransform(dic['id_actividad'])
       revisa = getActivity(dic['empresa'], dic['id_actividad'])
       if revisa['response'] == 'ERROR':
         if int(dic['nivel']) > 1:
           papa = getActivity(dic['empresa'], dic['padre'])
           if papa['response'] == 'ERROR':
             err.append({'response': papa['message'] + ' en la validación del padre', 'data': dic})
-            dic = {}
+            dic.clear()
           else:
             papa = papa['data']
             dic['id_padre'] = papa['_id']
-        resp = connector.addToCollection(MONGO, DB, DICCOLL, dic)
-        if not ObjectId.is_valid(resp):
-          err.append({'response': resp['ERROR'], 'data': dic})
-        else:
-          dic['_id'] = resp
-          lista.append(resp)
+        if dic:
+          resp = connector.addToCollection(MONGO, DB, DICCOLL, dic)
+          if not ObjectId.is_valid(resp):
+            err.append({'response': resp['ERROR'], 'data': dic})
+          else:
+            dic['_id'] = resp
+            lista.append(dic)
       else:
         err.append({'response': 'Ya existe una actividad con ese id en la empresa', 'data': dic})
     return {'response': 'OK','data': lista, 'error': err}
@@ -120,6 +116,7 @@ def addFrecuacia(frecuencia, company):
         err.append({'response': 'el valor de la frecuencia debe ser mayor a 0', 'data': frec})
         frec = {}
       tipo = int(frec['tipo'])
+      print('tipo ', tipo)
       if tipo == 1:
          frec['tipo']= {'tipo': tipo, 'nombre': 'Tiempo'}
       elif tipo == 2:
@@ -134,7 +131,7 @@ def addFrecuacia(frecuencia, company):
           lista.append(resp)
       else:
         err.append({'response': 'Ya existe esta frecuencia en la empresa', 'data': frec})
-    return {'message': 'OK', 'data': lista, 'error': err}
+    return {'response': 'OK', 'data': lista, 'error': err}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando la frecuencia ' + frecuencia.filename}
@@ -151,7 +148,7 @@ def addEmpleados(usuario, company):
     lector = xlsReader.readXLS(usuario, 1)
     if 'ERROR' in lector:
       return {'response': 'ERROR', 'message': lector['ERROR']}
-    campos = ['id_usuario',	'clave',	'nombre',	'salario',	'jornada',	'email',	'cargo',	'centrocosto',	'tipocontrato']
+    campos = ['id_usuario',	'clave',	'nombre',	'salario',	'jornada',	'cargo',	'tipo']
     valida = xlsReader.validateXLS(lector, campos)
     if 'ERROR' in valida:
       return {'response': 'ERROR', 'message': valida['ERROR'], 'data': valida['data']}
@@ -162,8 +159,7 @@ def addEmpleados(usuario, company):
       if resp['response'] == 'ERROR':
         err.append({'response': resp['message'], 'data': usu})
       else:
-        usu['_id'] = resp
-        lista.append(resp)
+        lista.append(resp['data'])
     return {'response': 'OK','data': lista, 'error': err}
   except Exception:
     traceback.print_exc()
@@ -180,7 +176,7 @@ def getCompanyById(idMongo):
   try:
     resp = connector.getCollectionById(MONGO, DB, EMPCOLL, idMongo)
     if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
+      return {'response': 'ERROR', 'message': resp['ERROR'] + ' in getCompanyById'}
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
@@ -196,37 +192,38 @@ def getCompanyByNIT(nit):
   try:
     resp = connector.getCollecctionByField(MONGO, DB, EMPCOLL, {"nit" : nit})
     if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
+      return {'response': 'ERROR', 'message': resp['ERROR'] + ' in getCompanyByNIT'}
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
   
-def getFullCompanyByNIT(nit):
+def getFullCompanyById(idMongo):
   '''
-     getFullCompanyByNIT: Busca una empresa acorde a su 'nit' y devuelve toda su información, diccionario, empleados y frecuencias \n
+     getFullCompanyByNIT: Busca una empresa acorde a su '_id' y devuelve toda su información, diccionario, empleados y frecuencias \n
      @params: 
-       nit: Nit de la empresa a buscar en la DB 
+       idMongo: id Mongo de la empresa a buscar en la DB 
   '''
-  print("In getCompanyByNIT:", nit)
+  print("In getFullCompanyByNIT:", idMongo)
   try:
-    company = getCompanyByNIT(nit)
+    company = getCompanyById(idMongo)
     if company['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': company['ERROR']}
-    diccionario = getDiccionarioByCompany(nit)
+      return company
+    emp = company['data']
+    diccionario = getDiccionarioByCompany(idMongo, emp['niveles'])
     if diccionario['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': diccionario['ERROR']}
-    frecuencia = getFrecuenciasByCompany(nit)
+      return diccionario
+    frecuencia = getFrecuenciasByCompany(idMongo)
     if frecuencia['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': frecuencia['ERROR']}
-    empleado = getEmpleadosByCompany(nit)
+      return frecuencia
+    empleado = getEmpleadosByCompany(idMongo)
     if empleado['response'] == 'ERROR':
-      return {'response': 'ERROR', 'message': empleado['ERROR']}
-    resp = {'company': company, 'diccionario': diccionario, 'frecuencia': frecuencia, 'empleado': empleado}
+      return empleado
+    resp = {'company': emp, 'diccionario': diccionario['data'], 'frecuencia': frecuencia['data'], 'empleado': empleado['data']}
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + nit}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + idMongo}
 
 def getDiccionarioByCompany(company, niveles):
   '''
@@ -240,10 +237,11 @@ def getDiccionarioByCompany(company, niveles):
     resp = {}
     for i in range(niveles):
       n = (i + 1)
+      print('nivel', n, 'de', niveles)
       nivel = connector.getCollecctionsByField(MONGO, DB, DICCOLL, {'empresa': company, 'nivel': n})
       if 'ERROR' in resp:
-        return {'response': 'ERROR', 'message': nivel['ERROR'], 'nivel': nivel}
-      resp['nivel' + n] = nivel
+        return {'response': 'ERROR', 'message': nivel['ERROR'] + ' in getDiccionarioByCompany', 'nivel': nivel}
+      resp['nivel' + str(n)] = nivel
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
@@ -259,7 +257,7 @@ def getFrecuenciasByCompany(company):
   try:
     resp = connector.getCollecctionsByField(MONGO, DB, FRECOLL, {'empresa': company})
     if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
+      return {'response': 'ERROR', 'message': resp['ERROR'] + ' in getFrecuenciasByCompany'}
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
@@ -274,9 +272,7 @@ def getEmpleadosByCompany(company):
   print("In getFrecuenciasByCompany:", company)
   try:
     resp = user.getUsersByCompany(company)
-    if resp['response'] == 'ERROR':
-      return resp
-    return {'response': 'OK', 'data': resp}
+    return resp
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + company}

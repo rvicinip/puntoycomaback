@@ -102,9 +102,15 @@ def manageFiles(usuario, idCompany, niveles):
    frecuencias = request.files['frecuencias']
    try:
       dicc = empresa.addDiccionario(diccionario, idCompany, niveles)
+      if dicc['response'] == 'OK':
+         dicc.pop('response')
       frec = empresa.addFrecuacia(frecuencias, idCompany)
+      if frec['response'] == 'OK':
+         frec.pop('response')
       usus = empresa.addEmpleados(usuarios, idCompany)
-      return jsonify({'response': 'OK', 'diccionario': dicc, 'frecuencias': frec, 'empleados': usus})
+      if usus['response'] == 'OK':
+         usus.pop('response')
+      return jsonify({'diccionario': dicc, 'tiempos': frec, 'usuario': usus})
    except Exception:
       traceback.print_exc()
       return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar los archivos'})
@@ -122,7 +128,7 @@ def loadDictionary(usuario, idCompany, niveles):
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para realizar esta acción'})
    ## Valida que se enviarion todos los campos
-   campos = ['usuarios', 'diccionario', 'frecuencias']
+   campos = ['diccionario']
    valida = validateFiles(campos, request.files)
    if valida['response'] == 'ERROR':
       return jsonify(valida)
@@ -147,7 +153,7 @@ def loadEmployes(usuario, idCompany):
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para realizar esta acción'})
    ## Valida que se enviarion todos los campos
-   campos = ['usuarios', 'diccionario', 'frecuencias']
+   campos = ['usuarios']
    valida = validateFiles(campos, request.files)
    if valida['response'] == 'ERROR':
       return jsonify(valida)
@@ -172,7 +178,7 @@ def loadFrecuency(usuario, idCompany):
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para realizar esta acción'})
    ## Valida que se enviarion todos los campos
-   campos = ['usuarios', 'diccionario', 'frecuencias']
+   campos = ['frecuencias']
    valida = validateFiles(campos, request.files)
    if valida['response'] == 'ERROR':
       return jsonify(valida)
@@ -194,7 +200,7 @@ def getCompanyFull(usuario, idCompany):
          idCompany: Id mongo de la empresa
    '''
    print("In getCompany:", idCompany)
-   resp = empresa.getFullCompanyByNIT(idCompany)
+   resp = empresa.getFullCompanyById(idCompany)
    return jsonify(resp)
 
 @app.route('/full/dictionary/<idCompany>', methods = ['GET'])

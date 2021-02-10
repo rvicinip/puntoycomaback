@@ -122,7 +122,7 @@ def getUsersByCompany(idCompany):
   try:
     resp = connector.getCollecctionsByField(MONGO, DB, USUCOLL, {'empresa': idCompany})
     if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
+      return {'response': 'ERROR', 'message': resp['ERROR'] + ' in getUsersByCompany'}
     for r in resp:
       r.pop('clave')
     return {'response': 'OK', 'data': resp}

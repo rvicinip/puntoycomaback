@@ -69,3 +69,29 @@ def validateFiles(fields, files):
       if not validateExcel(files[value].filename):
          return {'response': 'ERROR', 'message': 'El archivo ' + value + ' no es de tipo Excel'}
    return {'response': 'OK', 'message': 'Todas las validaciones realizadas'}
+
+def codeTransform(field):
+   '''
+      codeTransform: transforma el código en el evento que tenga ',' y transforma el código '0' adelante
+      @Params:
+         field: Campo a validar 
+   '''
+   print('In codeTransform:', field)
+   value = str(field)
+   if not value or value.lower() == 'nan' or value == '0.0':
+      return str(0)
+   if ',' in value:
+      value = str(value).replace(',', '.')
+   code = value.split('.')
+   resp = ''
+   for c in code:
+      if int(c) > 0:
+         ln = 3 - len(c)
+         if ln > 0:
+            resp = str(resp) + str(ln * '0' + str(c))
+         elif ln == 0:
+            resp += c
+         else:
+            resp += str(c[-3:ln])
+   print('Transformed:', resp)
+   return resp
