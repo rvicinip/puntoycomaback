@@ -1,5 +1,5 @@
 '''
-   run.py
+   run
 
    Arranca la aplicación del servidor 
 
