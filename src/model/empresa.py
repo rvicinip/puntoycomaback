@@ -219,7 +219,7 @@ def getFullCompanyById(idMongo):
     empleado = getEmpleadosByCompany(idMongo)
     if empleado['response'] == 'ERROR':
       return empleado
-    resp = {'company': emp, 'diccionario': diccionario['data'], 'frecuencia': frecuencia['data'], 'empleado': empleado['data']}
+    resp = {'empresa': emp, 'diccionario': diccionario['data'], 'frecuencia': frecuencia['data'], 'empleado': empleado['data']}
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()

@@ -22,12 +22,8 @@ def inicio():
       inicio: Busca todos los usuario de una empresa en la coleeción de usaurio \n
    '''
    print("In inicio \n")
-   data = request.json
-   campos = ['id_usuario', 'clave', 'nueva_clave']
-   resp = validateFields(campos, data)
-
     ## resp = usuario.getUsersByCompany('1asdc23')
-   return jsonify({"inicio": resp})
+   return jsonify({"inicio": "Servidor de backend de BPM Vena"})
 
 @app.route('/access', methods = ['POST'])
 def login():
