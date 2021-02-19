@@ -200,7 +200,7 @@ def getCompanyByNIT(nit):
   
 def getFullCompanyById(idMongo):
   '''
-     getFullCompanyByNIT: Busca una empresa acorde a su '_id' y devuelve toda su información, diccionario, empleados y frecuencias \n
+     getFullCompanyById: Busca una empresa acorde a su '_id' y devuelve toda su información, diccionario, empleados y frecuencias \n
      @params: 
        idMongo: id Mongo de la empresa a buscar en la DB 
   '''
@@ -210,7 +210,7 @@ def getFullCompanyById(idMongo):
     if company['response'] == 'ERROR':
       return company
     emp = company['data']
-    diccionario = getDiccionarioByCompany(idMongo, emp['niveles'])
+    diccionario = getDiccionarioByCompany(idMongo)
     if diccionario['response'] == 'ERROR':
       return diccionario
     frecuencia = getFrecuenciasByCompany(idMongo)
@@ -225,23 +225,36 @@ def getFullCompanyById(idMongo):
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + idMongo}
 
-def getDiccionarioByCompany(company, niveles):
+def getDictsFrecs(idMongo):
+  '''
+     getDictsFrecs: Busca el diccionario y las frecuencias de una empresa acorde a su '_id' \n
+     @params: 
+       idMongo: id Mongo de la empresa a buscar en la DB 
+  '''
+  print("In getDictsFrecs:", idMongo)
+  try:
+    diccionario = getDiccionarioByCompany(idMongo)
+    if diccionario['response'] == 'ERROR':
+      return diccionario
+    frecuencia = getFrecuenciasByCompany(idMongo)
+    if frecuencia['response'] == 'ERROR':
+      return frecuencia
+    return {'response': 'OK', 'frecuencia': frecuencia['data'], 'diccionario': diccionario['data']}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + idMongo}
+
+def getDiccionarioByCompany(company):
   '''
      getDiccionarioByCompany: Busca un diccionario de una empresa por su '_id' \n
      @params:
        company: Id de la empresa a buscar en la DB
-       niveles: Caantidad de niveles que tiene el diccionario
   '''
   print("In getDiccionarioByCompany:", company)
   try:
-    resp = {}
-    for i in range(niveles):
-      n = (i + 1)
-      print('nivel', n, 'de', niveles)
-      nivel = connector.getCollecctionsByField(MONGO, DB, DICCOLL, {'empresa': company, 'nivel': n})
-      if 'ERROR' in resp:
-        return {'response': 'ERROR', 'message': nivel['ERROR'] + ' in getDiccionarioByCompany', 'nivel': nivel}
-      resp['nivel' + str(n)] = nivel
+    resp = connector.getCollecctionsByField(MONGO, DB, DICCOLL, {'empresa': company})
+    if 'ERROR' in resp:
+      return {'response': 'ERROR', 'message': resp['ERROR'] + ' in getDiccionarioByCompany'}
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()

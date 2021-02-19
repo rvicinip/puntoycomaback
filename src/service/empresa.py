@@ -203,6 +203,18 @@ def getCompanyFull(usuario, idCompany):
    resp = empresa.getFullCompanyById(idCompany)
    return jsonify(resp)
 
+@app.route('/full/datos/<idCompany>', methods = ['GET'])
+@privated
+def getDiccionarioFrecuencia(usuario, idCompany):
+   '''
+      getDiccionarioFrecuencia: Recupera el diccionario con las frecuecias de la empresa \n
+      @params: 
+         idCompany: Id mongo de la empresa
+   '''
+   print("In getDiccionarioFrecuencia:", idCompany)
+   resp = empresa.getDictsFrecs(idCompany)
+   return jsonify(resp)
+
 @app.route('/full/dictionary/<idCompany>', methods = ['GET'])
 @privated
 def getDictionary(usuario, idCompany):

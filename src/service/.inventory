@@ -44,7 +44,11 @@ route: /files/frecuency/<idCompany>, method: 'POST'
 route: /full/company/<idCompany>, method: 'GET'
     Recupera todos los datos de una empresa junto con su diccionario, frecuecias y empleados
     idCompany: Id mongo de la empresa
-    
+
+route: /full/datos/<idCompany>, method: 'GET'
+    Recupera el diccionario con las frecuecias de la empresa
+    idCompany: Id mongo de la empresa
+
 route: /full/dictionary/<idCompany>, method: 'GET'
     Recupera todos los datos de una empresa junto con su diccionario
     idCompany: Id mongo de la empresa
