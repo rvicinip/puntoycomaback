@@ -24,10 +24,10 @@ def parserObjectId(data):
       for c in data:
         if c == '_id':
           element[c] = str(ObjectId(data[c]))
-          '''elif c == 'descripcion' and len(c)>0:
-          element[c] = data[c][0:70]'''
         else:
           element[c] = data[c]
+        print ("CAMPO: ",c,"========================================================")
+        print (c, element[c])  
       return element
     except Exception:
       traceback.print_exc()
