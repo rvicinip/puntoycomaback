@@ -104,6 +104,7 @@ def getUserByUsuario(usuario):
   '''
   print("In getUserByUsuario:", usuario)
   try:
+    print("URL", MONGO)
     resp = connector.getCollecctionByField(MONGO, DB, USUCOLL, {"id_usuario" : usuario})
     if 'ERROR' in resp:
       return {'response': 'ERROR', 'message': resp['ERROR']}

@@ -101,7 +101,6 @@ def getCollecctionsByField(url, dbName, collection,field):
     db     = client[dbName]
     mdb    = db[collection]
     result = mdb.find(field)
-    print(result)
     if result != None:
       for dato in result:
         resp.append(parsser.parserObjectId(dato))

@@ -18,16 +18,16 @@ def parserObjectId(data):
        @params: 
          cursorWithIdObject: cursor que posee un ObjectId de Mongo  
     '''
-    print("In parserObjectId:", data)
     element = {}
     try:
       for c in data:
         if c == '_id':
           element[c] = str(ObjectId(data[c]))
         else:
-          element[c] = data[c]
-        print ("CAMPO: ",c,"========================================================")
-        print (c, element[c])  
+          valor = str(data[c])
+          valor = valor.replace('nan', '0')
+          element[c] = valor
+      print("In parserObjectId:", element)
       return element
     except Exception:
       traceback.print_exc()
