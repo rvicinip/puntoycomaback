@@ -102,5 +102,6 @@ def restorePassword():
    valida = validateFields(campos, dato)
    if valida['response'] == 'ERROR':
       return jsonify(valida)
+   print("valida", valida)
    resp = user.validateCodigo(dato)
    return jsonify(resp)

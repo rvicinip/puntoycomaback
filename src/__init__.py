@@ -11,9 +11,11 @@
    The Software use and distribution is under authorization of Venaycia.com
 '''
 ### Se importan los plugins necesarios
-from config import SECRET_KEY, EMAIL_USER, EMAIL_KEY
+from config import SECRET_KEY, EMAIL_USER, EMAIL_KEY, MYSQL
 from flask import Flask
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 
 ### Se instancia la aplicación
 app = Flask(__name__)
@@ -25,7 +27,11 @@ CORS(app)
 app.config['EMAIL_USER'] = EMAIL_USER
 ### EMAIL_KEY Contraseña del correo electrónico
 app.config['EMAIL_KEY'] = EMAIL_KEY
-
+### Configuración de SqlAlchemy para conectarse a la DB de MySQL
+app.config['SQLALCHEMY_DATABASE_URI'] = MYSQL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+ma = Marshmallow(app)
 ### Vincular las clases del sistema
 from src.service import login, user, empresa, encuesta
 ### Versión de la aplicación

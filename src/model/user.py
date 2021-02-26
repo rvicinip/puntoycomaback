@@ -8,19 +8,17 @@
    :author: Wiliam Arévalo Camacho
 '''
 ### Se importan los plugins necesarios
-from bson import ObjectId
 from random import randint
 from src.utility import mailer
-from src.mongoCRUD import connector
-from config import MONGO, DB
+from src.mysqlConnector.usuario import Usuario, usuarioScheme
+from src.utility import xlsReader
+from src import db
 import bcrypt
 import traceback
-### Nombre de la colección en la DB que se utilizará
-USUCOLL = 'usuario'
 
 # Métodos CRUD en la coleeción usuario
 ### CREA
-def addUserClient(usuario, empresa):
+def addUserClient(user, empresa):
   '''
      addUser: Crea un usuario en la colección de usaurio \n
      @params: 
@@ -28,28 +26,26 @@ def addUserClient(usuario, empresa):
        empresa: Id mongo de la empresa a la que se asocia el usuario a crear
   '''
   print("In addUserClient:", empresa)
-  usuario['salario'] = int(usuario['salario'])
-  usuario['empresa'] = empresa
-  usuario['perfil'] = 'client'
-  usuario['estado'] = 'A' ## A indica que el estado del usuario es activo
-  clave = str(usuario['clave']).encode()
+  user['salario'] = int(user['salario'])
+  user['empresa'] = empresa
+  user['perfil'] = 'client'
+  user['estado'] = 'A' ## A indica que el estado del usuario es activo
+  clave = str(user['clave']).encode()
   encripted = bcrypt.hashpw(clave, bcrypt.gensalt(12))
-  usuario['clave'] = encripted.decode('utf-8')
+  user['clave'] = encripted.decode('utf-8')
   try:
-    verifica = getUserByUsuario(usuario['id_usuario'])
+    verifica = getUserByUsuario(user['id_usuario'])
     if not 'data' in verifica:
-      resp = connector.addToCollection(MONGO, DB, USUCOLL, usuario)
-      if not ObjectId.is_valid(str(resp)):
-        return {'response': 'ERROR', 'message': resp['ERROR']}
-      usuario['_id'] = str(ObjectId(resp))
-      usuario.pop('clave')
-      return {'response': 'OK', 'message': 'Usuario creado ', 'data': usuario}
+      info = Usuario.fromJSON(user)
+      db.session.add(info)
+      db.session.commit()
+      return {'response': 'OK', 'message': 'Usuario creado ', 'data': info}
     return {'response': 'ERROR', 'message': 'Ya existe un usuario con el mismo id'}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
 
-def addUserEmpresa(usuario):
+def addUserEmpresa(user):
   '''
      addUserEmpresa: Crea un usuario consultor en la colección de usaurio \n
      @params: 
@@ -57,61 +53,73 @@ def addUserEmpresa(usuario):
        empresa: Id mongo de la empresa a la que se asocia el usuario a crear
   '''
   print("In addUserEmpresa")
-  if 'salario' in usuario:
-    usuario['salario'] = int(usuario['salario'])
-  usuario['perfil'] = 'consult'
-  usuario['estado'] = 'A' ## A indica que el estado del usuario es activo
-  clave = str(usuario['clave']).encode()
+  if 'salario' in user:
+    user['salario'] = int(user['salario'])
+  user['perfil'] = 'consult'
+  user['estado'] = 'A' ## A indica que el estado del usuario es activo
+  clave = str(user['clave']).encode()
   encripted = bcrypt.hashpw(clave, bcrypt.gensalt(12))
-  usuario['clave'] = encripted.decode('utf-8')
+  user['clave'] = encripted.decode('utf-8')
   try:
-    verifica = getUserByUsuario(usuario['id_usuario'])
+    usu = Usuario(user)
+    print("addUserEmpresa - usu", usu)
+    verifica = getUserByUsuario(user['id_usuario'])
+    print("addUserEmpresa - verifica", verifica)
     if not 'data' in verifica:
-      resp = connector.addToCollection(MONGO, DB, USUCOLL, usuario)
-      if not ObjectId.is_valid(str(resp)):
-        return {'response': 'ERROR', 'message': resp['ERROR']}
-      usuario['_id'] = str(ObjectId(resp))
-      usuario.pop('clave')
-      return {'response': 'OK', 'message': 'Usuario creado ', 'data': usuario}
-    return {'response': 'ERROR', 'message': 'Ya existe el usuario', 'data': verifica}
+      db.session.add(usu)
+      db.session.commit()
+      return {'response': 'OK', 'message': 'Usuario creado correctamente'}
+    return {'response': 'ERROR', 'message': 'Ya existe el usuario', 'data': verifica['data']}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
 
-### LEE
-def getUserById(idMongo):
+def addEmpleados(user, comp):
   '''
-     getUserById: Busca un usuario en la coleeción de usaurio por el '_id' \n
+     addEmpleados: Crea los registro de los empleados asociaciados a una empresa \n
      @params: 
-       idMongo: Id del objeto usuario a buscar en la DB 
+       usuario: objeto con los datos de los empleados de la compañia
+       company: id mongo de la empresa a la que pertenecen los usuarios
   '''
-  print("In getUserById:", idMongo)
+  print("In addEmpleados:", comp)
   try:
-    resp = connector.getCollectionById(MONGO, DB, USUCOLL, idMongo)
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    resp.pop('clave')
-    return {'response': 'OK', 'data': resp}
+    lector = xlsReader.readXLS(user, 1)
+    if 'ERROR' in lector:
+      return {'response': 'ERROR', 'message': lector['ERROR']}
+    campos = ['id_usuario',	'clave',	'nombre',	'salario',	'jornada',	'cargo',	'tipo']
+    valida = xlsReader.validateXLS(lector, campos)
+    if 'ERROR' in valida:
+      return {'response': 'ERROR', 'message': valida['ERROR'], 'data': valida['data']}
+    lista = []
+    err   = []
+    for usu in lector:
+      resp = addUserClient(usu, comp)
+      if resp['response'] == 'ERROR':
+        err.append({'response': resp['message'], 'data': usu})
+      else:
+        lista.append(resp['data'])
+    return {'response': 'OK', 'data': lista, 'error': err}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idMongo}
+    return {'response': 'ERROR', 'message': 'Se presentó un error procesando los empleados ' + user.filename}
 
-def getUserByUsuario(usuario):
+### LEE
+def getUserByUsuario(idUser):
   '''
      getUserByUsuario: Busca un usuario en la coleeción de usaurio por el 'id_usuario' \n
      @params: 
-       usuario: Id del objeto usuario a buscar en la DB 
+       idUser: Id del objeto usuario a buscar en la DB 
   '''
-  print("In getUserByUsuario:", usuario)
+  print("In getUserByUsuario:", idUser)
   try:
-    print("URL", MONGO)
-    resp = connector.getCollecctionByField(MONGO, DB, USUCOLL, {"id_usuario" : usuario})
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    return {'response': 'OK', 'data': resp}
+    resp = Usuario.query.filter(Usuario.id_usuario == idUser).first()
+    if resp:
+      print("getUserByUsuario - resp", resp)
+      return {'response': 'OK', 'data': resp.toJSON()}
+    return {'response': 'ERROR', 'message': 'No se encontró el usuario'}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + usuario}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idUser}
 
 def getUsersByCompany(idCompany):
   '''
@@ -121,11 +129,11 @@ def getUsersByCompany(idCompany):
   '''
   print("In getUsersByCompany:", idCompany)
   try:
-    resp = connector.getCollecctionsByField(MONGO, DB, USUCOLL, {'empresa': idCompany})
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR'] + ' in getUsersByCompany'}
-    for r in resp:
-      r.pop('clave')
+    usus = Usuario.query.filter(Usuario.empresa == idCompany)
+    resp = []
+    for us in usus:
+      resp.append(us.toJSON())
+    print("getUsersByCompany - resp:", resp)
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
@@ -138,108 +146,114 @@ def recallUserPassword(idUsuario):
         idUsuario: nombre de usuario 'id_usuario' del cliente a recuperar contraseña
   '''
   print("In recallUserPassword:", idUsuario)
-  resp = getUserByUsuario(idUsuario)
-  if resp['response'] == 'ERROR':
-    return resp
-  urc = resp['data']
-  if urc['email'] == '':
-    return {'response': 'NOMAIL', 'data': urc}
-  codigo = randint(100000, 999999)
-  mensaje = 'Para el cambio de la clave de seguiridad tu cuenta, por favor confirme con el siguente codigo ' + str(codigo)
-  urc['codigo'] = int(codigo)
-  urc.pop('clave')
-  upd = updateUserById(urc)
-  if upd['response'] == 'OK':
-    valida = upd['data']  
-    mail = mailer.sendMail(valida['email'], mensaje)
-    if mail['response'] == 'OK':
-      return {'response': 'OK', 'message': 'correo enviado a ' + valida['email']}
-    return mail
-  return upd
+  try:
+    resp = getUserByUsuario(idUsuario)
+    if resp['response'] == 'ERROR':
+      return resp
+    urc = resp['data']
+    if urc['email'] == '':
+      return {'response': 'NOMAIL', 'data': urc}
+    codigo = randint(100000, 999999)
+    mensaje = 'Para el cambio de la clave de seguiridad tu cuenta, por favor confirme con el siguente codigo ' + str(codigo)
+    urc['codigo'] = int(codigo)
+    upd = updateUserById(urc)
+    if upd['response'] == 'OK':
+      valida = upd['data']  
+      mail = mailer.sendMail(valida['email'], mensaje)
+      if mail['response'] == 'OK':
+        return {'response': 'OK', 'message': 'correo enviado a ' + valida['email']}
+      return mail
+    return upd
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idUsuario}
 
-def validateCodigo(usuario):
+def validateCodigo(user):
   '''
      validateCodigo: Valida que código corresponda con el enviado al usuario y habilita el cambio de contraseña \n
      @params: 
         usuario: objeto Json con los datos de usuario para validar 'id_usuario', 'nueva_clave' y 'codigo' 
   '''
-  print("In validateCodigo:", usuario['id_usuario'])
+  print("In validateCodigo:", user['id_usuario'])
   try:
-    datos = getUserByUsuario(usuario['id_usuario'])
+    datos = getUserByUsuario(user['id_usuario'])
     if datos['response'] == 'OK':
       values = datos['data']
-      print('values', values['codigo'], 'usuario', usuario['codigo'])
-      if int(values['codigo']) == int(usuario['codigo']):
-        usuario['_id'] = values['_id']
-        return updatePasswordByCodigo(usuario)
+      print('values', values, 'usuario', user['codigo'])
+      if int(values['codigo']) == int(user['codigo']):
+        user['id_usuario'] = values['id_usuario']
+        return updatePasswordByCodigo(user)
       return {'response':'ERROR', 'message':'El código no concuerda'}
     return datos
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message':'Se presentó un error validando el código del usuario'}
 
-def validatePassword(usuario):
+def validatePassword(user):
   '''
      validatePassword: Valida que la contraseña corresponda con el usuario en la DB \n
      @params: 
-        usuario: objeto Json con los datos de usuario para validar en la DB, sólo toma 'id_usuario' y 'clave' 
+        user: objeto Json con los datos de usuario para validar en la DB, sólo toma 'id_usuario' y 'clave' 
   '''
-  print("In validatePassword:", usuario['id_usuario'])
+  print("In validatePassword:", user['id_usuario'])
   try:
-    verifica = getUserByUsuario(usuario['id_usuario'])
-    if verifica['response'] == 'OK':
-      resp = verifica['data']
-      if bcrypt.checkpw(str(usuario['clave']).encode(), str(resp['clave']).encode()):
-        return {'response':'OK', 'data': resp}
-      return {'response':'ERROR', 'message':'Contraseña errada'}
-    return verifica
+    verifica = getUserByUsuario(user['id_usuario'])
+    us = verifica['data']
+    if bcrypt.checkpw(str(user['clave']).encode(), str(us['clave']).encode()):
+      return {'response':'OK', 'data': us}
+    return {'response':'ERROR', 'message':'Contraseña errada'}
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message':'Se presentó un error validando el usuario'}
 
 ### ACTUALIZA
-def updateUserById(usuario):
+def updateUserById(user):
   '''
      updateUserById: Actualiza un usuario en la colección de usaurio \n
      @params:
        usuario: objeto usuario con todos los datos a modificar en la DB 
   '''
-  print("In updateUserById:", usuario['_id'])
+  print("In updateUserById:", user['id_usuario'])
   try:
-    if 'clave' in usuario:
-      usuario.pop('clave')
-    resp = connector.updateById(MONGO, DB, USUCOLL, usuario)
-    if not resp.acknowledged:
-        return {'response': 'ERROR', 'message': 'No se actualizó el usuario'}
-    return {'response': 'OK', 'message': 'Usuario actualizado', 'data': usuario}
+    resp = Usuario.query.filter(Usuario.id_usuario == user['id_usuario']).update({
+           Usuario.nombre     : user['nombre'],
+           Usuario.empresa    : user['empresa'],
+           Usuario.email      : user['email'],
+           Usuario.cargo      : user['cargo'],
+           Usuario.salario    : user['salario'],
+           Usuario.jornada    : user['jornada'],
+           Usuario.perfil     : user['perfil'],
+           Usuario.ccostos    : user['ccostos'],
+           Usuario.termino    : user['termino'],
+           Usuario.estado     : user['estado']})
+    db.session.commit()
+    return {'response': 'OK', 'message': 'Usuario actualizado', 'data': user}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + usuario['id_usuario']}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + user['id_usuario']}
 
-def updateUserPassword(usuario):
+def updateUserPassword(user):
   '''
      updateUserPassword: Actualiza la contraseña de un usuario en la colección de usaurio \n
-     @params: 
-        usuario: objeto Json con los datos de usuario para modificar en la DB, sólo toma _'id', 'id_usuario', 'clave' y 'nueva_clave' 
+     @params:
+        user: objeto Json con los datos de usuario para modificar en la DB, sólo toma _'id', 'id_usuario', 'clave' y 'nueva_clave' 
   '''
-  print("In updateUserPassword:", usuario['id_usuario'])
+  print("In updateUserPassword:", user['id_usuario'])
   try:
-    verifica = validatePassword({'id_usuario': usuario['id_usuario'], 'clave': usuario['clave']})
+    verifica = validatePassword({'id_usuario': user['id_usuario'], 'clave': user['clave']})
     if  verifica['response'] == 'OK':
-      nuevaClave = str(usuario['nueva_clave']).encode()
+      nuevaClave = str(user['nueva_clave']).encode()
       encripted = bcrypt.hashpw(nuevaClave, bcrypt.gensalt(12))
-      usuario['clave'] = encripted.decode('utf-8')
-      usuario.pop('nueva_clave')
-      resp = connector.updateById(MONGO, DB, USUCOLL, usuario)
-      if not resp.acknowledged:
-        return {'response': 'ERROR', 'message': 'No se actualizó la contraseña'}
-      return {'response': 'OK', 'message': 'Contraseña actualizada'}
+      user['clave'] = encripted.decode('utf-8')
+      resp = Usuario.query.filter(Usuario.id_usuario == user['id_usuario']).update({Usuario.clave : user['clave']})
+      db.session.commit()
+      return {'response': 'OK', 'message': 'Usuario actualizado'}
     return verifica
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + usuario['id_usuario']}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + user['id_usuario']}
 
-def updatePasswordByCodigo(usuario):
+def updatePasswordByCodigo(user):
   '''
      updatePasswordByCodigo: Actualiza la contraseña de un usuario despues de validar el código \n
      @params: 
@@ -247,18 +261,17 @@ def updatePasswordByCodigo(usuario):
   '''
   print("In updatePasswordByCodigo")
   try:
-    nuevaClave = str(usuario['nueva_clave']).encode()
+    nuevaClave = str(user['nueva_clave']).encode()
     encripted = bcrypt.hashpw(nuevaClave, bcrypt.gensalt(12))
-    usuario['clave'] = encripted.decode('utf-8')
-    usuario.pop('nueva_clave')
-    usuario['codigo'] = 0
-    resp = connector.updateById(MONGO, DB, USUCOLL, usuario)
-    if not resp.acknowledged:
-      return {'response': 'ERROR', 'message': 'No se actualizó la contraseña'}
-    return {'response': 'OK', 'message': 'Contraseña actualizada'}
+    user['clave'] = encripted.decode('utf-8')
+    resp = Usuario.query.filter(Usuario.id_usuario == user['id_usuario']).update({
+           Usuario.clave  : user['clave'],
+           Usuario.codigo : 0})
+    db.session.commit()
+    return {'response': 'OK', 'message': 'Usuario actualizado', 'data': user}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + usuario['id_usuario']}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + user['id_usuario']}
 
 ### ELIMINA
 def deleteUserById(idUsuario):
@@ -269,9 +282,8 @@ def deleteUserById(idUsuario):
   '''
   print("In deleteUserById:", idUsuario)
   try:
-    resp = connector.deleteById(MONGO, DB, USUCOLL, idUsuario)
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
+    resp = Usuario.query.filter(Usuario.id_usuario == idUsuario).delete(synchronize_session = 'fetch')
+    db.session.commit()
     return {'response': 'OK', 'message': 'Usuario borrado'}
   except Exception:
     traceback.print_exc()

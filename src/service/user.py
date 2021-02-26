@@ -16,23 +16,24 @@ from flask import jsonify, request
 
 @app.route('/user', methods = ['POST'])
 @privated
-def createUser():
+def createUser(usuario):
    '''
       createUser: Crea un usuario de la empresa en la coleeción de usaurio \n
    '''
    ## Validad que se enviarion todos los campos
    dato = request.json
+   print("In createUser:", dato)
    campos = ['id_usuario', 'nombre', 'empresa', 'clave']
    valida = validateFields(campos, dato)
    if valida['response'] == 'ERROR':
       return jsonify(valida)
-   print("In createUser:", dato['id_usuario'])
    resp = user.addUserEmpresa(dato)
+   print("createUser - resp", resp)
    return jsonify(resp)
 
 @app.route('/users/<company>', methods = ['GET'])
 @privated
-def obtainUsers(company):
+def obtainUsers(usuario, company):
     '''
        obtainUsers: Obtiene los usuarios de una empresa en la colección de usaurio \n
        @params: 
@@ -40,4 +41,5 @@ def obtainUsers(company):
     '''
     print("In obtainUsers:", company)
     resp = user.getUsersByCompany(company)
+    print("obtainUsers", resp)
     return jsonify(resp)

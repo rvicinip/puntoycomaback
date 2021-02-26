@@ -17,6 +17,7 @@ import traceback
 def privated(f):
     @wraps(f)
     def decorated(*args, **kwargs):
+        print("In decorated")
         token = None
         if 'token' in request.headers:
             token = request.headers['token']
