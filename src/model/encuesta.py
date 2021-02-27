@@ -26,7 +26,7 @@ def createSelectedActivity(actividad):
     resp = connector.addToCollection(MONGO, DB, ENCCOLL, actividad)
     if not ObjectId.is_valid(str(resp)):
       return {'response': 'ERROR', 'message': resp['ERROR']}
-    actividad['_id'] = str(ObjectId(resp))
+    actividad['id'] = str(ObjectId(resp))
     return {'response': 'OK', 'message': 'Encuesta de usuario creada', 'data': actividad}
   except Exception:
     traceback.print_exc()
@@ -72,7 +72,7 @@ def updateSelectedActivities(usuario, actividades):
        usuario: Id mongo del usuario asociado a la actividad
        actividades: Lista de objetos Json de las actividades con respuesta por el usuario
   '''
-  campos = ['_id', 'cliente', 'actividad', 'tiempo', 'frecuencia']
+  campos = ['id', 'cliente', 'actividad', 'tiempo', 'frecuencia']
   acts = []
   fallo = []
   for data in actividades:

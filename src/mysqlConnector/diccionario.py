@@ -26,7 +26,7 @@ class Diccionario(db.Model):
         self.tipo            = tipo
         self.cadena_de_valor = cadena_de_valor
     
-    def fromJSON(self, dicc):
+    def __init__(self, dicc):
         self.id              = dicc['id']
         self.id_actividad    = dicc['id_actividad']
         self.nombre          = dicc['nombre']
@@ -38,6 +38,20 @@ class Diccionario(db.Model):
         self.ceno            = dicc['ceno']
         self.tipo            = dicc['tipo']
         self.cadena_de_valor = dicc['cadena_de_valor']
+    
+    def toJSON(self):
+        return{
+            'id'              : self.id,
+            'id_actividad'    : self.id_actividad,
+            'nombre'          : self.nombre,
+            'empresa'         : self.empresa,
+            'nivel'           : self.nivel,
+            'padre'           : self.padre,
+            'descripcion'     : self.descripcion,
+            'mas'             : self.mas,
+            'ceno'            : self.ceno,
+            'tipo'            : self.tipo,
+            'cadena_de_valor' : self.cadena_de_valor}
 
 class diccionarioScheme(ma.Schema):
     class Meta:

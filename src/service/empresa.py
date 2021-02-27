@@ -6,9 +6,14 @@
       licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
    author: Wiliam Arévalo Camacho
 '''
+from src.mysqlConnector.frecuencia import Frecuencia
+from src.mysqlConnector.diccionario import Diccionario
 from flask import jsonify, request
 from src import app
 from src.model import empresa
+from src.model import diccionario
+from src.model import frecuencia
+from src.model import user
 from .protector import privated
 from src.utility.validator import validateFields, validateFiles
 import traceback
@@ -39,10 +44,10 @@ def getCompany(usuario, idCompany):
    '''
        getCompany: Recupera los datos de una empresa en la DB \n
        @params: 
-         idCompany: Id mongo de la empresa
+         idCompany: NIT de la empresa
    '''
    print("In getCompany:", idCompany)
-   resp = empresa.getCompanyById(idCompany)
+   resp = empresa.getCompanyByNIT(idCompany)
    return jsonify(resp)
 
 @app.route('/company', methods = ['PUT'])
@@ -55,7 +60,7 @@ def updateCompany(usuario):
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para realizar esta acción'})
    dato = request.json
-   campos = ['_id','nit', 'nombre', 'niveles']
+   campos = ['nit', 'nombre', 'niveles']
    valida = validateFields(campos, dato)
    if valida['response'] == 'ERROR':
       return jsonify(valida)
@@ -73,15 +78,12 @@ def deleteCompany(usuario, idCompany):
    print("In deleteCompany:", idCompany)
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para realizar esta acción'})
-   dato = {}
-   dato['_id'] = idCompany
-   dato['estado'] = 'D' ## D Identifica que la empresa está eliminada o inactiva
-   resp = empresa.updateCompany(dato)
+   resp = empresa.deleteCompany(idCompany)
    return jsonify(resp)
 
-@app.route('/files/<idCompany>/<niveles>', methods = ['POST'])
+@app.route('/files/<idCompany>', methods = ['POST'])
 @privated
-def manageFiles(usuario, idCompany, niveles):
+def manageFiles(usuario, idCompany):
    '''
        manageFiles: Recibe los archivos de una empresa para procesarlos y guardarlos en la DB \n
        @params: 
@@ -97,32 +99,37 @@ def manageFiles(usuario, idCompany, niveles):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    ## Obtiene los archivos del request y los procesa
-   usuarios    = request.files['usuarios']
-   diccionario = request.files['diccionario']
-   frecuencias = request.files['frecuencias']
+   u = request.files['usuarios']
+   d = request.files['diccionario']
+   f = request.files['frecuencias']
    try:
-      dicc = empresa.addDiccionario(diccionario, idCompany, niveles)
+      dicc = diccionario.addDiccionario(d, idCompany)
       if dicc['response'] == 'OK':
          dicc.pop('response')
-      frec = empresa.addFrecuacia(frecuencias, idCompany)
+      else:
+         return jsonify(dicc)
+      frec = frecuencia.addFrecuacia(f, idCompany)
       if frec['response'] == 'OK':
          frec.pop('response')
-      usus = empresa.addEmpleados(usuarios, idCompany)
+      else:
+         return jsonify(frec)
+      usus = user.addEmpleados(u, idCompany)
       if usus['response'] == 'OK':
          usus.pop('response')
+      else:
+         return jsonify(usus)
       return jsonify({'diccionario': dicc, 'tiempos': frec, 'usuario': usus})
    except Exception:
       traceback.print_exc()
       return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar los archivos'})
 
-@app.route('/files/dictionary/<idCompany>/<niveles>', methods = ['POST'])
+@app.route('/files/dictionary/<idCompany>', methods = ['POST'])
 @privated
-def loadDictionary(usuario, idCompany, niveles):
+def loadDictionary(usuario, idCompany):
    '''
        loadDictionary: Recibe el archivo diccionario de una empresa para guardarlo en la DB \n
        @params: 
          idCompany: Id mongo de la empresa
-         niveles: Define la cantidad de nivels que tiene el diccionario
    '''
    print("In loadDictionary:", idCompany)
    if usuario['perfil'] == 'client':
@@ -133,13 +140,17 @@ def loadDictionary(usuario, idCompany, niveles):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    ## Obtiene los archivos del request
-   diccionario = request.files['diccionario']
+   dicti = request.files['diccionario']
    try:
-      dicc = empresa.addDiccionario(diccionario, idCompany, niveles)
+      dicc = diccionario.addDiccionario(dicti, idCompany)
+      if dicc['response'] == 'OK':
+         dicc.pop('response')
+      else:
+         return jsonify(dicc)
       return jsonify({'response': 'OK', 'data': dicc})
    except Exception:
       traceback.print_exc()
-      return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + diccionario.filename})
+      return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + dicti.filename})
 
 @app.route('/files/employes/<idCompany>', methods = ['POST'])
 @privated
@@ -158,13 +169,17 @@ def loadEmployes(usuario, idCompany):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    ## Obtiene los archivos del request
-   usuarios    = request.files['usuarios']
+   empl = request.files['usuarios']
    try:
-      usus = empresa.addEmpleados(usuarios, idCompany)
+      usus = user.addEmpleados(empl, idCompany)
+      if usus['response'] == 'OK':
+         usus.pop('response')
+      else:
+         return jsonify(usus)
       return jsonify({'response': 'OK', 'data': usus})
    except Exception:
       traceback.print_exc()
-      return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + usuarios.filename})
+      return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + empl.filename})
 
 @app.route('/files/frecuency/<idCompany>', methods = ['POST'])
 @privated
@@ -183,13 +198,17 @@ def loadFrecuency(usuario, idCompany):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    ## Obtiene los archivos del request
-   frecuencias = request.files['frecuencias']
+   frecs = request.files['frecuencias']
    try:
-      frec = empresa.addFrecuacia(frecuencias, idCompany)
+      frec = frecuencia.addFrecuacia(frecs, idCompany)
+      if frec['response'] == 'OK':
+         frec.pop('response')
+      else:
+         return jsonify(frec)
       return jsonify({'response': 'OK', 'data': frec})
    except Exception:
       traceback.print_exc()
-      return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + frecuencias.filename})
+      return jsonify({'response': 'ERROR', 'message': 'Se presentó un error al procesar el archivo ' + frecs.filename})
 
 @app.route('/full/company/<idCompany>', methods = ['GET'])
 @privated
@@ -199,8 +218,8 @@ def getCompanyFull(usuario, idCompany):
        @params: 
          idCompany: Id mongo de la empresa
    '''
-   print("In getCompany:", idCompany)
-   resp = empresa.getFullCompanyById(idCompany)
+   print("In getCompanyFull:", idCompany)
+   resp = empresa.getFullCompanyByNIT(idCompany)
    return jsonify(resp)
 
 @app.route('/full/datos/<idCompany>', methods = ['GET'])
@@ -224,7 +243,7 @@ def getDictionary(usuario, idCompany):
          idCompany: Id mongo de la empresa
    '''
    print("In getDictionary:", idCompany)
-   resp = empresa.getDiccionarioByCompany(idCompany)
+   resp = diccionario.getDiccionarioByCompany(idCompany)
    return jsonify(resp)
 
 @app.route('/full/frecuency/<idCompany>', methods = ['GET'])
@@ -236,7 +255,7 @@ def getFrecuency(usuario, idCompany):
          idCompany: Id mongo de la empresa
    '''
    print("In getFrecuency:", idCompany)
-   resp = empresa.getFrecuenciasByCompany(idCompany)
+   resp = frecuencia.getFrecuenciasByCompany(idCompany)
    return jsonify(resp)
 
 @app.route('/full/employes/<idCompany>', methods = ['GET'])
@@ -250,5 +269,5 @@ def getEmployes(usuario, idCompany):
    print("In getDictionary:", idCompany)
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para acceder a esta información'})
-   resp = empresa.getEmpleadosByCompany(usuario, idCompany)
+   resp = user.getUsersByCompany(idCompany)
    return jsonify(resp)

@@ -14,12 +14,20 @@ class Empresa(db.Model):
         self.tipo    = tipo
         self.estado  = estado
     
-    def fromJSON(self, emp):
-        self.nit     = emp['id']
-        self.nombre  = emp['actividad']
-        self.niveles = emp['usuario']
-        self.tipo    = emp['cantidad']
-        self.estado  = emp['tiempo']
+    def __init__(self, emp):
+        self.nit     = emp['nit']
+        self.nombre  = emp['nombre']
+        self.niveles = emp['niveles']
+        self.tipo    = emp['tipo']
+        self.estado  = emp['estado']
+    
+    def toJSON(self):
+        return {
+            'nit'     : self.nit,
+            'nombre'  : self.nombre,
+            'niveles' : self.niveles,
+            'estado'  : self.estado,
+            'tipo'    : self.tipo}
 
 class empresaScheme(ma.Schema):
     class Meta:

@@ -114,9 +114,8 @@ def getUserByUsuario(idUser):
   try:
     resp = Usuario.query.filter(Usuario.id_usuario == idUser).first()
     if resp:
-      print("getUserByUsuario - resp", resp)
       return {'response': 'OK', 'data': resp.toJSON()}
-    return {'response': 'ERROR', 'message': 'No se encontró el usuario'}
+    return {'response': 'ERROR', 'message': 'No se encontró el usuario ' + idUser}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idUser}
@@ -129,12 +128,13 @@ def getUsersByCompany(idCompany):
   '''
   print("In getUsersByCompany:", idCompany)
   try:
-    usus = Usuario.query.filter(Usuario.empresa == idCompany)
+    usus = Usuario.query.filter(Usuario.empresa == idCompany, Usuario.estado == 'A')
     resp = []
     for us in usus:
       resp.append(us.toJSON())
-    print("getUsersByCompany - resp:", resp)
-    return {'response': 'OK', 'data': resp}
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response': 'ERROR', 'message': 'No se encuentras empleados para la empresa ' + idCompany}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar los usuarios de la empresa: ' + idCompany}
@@ -225,9 +225,10 @@ def updateUserById(user):
            Usuario.perfil     : user['perfil'],
            Usuario.ccostos    : user['ccostos'],
            Usuario.termino    : user['termino'],
-           Usuario.estado     : user['estado']})
+           Usuario.estado     : user['estado'],
+           Usuario.codigo     : user['codigo']})
     db.session.commit()
-    return {'response': 'OK', 'message': 'Usuario actualizado', 'data': user}
+    return {'response': 'OK', 'message': str(resp) + ' Usuario actualizado', 'data': user}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + user['id_usuario']}
@@ -247,7 +248,7 @@ def updateUserPassword(user):
       user['clave'] = encripted.decode('utf-8')
       resp = Usuario.query.filter(Usuario.id_usuario == user['id_usuario']).update({Usuario.clave : user['clave']})
       db.session.commit()
-      return {'response': 'OK', 'message': 'Usuario actualizado'}
+      return {'response': 'OK', 'message': str(resp) + ' Usuario actualizado'}
     return verifica
   except Exception:
     traceback.print_exc()

@@ -28,7 +28,7 @@ class Encuesta(db.Model):
         self.valorAct   = valorAct
         self.estado     = estado
     
-    def fromJSON(self, enc):
+    def __init__(self, enc):
         self.id         = enc['id']
         self.actividad  = enc['actividad']
         self.usuario    = enc['usuario']
@@ -41,7 +41,22 @@ class Encuesta(db.Model):
         self.fteUser    = enc['FteUser']
         self.valorAct   = enc['valorAct']
         self.estado     = enc['estado']
-
+    
+    def toJSON(self):
+        return{
+            'id'         : self.id,
+            'actividad'  : self.actividad,
+            'usuario'    : self.usuario,
+            'cantidad'   : self.cantidad,
+            'tiempo'     : self.tiempo,
+            'umedida'    : self.umedida,
+            'frecuencia' : self.frecuencia,
+            'jornada'    : self.jornada,
+            'fteAct'     : self.fteAct,
+            'FteUser'    : self.fteUser,
+            'valorAct'   : self.valorAct,
+            'estado'     : self.estado}
+    
 class encuestaScheme(ma.Schema):
     class Meta:
         fields = (

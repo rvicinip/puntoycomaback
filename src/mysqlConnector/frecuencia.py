@@ -16,14 +16,23 @@ class Frecuencia(db.Model):
         self.valor   = valor
         self.unidad  = unidad
     
-    def fromJSON(self, frec):
+    def __init__(self, frec):
         self.id      = frec['id_usuario']
         self.nombre  = frec['nombre']
         self.empresa = frec['empresa']
         self.tipo    = frec['tipo']
         self.valor   = frec['valor']
         self.unidad  = frec['unidad']
-
+    
+    def toJSON(self):
+        return {
+            'id'      : self.id,
+            'nombre'  : self.nombre,
+            'empresa' : self.empresa,
+            'tipo'    : self.tipo,
+            'valor'   : self.valor,
+            'unidad'  : self.unidad}
+    
 class frecuenciaScheme(ma.Schema):
     class Meta:
         fields = (

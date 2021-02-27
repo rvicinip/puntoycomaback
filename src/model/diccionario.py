@@ -2,7 +2,7 @@
 from operator import itemgetter
 from src.utility import xlsReader
 from src.utility.validator import codeTransform
-from src.mysqlConnector import diccionario
+from src.mysqlConnector.diccionario import Diccionario
 from src import db
 import traceback
 
@@ -15,8 +15,10 @@ def getActivity(emp, act):
   '''
   print("In getActivity:", act, emp)
   try:
-    resp = diccionario.query.filter(diccionario.empresa == emp, diccionario.id_actividad == act)
-    return {'response': 'OK', 'data': resp}
+    resp = Diccionario.query.filter(Diccionario.empresa == emp, Diccionario.id_actividad == act).first()
+    if resp:
+      return {'response': 'OK', 'data': resp.toJSON()}
+    return {'response': 'ERROR', 'message': 'No se encontró la actividad ' + act}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + act}
@@ -24,14 +26,19 @@ def getActivity(emp, act):
 
 def getDiccionarioByCompany(emp):
   '''
-     getDiccionarioByCompany: Busca un diccionario de una empresa por su '_id' \n
+     getDiccionarioByCompany: Busca un diccionario de una empresa por su 'nit' \n
      @params:
        company: Id de la empresa a buscar en la DB
   '''
   print("In getDiccionarioByCompany:", emp)
   try:
-    resp = diccionario.query.filter(diccionario.empresa == emp)
-    return {'response': 'OK', 'data': resp}
+    resp = []
+    acts = Diccionario.query.filter(Diccionario.empresa == emp).first()
+    for act in acts:
+      resp.append(act.toJSON)
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response': 'ERROR', 'message': 'No se encontró el diccionario de la empresa ' + emp}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + emp}
@@ -42,7 +49,6 @@ def addDiccionario(dicti, emp):
      @params: 
        dicti: objeto con los datos de los proceso de la compañia
        emp: id de la empresa a la que pertenece el diccionario
-       niveles: Cantidad de niveles que tiene el documento que se está guardando
   '''
   print("In addDiccionario:", emp)
   try:
@@ -70,13 +76,13 @@ def addDiccionario(dicti, emp):
             papa = papa['data']
             dic['id_padre'] = papa['id']
         if dic:
-          resp = diccionario.fromJSON(dic)
+          resp = Diccionario(dic)
           db.session.add(resp)
           db.session.commit()
-          lista.append(dic)
+          lista.append(resp)
       else:
         err.append({'response': 'Ya existe una actividad con ese id en la empresa', 'data': dic})
     return {'response': 'OK','data': lista, 'error': err}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error procesando el diccionario ' + diccionario.filename}
+    return {'response': 'ERROR', 'message': 'Se presentó un error procesando el diccionario ' + dicti.filename}

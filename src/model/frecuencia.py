@@ -1,6 +1,6 @@
 ### Se importan los plugins necesarios
 from src.utility import xlsReader
-from src.mysqlConnector import frecuencia
+from src.mysqlConnector.frecuencia import Frecuencia
 from src import db
 import traceback
 
@@ -13,22 +13,29 @@ def getFrecuencia(emp, frec):
   '''
   print("In getFrecuencia:", frec, emp)
   try:
-    resp = frecuencia.query.filter(frecuencia.nombre == frec, frecuencia.empresa == emp)
-    return {'response': 'OK', 'data': resp}
+    resp = Frecuencia.query.filter(Frecuencia.nombre == frec, Frecuencia.empresa == emp).first()
+    if resp:
+      return {'response' : 'OK', 'data': resp}
+    return {'response' : 'ERROR', 'message' : 'No se encontró la frecuencia ' + frec + ' para la empresa ' + emp}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + frec}
 
 def getFrecuenciasByCompany(emp):
   '''
-     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su '_id' \n
+     getFrecuenciasByCompany: Busca las frecuencias de una empresa por su 'nit' \n
      @params:
        company: Id de la empresa a buscar en la DB 
   '''
   print("In getFrecuenciasByCompany:", emp)
   try:
-    resp = frecuencia.query.filter(frecuencia.empresa == emp)
-    return {'response': 'OK', 'data': resp}
+    resp = []
+    frecs = Frecuencia.query.filter(Frecuencia.empresa == emp)
+    for frec in frecs:
+      resp.append(frec)
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response' : 'ERROR', 'message' : 'No se encontraron frecuencias para la empresa ' + emp}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + emp}
@@ -60,10 +67,11 @@ def addFrecuacia(frecs, emp):
       frec['tipo'] = int(frec['tipo'])
       revisa = getFrecuencia(frec['nombre'], frec['empresa'])
       if revisa['response'] != 'OK':
-        resp = frecuencia.fromJSON(frec)
-        db.session.add(resp)
-        db.session.commit()
-        lista.append(resp)
+        if frec:
+          resp = Frecuencia
+          db.session.add(resp)
+          db.session.commit()
+          lista.append(resp)
       else:
         err.append({'response': 'Ya existe esta frecuencia en la empresa', 'data': frec})
     return {'response': 'OK', 'data': lista, 'error': err}

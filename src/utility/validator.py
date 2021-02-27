@@ -65,7 +65,7 @@ def validateFiles(fields, files):
          fields: Lista de campos que se deben validar
          data: Datos a validar
    '''
-   print("In validateFiles")
+   print("In validateFiles" + fields)
    for value in fields:
       if not value in files:
          return {'response':'ERROR', 'message': 'No se recibió el archivo de ' + value + ', por favor verifíque'}

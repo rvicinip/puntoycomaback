@@ -69,7 +69,6 @@ def changePassword(usuario):
       return jsonify({'response':'ERROR', 'message': 'La contraseña nueva debe ser diferente de la actual'})
    if usuario['id_usuario'] != dato['id_usuario']:
       return jsonify({'response':'ERROR', 'message': 'Usuario autenticado no corresponde, por favor verifíque'})
-   dato['_id'] = usuario['_id']
    ## Actualiza la clave del usuario
    resp = user.updateUserPassword(dato)
    return jsonify(resp)

@@ -28,7 +28,7 @@ def createUserActivities(usuario):
   valida = validateFields(campos, datos)
   if valida['response'] == 'ERROR':
     return jsonify(valida)
-  cliente = usuario['_id']
+  cliente = usuario['id']
   acts = datos['actividades']
   resp = encuesta.createSelectedActivity(cliente, acts)
   return jsonify(resp)
@@ -47,10 +47,10 @@ def updateUserActivities(usuario):
   valida = validateFields(campos, datos)
   if valida['response'] == 'ERROR':
     return jsonify(valida)
-  cliente = usuario['_id']
+  cliente = usuario['id']
   acts = datos['actividades']
   vals = acts[0]
-  if vals['cliente'] != usuario['_id']:
+  if vals['cliente'] != usuario['id']:
       return jsonify({'response':'ERROR', 'message': 'El usuario no coincide'})
   resp = encuesta.createSelectedActivity(cliente, acts)
   return jsonify(resp)
@@ -64,6 +64,6 @@ def listUserActivities(usuario):
        usuario: Objeto Json con los datos del usuario cliente
   '''
   print("In updateUserActivities")
-  cliente = usuario['_id']
+  cliente = usuario['id']
   resp = encuesta.listSelectedActivities(cliente)
   return jsonify(resp)

@@ -8,7 +8,7 @@
    :author: Wiliam Arévalo Camacho
 '''
 ### Se importan los plugins necesarios
-from src.mysqlConnector import empresa
+from src.mysqlConnector.empresa import Empresa
 from src.model import user, frecuencia, diccionario
 from src import db
 import traceback
@@ -26,7 +26,9 @@ def addCompany(emp):
     verifica = getCompanyByNIT(emp['nit'])
     if 'data' in verifica:
       return {'response': 'ERROR', 'message': 'Ya existe una empresa con el mismo NIT'}    
-    comp = empresa.fromJSON(emp)
+    emp['tipo'] = 'client'
+    emp['estado'] = 'A'
+    comp = Empresa(emp)
     db.session.add(comp)
     db.session.commit()
     return {'response': 'OK', 'message': 'Empresa creada ', 'data': emp}
@@ -37,23 +39,25 @@ def addCompany(emp):
 ### LEE
 def getCompanyByNIT(idEmp):
   '''
-     getCompanyByNIT: Busca una empresa en la coleeción de empresas por el '_id' \n
+     getCompanyByNIT: Busca una empresa en la coleeción de empresas por el 'nit' \n
      @params:
        idEmp: Id del objeto usuario a buscar en la DB 
   '''
-  print("In getCompanyById:", idEmp)
+  print("In getCompanyByNIT:", idEmp)
   try:
-    resp = empresa.query.filter(empresa.nit == idEmp)
-    return {'response': 'OK', 'data': resp}
+    resp = Empresa.query.filter(Empresa.nit == idEmp, Empresa.estado == 'A').first()
+    if resp:
+      return {'response': 'OK', 'data': resp.toJSON()}
+    return {'response': 'ERROR', 'message': 'No se encontró la empresa ' + idEmp}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idEmp}
 
 def getFullCompanyByNIT(idEmp):
   '''
-     getFullCompanyById: Busca una empresa acorde a su '_id' y devuelve toda su información, diccionario, empleados y frecuencias \n
+     getFullCompanyById: Busca una empresa acorde a su 'nit' y devuelve toda su información, diccionario, empleados y frecuencias \n
      @params: 
-       idMongo: id Mongo de la empresa a buscar en la DB 
+       idEmp: NIT de la empresa a buscar en la DB 
   '''
   print("In getFullCompanyByNIT:", idEmp)
   try:
@@ -75,7 +79,7 @@ def getFullCompanyByNIT(idEmp):
 
 def getDictsFrecs(idEmp):
   '''
-     getDictsFrecs: Busca el diccionario y las frecuencias de una empresa acorde a su '_id' \n
+     getDictsFrecs: Busca el diccionario y las frecuencias de una empresa acorde a su 'nit' \n
      @params: 
        idMongo: id Mongo de la empresa a buscar en la DB 
   '''
@@ -106,13 +110,37 @@ def updateCompany(emp):
       value = verifica['data']
       if value['nit'] != emp['nit']:
         return {'response': 'ERROR', 'message': 'No se puede modificar el NIT'}
-      resp = empresa.query.filter(empresa.nit == emp['nit']).update({
-             empresa.nombre  : emp['nombre'],
-             empresa.niveles : emp['niveles'],
-             empresa.estado  : emp['estado']
+      resp = Empresa.query.filter(Empresa.nit == emp['nit']).update({
+                                  Empresa.nombre  : emp['nombre'],
+                                  Empresa.niveles : emp['niveles'],
+                                  Empresa.estado  : emp['estado']
       })
-      return {'response': 'OK', 'message': 'Empresa actualizada ', 'data': emp}
-    return {'response': 'ERROR', 'message': 'No se existe la empresa' + emp['_id']}
+      db.session.commit()
+      return {'response': 'OK', 'message': str(resp) + ' Empresa actualizada'}
+    return {'response': 'ERROR', 'message': 'No se existe la empresa' + emp['nit']}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
+
+def deleteCompany(idEmp):
+  '''
+     deleteCompany: Modifica el estado a "D" en una empresa en la DB \n
+     @params: 
+       idEmp: Nit de la empresa a eliminar en la DB 
+  '''
+  print("In deleteCompany:", idEmp)
+  try:
+    verifica = getCompanyByNIT(idEmp)
+    if verifica['response'] == 'OK':
+      value = verifica['data']
+      if value['nit'] != idEmp:
+        return {'response': 'ERROR', 'message': 'No se puede modificar el NIT'}
+      resp = Empresa.query.filter(Empresa.nit == idEmp).update({
+                                  Empresa.estado  : "D"  ## Indica que la empresa se encuentra inactiva
+      })
+      db.session.commit()
+      return {'response': 'OK', 'message': str(resp) + ' Empresa eliminada'}
+    return verifica
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}

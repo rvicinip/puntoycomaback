@@ -17,7 +17,7 @@ route: /company/<idCompany>, method: 'DELETE'
     Actualiza una empresa llevandola a estado 'D' de inactiva o eliminada en la DB
     idCompany: Id mongo de la empresa
 
-route: /files/<idCompany>/<niveles>, method: 'POST'
+route: /files/<idCompany>, method: 'POST'
     Recibe los archivos de una empresa para procesarlos y guardarlos en la DB
     idCompany: Id mongo de la empresa
     niveles: Define la cantidad de nivels que tiene el diccionario

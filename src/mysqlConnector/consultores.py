@@ -12,11 +12,18 @@ class Consultores(db.Model):
         self.consultor = consultor
         self.estado    = estado
     
-    def fromJSON(self, cons):
+    def __init__(self, cons):
         self.id        = cons['id']
         self.empresa   = cons['empresa']
         self.consultor = cons['consultor'] 
         self.estado    = cons['estado']
+    
+    def toJSON(self):
+        return{
+            'id'        : self.id,
+            'empresa'   : self.empresa,
+            'consultor' : self.consultor,
+            'estado'    : self.estado}
 
 class consultorScheme(ma.Schema):
     class Meta:
