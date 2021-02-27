@@ -37,6 +37,23 @@ def addCompany(emp):
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
 
 ### LEE
+def getAllCompanies():
+  '''
+     getAllCompanies: Busca todas las empresas en DB \n
+  '''
+  print("In getAllCompanies")
+  try:
+    resp = []
+    emps = Empresa.query.all()
+    for e in emps:
+      resp.append(e.toJSON())
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response': 'ERROR', 'message': 'No se encontraron empresas'}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idEmp}
+
 def getCompanyByNIT(idEmp):
   '''
      getCompanyByNIT: Busca una empresa en la coleeción de empresas por el 'nit' \n

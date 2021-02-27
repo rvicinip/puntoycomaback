@@ -14,7 +14,6 @@ class Diccionario(db.Model):
     cadena_de_valor = db.Column(db.String(20))
 
     def __init__(self, id, id_actividad, nombre, empresa, nivel, padre, descripcion, mas, ceno, tipo, cadena_de_valor):
-        self.id              = id
         self.id_actividad    = id_actividad
         self.nombre          = nombre
         self.empresa         = empresa
@@ -27,7 +26,6 @@ class Diccionario(db.Model):
         self.cadena_de_valor = cadena_de_valor
     
     def __init__(self, dicc):
-        self.id              = dicc['id']
         self.id_actividad    = dicc['id_actividad']
         self.nombre          = dicc['nombre']
         self.empresa         = dicc['empresa']

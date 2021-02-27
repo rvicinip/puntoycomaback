@@ -38,18 +38,6 @@ def createCompany(usuario):
    resp = empresa.addCompany(dato)
    return jsonify(resp)
 
-@app.route('/company/<idCompany>', methods = ['GET'])
-@privated
-def getCompany(usuario, idCompany):
-   '''
-       getCompany: Recupera los datos de una empresa en la DB \n
-       @params: 
-         idCompany: NIT de la empresa
-   '''
-   print("In getCompany:", idCompany)
-   resp = empresa.getCompanyByNIT(idCompany)
-   return jsonify(resp)
-
 @app.route('/company', methods = ['PUT'])
 @privated
 def updateCompany(usuario):
@@ -65,6 +53,28 @@ def updateCompany(usuario):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    resp = empresa.updateCompany(dato)
+   return jsonify(resp)
+
+@app.route('/company', methods = ['GET'])
+@privated
+def getCompanies(usuario):
+   '''
+       getCompany: Recupera todas las empresas en la DB \n
+   '''
+   print("In getCompanies")
+   resp = empresa.getAllCompanies()
+   return jsonify(resp)
+
+@app.route('/company/<idCompany>', methods = ['GET'])
+@privated
+def getCompany(usuario, idCompany):
+   '''
+       getCompany: Recupera los datos de una empresa en la DB \n
+       @params: 
+         idCompany: NIT de la empresa
+   '''
+   print("In getCompany:", idCompany)
+   resp = empresa.getCompanyByNIT(idCompany)
    return jsonify(resp)
 
 @app.route('/company/<idCompany>', methods = ['DELETE'])
