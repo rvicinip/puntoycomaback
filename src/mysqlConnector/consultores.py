@@ -6,8 +6,7 @@ class Consultores(db.Model):
     consultor = db.Column(db.Integer, nullable = False)
     estado    = db.Column(db.String(3), nullable = False)
     
-    def __init__(self, id, empresa, consultor, estado):
-        self.id        = id
+    def __init__(self, empresa, consultor, estado):
         self.empresa   = empresa
         self.consultor = consultor
         self.estado    = estado

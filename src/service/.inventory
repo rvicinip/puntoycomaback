@@ -168,3 +168,18 @@ route: /inquest/answer, method = 'POST'
 route: /inquest/list, method = 'GET'
     Lista las actividades del usuario con las respuestas de reporte de tiempos \n
     usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+
+###############
+   CONSULTOR
+###############
+
+route: /consultor, method = 'GET'
+    Devuelve las empresa del consultor logueado
+    token: campo con el token de autenticación en el backend
+
+route: /consultor/<company>/<user>, method = 'POST'
+    Asocia una empresa al consultor enviado
+    token: campo con el token de autenticación en el backend
+    company: Nit de la empresa a consultar
+    user: id_udusuario del consultor a vincular
+

@@ -1,13 +1,11 @@
 '''
    empresa:
-      Administra los datos de las empresas clientes de Venaycia.com 
+      Administra los servicios de las empresas clientes de Venaycia.com 
 
    copyright 2021 - Vitt Inversiones SAS - vitt.co:
       licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
    author: Wiliam Arévalo Camacho
 '''
-from src.mysqlConnector.frecuencia import Frecuencia
-from src.mysqlConnector.diccionario import Diccionario
 from flask import jsonify, request
 from src import app
 from src.model import empresa
