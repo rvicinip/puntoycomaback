@@ -15,7 +15,7 @@ class Consultores(db.Model):
         self.id        = cons['id']
         self.empresa   = cons['empresa']
         self.consultor = cons['consultor'] 
-        self.estado    = ('A', cons['estado'])['estado' in cons]  ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
+        self.estado    = cons['estado'] if ('estado' in cons) else 'A'  ## valor_si if condicion else valor_no
     
     def toJSON(self):
         return{

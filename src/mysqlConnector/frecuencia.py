@@ -20,7 +20,7 @@ class Frecuencia(db.Model):
         self.empresa = frec['empresa']
         self.tipo    = frec['tipo']
         self.valor   = frec['valor']
-        self.unidad  = (None, frec['unidad'])['unidad' in frec]  ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
+        self.unidad  = frec['unidad'] if ('unidad' in frec) else None  ## Ternario valor_si if condicion else valor_no
     
     def toJSON(self):
         return {

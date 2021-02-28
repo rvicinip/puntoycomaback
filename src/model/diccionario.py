@@ -81,7 +81,7 @@ def addDiccionario(dicti, emp):
           resp = Diccionario(dic)
           db.session.add(resp)
           db.session.commit()
-          lista.append(resp)
+          lista.append(resp.toJSON())
       else:
         err.append({'response': 'Ya existe una actividad con ese id en la empresa', 'data': dic})
     return {'response': 'OK','data': lista, 'error': err}

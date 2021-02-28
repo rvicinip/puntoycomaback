@@ -71,7 +71,7 @@ def addFrecuacia(frecs, emp):
           resp = Frecuencia(frec)
           db.session.add(resp)
           db.session.commit()
-          lista.append(resp)
+          lista.append(resp.toJSON())
       else:
         err.append({'response': 'Ya existe esta frecuencia en la empresa', 'data': frec})
     return {'response': 'OK', 'data': lista, 'error': err}

@@ -32,13 +32,13 @@ class Diccionario(db.Model):
         self.nombre          = dicc['nombre']
         self.empresa         = dicc['empresa']
         self.nivel           = dicc['nivel']
-        self.padre           = ('0', str(dicc['padre']))['padre' in dicc]
-        self.id_padre        = (None, dicc['id_padre'])['id_padre' in dicc]
-        self.descripcion     = (None, dicc['descripcion'])['descripcion' in dicc]
-        self.mas             = (None, dicc['mas'])['mas' in dicc]
-        self.ceno            = (None, dicc['ceno'])['ceno' in dicc]
-        self.tipo            = (None, dicc['tipo'])['tipo' in dicc]
-        self.cadena_de_valor = (None, dicc['cadena_de_valor'])['cadena_de_valor' in dicc]  ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
+        self.padre           = str(dicc['padre']) if ('padre' in dicc) else '0'
+        self.id_padre        = dicc['id_padre'] if ('id_padre' in dicc) else None
+        self.descripcion     = dicc['descripcion'] if ('descripcion' in dicc) else None
+        self.mas             = dicc['mas'] if ('mas' in dicc) else None
+        self.ceno            = dicc['ceno'] if ('ceno' in dicc) else None
+        self.tipo            = dicc['tipo'] if ('tipo' in dicc) else None
+        self.cadena_de_valor = dicc['cadena_de_valor'] if ('cadena_de_valor' in dicc) else None     ## Ternario valor_si if condicion else valor_no
     
     def toJSON(self):
         return{

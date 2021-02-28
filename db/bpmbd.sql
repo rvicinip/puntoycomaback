@@ -43,17 +43,17 @@ CREATE TABLE `usuario` (
   `id_usuario` varchar(20) NOT NULL COMMENT 'Numero de documento de identidad del usuario y login del mismo',
   `nombre` varchar(200) NOT NULL COMMENT 'Nombre completo del usuario',
   `empresa` varchar(20) NOT NULL COMMENT 'Identificador de la empresa a la que pertenece el usuario',
-  `clave` varchar(300) NOT NULL COMMENT 'Contraseña de ingreso del usuario',
+  `clave` varchar(255) NOT NULL COMMENT 'Contraseña de ingreso del usuario',
   `email` varchar(100) DEFAULT NULL COMMENT 'Correo electrónico del usuario',
   `cargo` varchar(50) DEFAULT NULL COMMENT 'Cargo que desempeña en la empresa',
   `salario` int(11) DEFAULT NULL COMMENT 'Remuneración económica que recibe el empleado',
   `jornada` varchar(10) DEFAULT NULL COMMENT 'Tipo de jornada que realiza el empleado',
   `perfil` varchar(10) DEFAULT NULL COMMENT 'Nombre de los privilegios que tiene el usuario dentro de la aplicación',
-  `ccostos` varchar(50) DEFAULT NULL COMMENT 'Centro de constos al que está afiliado el trabajador',
-  `termino` varchar(10) DEFAULT NULL COMMENT 'Tipo de contrato de trabajo',
+  `centrocosto` varchar(50) DEFAULT NULL COMMENT 'Centro de constos al que está afiliado el trabajador',
+  `tipocontrato` varchar(10) DEFAULT NULL COMMENT 'Tipo de contrato de trabajo',
   `estado` varchar(3) DEFAULT NULL COMMENT 'Estatus dentro de la aplicación del usuario A(activo) D(inactivo)',
   `codigo` int(11) DEFAULT NULL COMMENT 'Campo para validar la recuperación de contraseña',
-  `estadoEncuesta` varchar(3) DEFAULT 'P' COMMENT 'Estado del desarrollo de la encuesta del usuario, "P"(Pendiente), "D"(Desarrollo), "T"(Terminado)',
+  `estadoEncuesta` varchar(15) DEFAULT 'Pendiente' COMMENT 'Estado del desarrollo de la encuesta del usuario: (Pendiente, Desarrollo, Terminado)',
   PRIMARY KEY (`id_usuario`),
   KEY `FK_Empresa_Usuario_idx` (`empresa`),
   CONSTRAINT `FK_Empresa_Usuario` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`nit`) ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -94,18 +94,19 @@ CREATE TABLE `diccionario` (
   `nombre` varchar(200) NOT NULL COMMENT 'Nombre de la actividad',
   `empresa` varchar(20) NOT NULL COMMENT 'Relaciona la empresa a la que eprtenece la actividad',
   `nivel` int(11) NOT NULL COMMENT 'Indicador del nivel al que pertenece la actividad',
-  `padre` int(11) DEFAULT NULL COMMENT 'Relaciona el id del padre al que pertenece la actividad',
-  `descripcion` varchar(300) DEFAULT NULL COMMENT 'Contiene la descripción de la actividad',
+  `padre` varchar(15) DEFAULT NULL COMMENT 'Relaciona el id del padre al que pertenece la actividad',
+  `id_padre` int(11) DEFAULT NULL,
+  `descripcion` text COMMENT 'Contiene la descripción de la actividad',
   `mas` varchar(20) DEFAULT NULL COMMENT 'Manual, Automática, Semiautomática',
   `ceno` varchar(20) DEFAULT NULL COMMENT 'Crítica, Escencial, No Escencial, Opcional',
   `tipo` varchar(20) DEFAULT NULL COMMENT 'Clasificación de la actividad dentro de la empresa',
   `cadena_de_valor` varchar(20) DEFAULT NULL COMMENT 'Donde aporta valor a la empresa la actividad',
   PRIMARY KEY (`id`),
   KEY `FK_Empresa_Diccionario_idx` (`empresa`),
-  KEY `FK_Padre_Diccionario_idx` (`padre`),
+  KEY `FK_Padre_Diccionario_idx` (`id_padre`),
   CONSTRAINT `FK_Empresa_Diccionario` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`nit`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `FK_Padre_Diccionario` FOREIGN KEY (`padre`) REFERENCES `diccionario` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Contiene el diccionario de actividades de la empresa';
+  CONSTRAINT `FK_Padre_Diccionario` FOREIGN KEY (`id_padre`) REFERENCES `diccionario` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=300 DEFAULT CHARSET=utf8 COMMENT='Contiene el diccionario de actividades de la empresa';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -125,7 +126,7 @@ CREATE TABLE `frecuencia` (
   PRIMARY KEY (`id`),
   KEY `FK_Empresa_Frecuencia_idx` (`empresa`),
   CONSTRAINT `FK_Empresa_Frecuencia` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`nit`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Unidades de medida y periodos de frecuencia de las tareas';
+) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8 COMMENT='Unidades de medida y periodos de frecuencia de las tareas';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -166,4 +167,4 @@ CREATE TABLE `encuesta` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-27  8:21:21
+-- Dump completed on 2021-02-28 11:34:14

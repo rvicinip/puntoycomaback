@@ -30,8 +30,6 @@ def addUserClient(user, empresa):
   user['empresa'] = empresa
   user['perfil'] = 'client'
   user['estado'] = 'A' ## A indica que el estado del usuario es activo
-  user['codigo'] = 0
-  user['estadoEncuesta'] = 'P'
   clave = str(user['clave']).encode()
   encripted = bcrypt.hashpw(clave, bcrypt.gensalt(12))
   user['clave'] = encripted.decode('utf-8')
@@ -41,7 +39,7 @@ def addUserClient(user, empresa):
       info = Usuario(user)
       db.session.add(info)
       db.session.commit()
-      return {'response': 'OK', 'message': 'Usuario creado correctamente', 'data' : info}
+      return {'response': 'OK', 'message': 'Usuario creado correctamente', 'data' : info.toJSON()}
     return {'response': 'ERROR', 'message': 'Ya existe un usuario con el mismo id'}
   except Exception:
     traceback.print_exc()

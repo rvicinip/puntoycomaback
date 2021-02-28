@@ -18,8 +18,8 @@ class Empresa(db.Model):
         self.nit     = emp['nit']
         self.nombre  = emp['nombre']
         self.niveles = emp['niveles']
-        self.tipo    = ('Client', emp['tipo'])['tipo' in emp]   ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
-        self.estado  = ('A', emp['estado'])['estado' in emp]
+        self.tipo    = emp['tipo'] if ('tipo' in emp) else 'Client'
+        self.estado  = emp['estado'] if ('estado' in emp) else 'A'     ## valor_si if condicion else valor_no
     
     def toJSON(self):
         return {

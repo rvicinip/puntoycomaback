@@ -37,16 +37,16 @@ class Usuario(db.Model):
         self.nombre         = user['nombre']
         self.empresa        = user['empresa']
         self.clave          = user['clave']
-        self.email          = (None, user['email'])['email' in user]
-        self.cargo          = (None, user['cargo'])['cargo' in user]
-        self.salario        = (None, user['salario'])['salario' in user]
-        self.jornada        = (None, user['jornada'])['jornada' in user]
-        self.perfil         = (None, user['perfil'])['perfil' in user]
-        self.centrocosto    = (None, user['centrocosto'])['centrocosto' in user]
-        self.tipocontrato   = (None, user['tipocontrato'])['tipocontrato' in user]
-        self.estado         = ('A', user['estado'])['estado' in user]
-        self.codigo         = (0, user['codigo'])['codigo' in user]
-        self.estadoEncuesta = ('P', user['estadoEncuesta'])['estadoEncuesta' in user]     ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
+        self.email          = user['email'] if ('email' in user) else None
+        self.cargo          = user['cargo'] if ('cargo' in user) else None
+        self.salario        = user['salario'] if ('salario' in user) else None
+        self.jornada        = user['jornada'] if ('jornada' in user) else None
+        self.perfil         = user['perfil'] if ('perfil' in user) else None
+        self.centrocosto    = user['centrocosto'] if ('centrocosto' in user) else None
+        self.tipocontrato   = user['tipocontrato'] if ('tipocontrato' in user) else None
+        self.estado         = user['estado'] if ('estado' in user) else 'A'
+        self.codigo         = user['codigo'] if ('codigo' in user) else 0
+        self.estadoEncuesta = user['estadoEncuesta'] if ('estadoEncuesta' in user) else 'Pendiente'     ## valor_si if condicion else valor_no
     
     def toJSON(self):
         return {

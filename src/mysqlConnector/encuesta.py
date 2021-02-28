@@ -36,11 +36,11 @@ class Encuesta(db.Model):
         self.tiempo     = enc['tiempo']
         self.umedida    = enc['umedida']
         self.frecuencia = enc['frecuencia']
-        self.jornada    = (None, enc['jornada'])['jornada' in enc]
-        self.fteAct     = (None, enc['fteAct'])['fteAct' in enc]
-        self.fteUser    = (None, enc['FteUser'])['FteUser' in enc]
-        self.valorAct   = (None, enc['valorAct'])['valorAct' in enc]
-        self.estado     = (None, enc['estado'])['estado' in enc]        ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
+        self.jornada    = enc['jornada'] if ('jornada' in enc) else None 
+        self.fteAct     = enc['fteAct'] if ('fteAct' in enc) else None 
+        self.fteUser    = enc['FteUser'] if ('FteUser' in enc) else None 
+        self.valorAct   = enc['valorAct'] if ('valorAct' in enc) else None 
+        self.estado     = enc['estado'] if ('estado' in enc) else None   ## Ternario valor_si if condicion else valor_no
     
     def toJSON(self):
         return{
