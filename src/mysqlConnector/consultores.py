@@ -15,7 +15,7 @@ class Consultores(db.Model):
         self.id        = cons['id']
         self.empresa   = cons['empresa']
         self.consultor = cons['consultor'] 
-        self.estado    = cons['estado']
+        self.estado    = ('A', cons['estado'])['estado' in cons]  ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
     
     def toJSON(self):
         return{

@@ -27,7 +27,10 @@ def readXLS(document, hoja):
     for index, row in data.iterrows():
       reg = {}
       for t in range(len(data.columns)):
-        reg[str(data.columns[t]).lower()] = row[data.columns[t]]
+        val = row[data.columns[t]]
+        if str(val).lower() == 'nan':
+          val = None
+        reg[str(data.columns[t]).lower()] = val
       resp.append(reg)
     return resp
   except Exception:

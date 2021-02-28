@@ -30,16 +30,18 @@ def addUserClient(user, empresa):
   user['empresa'] = empresa
   user['perfil'] = 'client'
   user['estado'] = 'A' ## A indica que el estado del usuario es activo
+  user['codigo'] = 0
+  user['estadoEncuesta'] = 'P'
   clave = str(user['clave']).encode()
   encripted = bcrypt.hashpw(clave, bcrypt.gensalt(12))
   user['clave'] = encripted.decode('utf-8')
   try:
     verifica = getUserByUsuario(user['id_usuario'])
     if not 'data' in verifica:
-      info = Usuario.fromJSON(user)
+      info = Usuario(user)
       db.session.add(info)
       db.session.commit()
-      return {'response': 'OK', 'message': 'Usuario creado ', 'data': info}
+      return {'response': 'OK', 'message': 'Usuario creado correctamente', 'data' : info}
     return {'response': 'ERROR', 'message': 'Ya existe un usuario con el mismo id'}
   except Exception:
     traceback.print_exc()
@@ -74,16 +76,16 @@ def addUserEmpresa(user):
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
 
-def addEmpleados(user, comp):
+def addEmpleados(user, idEmp):
   '''
      addEmpleados: Crea los registro de los empleados asociaciados a una empresa \n
      @params: 
        usuario: objeto con los datos de los empleados de la compañia
-       company: id mongo de la empresa a la que pertenecen los usuarios
+       idEmp: id mongo de la empresa a la que pertenecen los usuarios
   '''
-  print("In addEmpleados:", comp)
+  print("In addEmpleados:", idEmp)
   try:
-    lector = xlsReader.readXLS(user, 1)
+    lector = xlsReader.readXLS(user, 1) ## Archivo, Hojas a leer
     if 'ERROR' in lector:
       return {'response': 'ERROR', 'message': lector['ERROR']}
     campos = ['id_usuario',	'clave',	'nombre',	'salario',	'jornada',	'cargo',	'tipo']
@@ -93,7 +95,7 @@ def addEmpleados(user, comp):
     lista = []
     err   = []
     for usu in lector:
-      resp = addUserClient(usu, comp)
+      resp = addUserClient(usu, idEmp)
       if resp['response'] == 'ERROR':
         err.append({'response': resp['message'], 'data': usu})
       else:
@@ -115,10 +117,10 @@ def getUserByUsuario(idUser):
     resp = Usuario.query.filter(Usuario.id_usuario == idUser).first()
     if resp:
       return {'response': 'OK', 'data': resp.toJSON()}
-    return {'response': 'ERROR', 'message': 'No se encontró el usuario ' + idUser}
+    return {'response': 'ERROR', 'message': 'No se encontró el usuario ' + str(idUser)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idUser}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
 
 def getUsersByCompany(idCompany):
   '''
@@ -134,10 +136,10 @@ def getUsersByCompany(idCompany):
       resp.append(us.toJSON())
     if len(resp) > 0:
       return {'response': 'OK', 'data': resp}
-    return {'response': 'ERROR', 'message': 'No se encuentras empleados para la empresa ' + idCompany}
+    return {'response': 'ERROR', 'message': 'No se encuentras empleados para la empresa ' + str(idCompany)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar los usuarios de la empresa: ' + idCompany}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar los usuarios de la empresa: ' + str(idCompany)}
 
 def recallUserPassword(idUsuario):
   '''
@@ -166,7 +168,7 @@ def recallUserPassword(idUsuario):
     return upd
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idUsuario}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUsuario)}
 
 def validateCodigo(user):
   '''
@@ -288,4 +290,4 @@ def deleteUserById(idUsuario):
     return {'response': 'OK', 'message': 'Usuario borrado'}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar el usuario: ' + idUsuario}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar el usuario: ' + str(idUsuario)}

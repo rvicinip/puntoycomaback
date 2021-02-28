@@ -36,11 +36,11 @@ class Encuesta(db.Model):
         self.tiempo     = enc['tiempo']
         self.umedida    = enc['umedida']
         self.frecuencia = enc['frecuencia']
-        self.jornada    = enc['jornada']
-        self.fteAct     = enc['fteAct']
-        self.fteUser    = enc['FteUser']
-        self.valorAct   = enc['valorAct']
-        self.estado     = enc['estado']
+        self.jornada    = (None, enc['jornada'])['jornada' in enc]
+        self.fteAct     = (None, enc['fteAct'])['fteAct' in enc]
+        self.fteUser    = (None, enc['FteUser'])['FteUser' in enc]
+        self.valorAct   = (None, enc['valorAct'])['valorAct' in enc]
+        self.estado     = (None, enc['estado'])['estado' in enc]        ## Ternario (ValorSiFalso, ValorSiVerdadero)[Condición]
     
     def toJSON(self):
         return{

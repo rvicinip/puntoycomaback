@@ -62,13 +62,13 @@ def addFrecuacia(frecs, emp):
       valor = float(frec['valor'])
       if valor <= 0 :
         err.append({'response': 'el valor de la frecuencia debe ser mayor a 0', 'data': frec})
-        frec = {}
+        frec.clear()
       frec['valor'] = valor
       frec['tipo'] = int(frec['tipo'])
       revisa = getFrecuencia(frec['nombre'], frec['empresa'])
       if revisa['response'] != 'OK':
         if frec:
-          resp = Frecuencia
+          resp = Frecuencia(frec)
           db.session.add(resp)
           db.session.commit()
           lista.append(resp)

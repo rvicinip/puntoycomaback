@@ -75,6 +75,8 @@ def addDiccionario(dicti, emp):
           else:
             papa = papa['data']
             dic['id_padre'] = papa['id']
+        else:
+          dic['id_padre'] = None
         if dic:
           resp = Diccionario(dic)
           db.session.add(resp)
