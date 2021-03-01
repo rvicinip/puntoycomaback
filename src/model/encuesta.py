@@ -8,26 +8,22 @@
    :author: Wiliam Arévalo Camacho
 '''
 ### Se importan los plugins necesarios
-from src.mongoCRUD import connector
 from src.utility.validator import validateFields
-from config import MONGO, DB
-from bson import ObjectId
+from src.mysqlConnector.encuesta import Encuesta
+from src import db
 import traceback
 
-ENCCOLL = 'encuesta'
-
-def createSelectedActivity(actividad):
+def createSelectedActivity(activity):
   '''
      selectActivity: Crea una actividad en la lista de un usuario \n
      @params: 
        actividad: Objeto Json de la actividad seleccionada por el usuario
   '''
   try:
-    resp = connector.addToCollection(MONGO, DB, ENCCOLL, actividad)
-    if not ObjectId.is_valid(str(resp)):
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    actividad['id'] = str(ObjectId(resp))
-    return {'response': 'OK', 'message': 'Encuesta de usuario creada', 'data': actividad}
+    actividad = Encuesta(activity)
+    db.session.add(actividad)
+    db.session.commit()
+    return {'response': 'OK', 'message': 'Respuesta de encuesta creada'}    
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Se presentó un error al crear la encuesta'}
@@ -41,7 +37,7 @@ def createSelectedActivities(usuario, actividades):
   '''
   resp = []
   encuesta = {}
-  encuesta['cliente'] = usuario
+  encuesta['usuario'] = usuario
   for act in actividades:
     encuesta['actividad'] = act
     crea = createSelectedActivity(encuesta)
@@ -50,17 +46,42 @@ def createSelectedActivities(usuario, actividades):
     resp.append(crea['data'])
   return {'response': 'OK', 'data': resp}
 
-def updateSelectedActivity(actividad):
+def getEncuestaById(idEnc):
+  '''
+     getEncuestaById: Busca una empresa en la coleeción de empresas por el 'nit' \n
+     @params:
+       idAct: Id de actividad a buscar en la DB 
+  '''
+  print("In getEncuestaById:", idEnc)
+  try:
+    resp = Encuesta.query.filter(Encuesta.id == idEnc, Encuesta.estado == 'A').first()
+    if resp:
+      return {'response': 'OK', 'data': resp.toJSON()}
+    return {'response': 'ERROR', 'message': 'No se encontró la respuesta a la encuesta ' + str(idEnc)}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idEnc)}
+
+def updateSelectedActivity(encuesta):
   '''
      updateSelectedActivity: Actualiza una actividad agregando las respuesta de tiempo y frecuencia \n
      @params: 
-       actividad: Objeto Json de la actividad seleccionada por el usuario
+       encuesta: Objeto Json de la encuesta seleccionada por el usuario
   '''
   try:
-    resp = connector.updateById(MONGO, DB, ENCCOLL, actividad)
-    if not resp.acknowledged:
-        return {'response': 'ERROR', 'message': 'No se actualizó la actividad'}
-    return {'response': 'OK', 'message': 'Actividad actualizada', 'data': actividad}
+    verifica = getEncuestaById(encuesta['id'])
+    if verifica['response'] == 'OK':
+      value = verifica['data']
+      if value['usuario'] != encuesta['usuario']:
+        return {'response': 'ERROR', 'message': 'El usuario ' + str(encuesta['usuario']) + ' no puede modificar esta encuesta'}
+      resp = Encuesta.query.filter(Encuesta.id == encuesta['id']).update({
+                                  Encuesta.actividad  : encuesta['actividad'],
+                                  Encuesta.tiempo     : encuesta['tiempo'],
+                                  Encuesta.frecuencia : encuesta['frecuencia'],
+                                  Encuesta.umedida    : encuesta['umedida']})
+      db.session.commit()
+      return {'response': 'OK', 'message': str(resp) + ' Encuesta actualizada'}
+    return {'response': 'ERROR', 'message': 'No se existe la encuesta' + str(encuesta['id'])}
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Se presentó un error actualziando la actividad'}
@@ -93,13 +114,17 @@ def listSelectedActivities(usuario):
   '''
      listSelectedActivities: Lista las respuestas de las actividades de un usuario en su reporte \n
      @params: 
-       usuario: Id mongo del usuario asociado a la actividad
+       usuario: id_usuario del usuario asociado a la actividad
   '''
+  print("In listSelectedActivities")
   try:
-    resp = connector.getCollecctionsByField(MONGO, DB, ENCCOLL, {'cliente': usuario})
-    if 'ERROR' in resp:
-      return {'response': 'ERROR', 'message': resp['ERROR']}
-    return {'response': 'OK', 'data': resp}
+    resp = []
+    acts = Encuesta.query.filter(Encuesta.usuario == usuario)
+    for act in acts:
+      resp.append(act.toJSON())
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + usuario}
+    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}

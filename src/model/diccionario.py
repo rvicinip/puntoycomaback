@@ -33,9 +33,9 @@ def getDiccionarioByCompany(emp):
   print("In getDiccionarioByCompany:", emp)
   try:
     resp = []
-    acts = Diccionario.query.filter(Diccionario.empresa == emp).first()
+    acts = Diccionario.query.filter(Diccionario.empresa == emp)
     for act in acts:
-      resp.append(act.toJSON)
+      resp.append(act.toJSON())
     if len(resp) > 0:
       return {'response': 'OK', 'data': resp}
     return {'response': 'ERROR', 'message': 'No se encontró el diccionario de la empresa ' + emp}

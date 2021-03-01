@@ -15,7 +15,6 @@ class Encuesta(db.Model):
     estado     = db.Column(db.String(3))
 
     def __init__(self, id, actividad, usuario, cantidad, tiempo, umedida, frecuencia, jornada, fteAct, fteUser, valorAct, estado):
-        self.id         = id
         self.actividad  = actividad
         self.usuario    = usuario
         self.cantidad   = cantidad
@@ -29,18 +28,17 @@ class Encuesta(db.Model):
         self.estado     = estado
     
     def __init__(self, enc):
-        self.id         = enc['id']
         self.actividad  = enc['actividad']
         self.usuario    = enc['usuario']
         self.cantidad   = enc['cantidad']
         self.tiempo     = enc['tiempo']
         self.umedida    = enc['umedida']
         self.frecuencia = enc['frecuencia']
-        self.jornada    = enc['jornada'] if ('jornada' in enc) else None 
-        self.fteAct     = enc['fteAct'] if ('fteAct' in enc) else None 
-        self.fteUser    = enc['FteUser'] if ('FteUser' in enc) else None 
+        self.jornada    = enc['jornada']  if ('jornada' in enc)  else None 
+        self.fteAct     = enc['fteAct']   if ('fteAct' in enc)   else None 
+        self.fteUser    = enc['FteUser']  if ('FteUser' in enc)  else None 
         self.valorAct   = enc['valorAct'] if ('valorAct' in enc) else None 
-        self.estado     = enc['estado'] if ('estado' in enc) else None   ## Ternario valor_si if condicion else valor_no
+        self.estado     = enc['estado']   if ('estado' in enc)   else None      ## Ternario valor_si if condicion else valor_no
     
     def toJSON(self):
         return{

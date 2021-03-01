@@ -14,40 +14,39 @@ from src.model import encuesta
 from src.utility.validator import validateFields
 from .protector import privated
 
-@app.route('/inquest/select', methods = ['POST'])
-@privated
-def createUserActivities(usuario):
-  '''
-     createUserActivities: Crea las actividades del usuario para empezar las respuestas de reporte de tiempos \n
-     @params:
-       usuario: Objeto Json con los datos del usuario cliente
-  '''
-  print("In createUserActivities")
-  campos = ['actividades']
-  datos = request.json
-  valida = validateFields(campos, datos)
-  if valida['response'] == 'ERROR':
-    return jsonify(valida)
-  cliente = usuario['id']
-  acts = datos['actividades']
-  resp = encuesta.createSelectedActivity(cliente, acts)
-  return jsonify(resp)
-
 @app.route('/inquest/answer', methods = ['POST'])
 @privated
-def updateUserActivities(usuario):
+def createUserActivity(usuario):
   '''
-     updateUserActivities: Actualiza las actividades del usuario guardando las respuestas de reporte de tiempos \n
+     createUserActivity: Crea las actividades del usuario para empezar las respuestas de reporte de tiempos \n
      @params:
-       usuario: Objeto Json con los datos del usuario cliente
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
   '''
-  print("In updateUserActivities")
-  campos = ['actividades']
+  print("In createUserActivity")
+  campos = ['actividad', 'tiempo', 'frecuencia', 'cantidad', 'umedida']
   datos = request.json
   valida = validateFields(campos, datos)
   if valida['response'] == 'ERROR':
     return jsonify(valida)
-  cliente = usuario['id']
+  datos['usuario'] = usuario['id_usuario']
+  resp = encuesta.createSelectedActivity(datos)
+  return jsonify(resp)
+
+@app.route('/inquest/answer', methods = ['PUT'])
+@privated
+def updateUserActivity(usuario):
+  '''
+     updateUserActivity: Actualiza las actividades del usuario guardando las respuestas de reporte de tiempos \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente
+  '''
+  print("In updateUserActivity")
+  campos = ['id', 'actividad', 'tiempo', 'frecuencia', 'cantidad', 'umedida']
+  datos = request.json
+  valida = validateFields(campos, datos)
+  if valida['response'] == 'ERROR':
+    return jsonify(valida)
+  cliente = usuario['id_usuario']
   acts = datos['actividades']
   vals = acts[0]
   if vals['cliente'] != usuario['id']:
@@ -63,7 +62,7 @@ def listUserActivities(usuario):
      @params:
        usuario: Objeto Json con los datos del usuario cliente
   '''
-  print("In updateUserActivities")
-  cliente = usuario['id']
+  print("In listUserActivities")
+  cliente = usuario['id_usuario']
   resp = encuesta.listSelectedActivities(cliente)
   return jsonify(resp)

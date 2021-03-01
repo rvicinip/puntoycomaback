@@ -32,7 +32,7 @@ def getFrecuenciasByCompany(emp):
     resp = []
     frecs = Frecuencia.query.filter(Frecuencia.empresa == emp)
     for frec in frecs:
-      resp.append(frec)
+      resp.append(frec.toJSON())
     if len(resp) > 0:
       return {'response': 'OK', 'data': resp}
     return {'response' : 'ERROR', 'message' : 'No se encontraron frecuencias para la empresa ' + emp}

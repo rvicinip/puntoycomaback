@@ -65,10 +65,10 @@ def getCompanyByNIT(idEmp):
     resp = Empresa.query.filter(Empresa.nit == idEmp, Empresa.estado == 'A').first()
     if resp:
       return {'response': 'OK', 'data': resp.toJSON()}
-    return {'response': 'ERROR', 'message': 'No se encontró la empresa ' + idEmp}
+    return {'response': 'ERROR', 'message': 'No se encontró la empresa ' + str(idEmp)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + idEmp}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idEmp)}
 
 def getFullCompanyByNIT(idEmp):
   '''

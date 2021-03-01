@@ -16,6 +16,52 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `empresa`
+--
+
+DROP TABLE IF EXISTS `empresa`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `empresa` (
+  `nit` varchar(20) NOT NULL COMMENT 'Número de identificación de la emoresa',
+  `nombre` varchar(200) NOT NULL COMMENT 'Nombre de la empresa',
+  `niveles` int(11) NOT NULL COMMENT 'Cantidad de niveles que manejará la empresa',
+  `estado` varchar(3) DEFAULT NULL COMMENT 'Estado en que se encuentra la empresa A(activo) D(inactiva)',
+  `tipo` varchar(10) DEFAULT NULL COMMENT 'Rol de la empresa en la aplicación',
+  PRIMARY KEY (`nit`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `usuario`
+--
+
+DROP TABLE IF EXISTS `usuario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usuario` (
+  `id_usuario` varchar(20) NOT NULL COMMENT 'Numero de documento de identidad del usuario y login del mismo',
+  `nombre` varchar(200) NOT NULL COMMENT 'Nombre completo del usuario',
+  `empresa` varchar(20) NOT NULL COMMENT 'Identificador de la empresa a la que pertenece el usuario',
+  `clave` varchar(255) NOT NULL COMMENT 'Contraseña de ingreso del usuario',
+  `email` varchar(100) DEFAULT NULL COMMENT 'Correo electrónico del usuario',
+  `cargo` varchar(50) DEFAULT NULL COMMENT 'Cargo que desempeña en la empresa',
+  `salario` int(11) DEFAULT NULL COMMENT 'Remuneración económica que recibe el empleado',
+  `jornada` varchar(10) DEFAULT NULL COMMENT 'Tipo de jornada que realiza el empleado',
+  `perfil` varchar(10) DEFAULT NULL COMMENT 'Nombre de los privilegios que tiene el usuario dentro de la aplicación',
+  `centrocosto` varchar(50) DEFAULT NULL COMMENT 'Centro de constos al que está afiliado el trabajador',
+  `tipocontrato` varchar(10) DEFAULT NULL COMMENT 'Tipo de contrato de trabajo',
+  `estado` varchar(3) DEFAULT NULL COMMENT 'Estatus dentro de la aplicación del usuario A(activo) D(inactivo)',
+  `codigo` int(11) DEFAULT NULL COMMENT 'Campo para validar la recuperación de contraseña',
+  `estadoEncuesta` varchar(15) DEFAULT 'Pendiente' COMMENT 'Estado del desarrollo de la encuesta del usuario: (Pendiente, Desarrollo, Terminado)',
+  PRIMARY KEY (`id_usuario`),
+  KEY `FK_Empresa_Usuario_idx` (`empresa`),
+  CONSTRAINT `FK_Empresa_Usuario` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`nit`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de los usuarios del sistema de bpmdb';
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+--
 -- Table structure for table `consultor`
 --
 
@@ -64,20 +110,23 @@ CREATE TABLE `diccionario` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `empresa`
+-- Table structure for table `frecuencia`
 --
 
-DROP TABLE IF EXISTS `empresa`;
+DROP TABLE IF EXISTS `frecuencia`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `empresa` (
-  `nit` varchar(20) NOT NULL COMMENT 'Número de identificación de la emoresa',
-  `nombre` varchar(200) NOT NULL COMMENT 'Nombre de la empresa',
-  `niveles` int(11) NOT NULL COMMENT 'Cantidad de niveles que manejará la empresa',
-  `estado` varchar(3) DEFAULT NULL COMMENT 'Estado en que se encuentra la empresa A(activo) D(inactiva)',
-  `tipo` varchar(10) DEFAULT NULL COMMENT 'Rol de la empresa en la aplicación',
-  PRIMARY KEY (`nit`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE `frecuencia` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del registro',
+  `nombre` varchar(200) NOT NULL COMMENT 'Nombre de la frecuencia',
+  `tipo` int(11) NOT NULL COMMENT 'Clasificación de la frecuencia',
+  `valor` float NOT NULL COMMENT 'Valor correspondiente a la frecuencia',
+  `empresa` varchar(20) NOT NULL COMMENT 'Empresa a la que pertenece la frecuencia',
+  `unidad` varchar(15) DEFAULT NULL COMMENT 'Unidad de medida de la frecuencia',
+  PRIMARY KEY (`id`),
+  KEY `FK_Empresa_Frecuencia_idx` (`empresa`),
+  CONSTRAINT `FK_Empresa_Frecuencia` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`nit`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8 COMMENT='Unidades de medida y periodos de frecuencia de las tareas';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -110,55 +159,6 @@ CREATE TABLE `encuesta` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Contiene las respuesta de los empleados al reporte de tiempos';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Table structure for table `frecuencia`
---
-
-DROP TABLE IF EXISTS `frecuencia`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `frecuencia` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Identificador del registro',
-  `nombre` varchar(200) NOT NULL COMMENT 'Nombre de la frecuencia',
-  `tipo` int(11) NOT NULL COMMENT 'Clasificación de la frecuencia',
-  `valor` float NOT NULL COMMENT 'Valor correspondiente a la frecuencia',
-  `empresa` varchar(20) NOT NULL COMMENT 'Empresa a la que pertenece la frecuencia',
-  `unidad` varchar(15) DEFAULT NULL COMMENT 'Unidad de medida de la frecuencia',
-  PRIMARY KEY (`id`),
-  KEY `FK_Empresa_Frecuencia_idx` (`empresa`),
-  CONSTRAINT `FK_Empresa_Frecuencia` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`nit`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8 COMMENT='Unidades de medida y periodos de frecuencia de las tareas';
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `usuario`
---
-
-DROP TABLE IF EXISTS `usuario`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `usuario` (
-  `id_usuario` varchar(20) NOT NULL COMMENT 'Numero de documento de identidad del usuario y login del mismo',
-  `nombre` varchar(200) NOT NULL COMMENT 'Nombre completo del usuario',
-  `empresa` varchar(20) NOT NULL COMMENT 'Identificador de la empresa a la que pertenece el usuario',
-  `clave` varchar(255) NOT NULL COMMENT 'Contraseña de ingreso del usuario',
-  `email` varchar(100) DEFAULT NULL COMMENT 'Correo electrónico del usuario',
-  `cargo` varchar(50) DEFAULT NULL COMMENT 'Cargo que desempeña en la empresa',
-  `salario` int(11) DEFAULT NULL COMMENT 'Remuneración económica que recibe el empleado',
-  `jornada` varchar(10) DEFAULT NULL COMMENT 'Tipo de jornada que realiza el empleado',
-  `perfil` varchar(10) DEFAULT NULL COMMENT 'Nombre de los privilegios que tiene el usuario dentro de la aplicación',
-  `centrocosto` varchar(50) DEFAULT NULL COMMENT 'Centro de constos al que está afiliado el trabajador',
-  `tipocontrato` varchar(10) DEFAULT NULL COMMENT 'Tipo de contrato de trabajo',
-  `estado` varchar(3) DEFAULT NULL COMMENT 'Estatus dentro de la aplicación del usuario A(activo) D(inactivo)',
-  `codigo` int(11) DEFAULT NULL COMMENT 'Campo para validar la recuperación de contraseña',
-  `estadoEncuesta` varchar(15) DEFAULT 'Pendiente' COMMENT 'Estado del desarrollo de la encuesta del usuario: (Pendiente, Desarrollo, Terminado)',
-  PRIMARY KEY (`id_usuario`),
-  KEY `FK_Empresa_Usuario_idx` (`empresa`),
-  CONSTRAINT `FK_Empresa_Usuario` FOREIGN KEY (`empresa`) REFERENCES `empresa` (`nit`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Tabla de los usuarios del sistema de bpmdb';
-/*!40101 SET character_set_client = @saved_cs_client */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -167,4 +167,4 @@ CREATE TABLE `usuario` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-28 12:20:23
+-- Dump completed on 2021-02-28 11:34:14
