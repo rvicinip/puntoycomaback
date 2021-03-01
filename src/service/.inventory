@@ -155,15 +155,27 @@ route: /user/restore, method = 'POST'
    ENCUESTA
 ##############
 
-route: /inquest/select, method = 'POST'
+route: /inquest/answer, method = 'POST'
     Crea las actividades del usuario para empezar las respuestas de reporte de tiempos 
     usuario: Objeto Json con los datos del usuario cliente ( Se obtiene del token)
-    ['actividades': {}]
+    Objeto JSON: {
+	  'actividad'  : actividad,
+      'cantidad'   : cantidad,
+      'tiempo'     : tiempo,
+      'umedida'    : umedida,
+      'frecuencia' : frecuencia}
   
-route: /inquest/answer, method = 'POST'
+route: /inquest/answer, method = 'PUT'
     Actualiza las actividades del usuario guardando las respuestas de reporte de tiempos 
      Objeto Json con los datos del usuario cliente (Se obtienen del token)
-    ['actividades': {}]
+    Objeto JSON{
+	  'id'         : id,
+      'actividad'  : actividad,
+      'usuario'    : usuario,
+      'cantidad'   : cantidad,
+      'tiempo'     : tiempo,
+      'umedida'    : umedida,
+      'frecuencia' : frecuencia}
 
 route: /inquest/list, method = 'GET'
     Lista las actividades del usuario con las respuestas de reporte de tiempos \n

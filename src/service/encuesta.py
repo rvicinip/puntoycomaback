@@ -51,7 +51,7 @@ def updateUserActivity(usuario):
   vals = acts[0]
   if vals['cliente'] != usuario['id']:
       return jsonify({'response':'ERROR', 'message': 'El usuario no coincide'})
-  resp = encuesta.createSelectedActivity(cliente, acts)
+  resp = encuesta.updateSelectedActivity(cliente, acts)
   return jsonify(resp)
 
 @app.route('/inquest/list', methods = ['GET'])
