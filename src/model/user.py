@@ -10,7 +10,7 @@
 ### Se importan los plugins necesarios
 from random import randint
 from src.utility import mailer
-from src.mysqlConnector.usuario import Usuario, usuarioScheme
+from src.mysqlConnector.usuario import Usuario
 from src.utility import xlsReader
 from src import db
 import bcrypt

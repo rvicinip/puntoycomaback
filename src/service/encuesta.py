@@ -38,7 +38,7 @@ def updateUserActivity(usuario):
   '''
      updateUserActivity: Actualiza las actividades del usuario guardando las respuestas de reporte de tiempos \n
      @params:
-       usuario: Objeto Json con los datos del usuario cliente
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
   '''
   print("In updateUserActivity")
   campos = ['id', 'actividad', 'tiempo', 'frecuencia', 'cantidad', 'umedida']
@@ -60,9 +60,21 @@ def listUserActivities(usuario):
   '''
      listUserActivities: Lista las actividades del usuario con las respuestas de reporte de tiempos \n
      @params:
-       usuario: Objeto Json con los datos del usuario cliente
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
   '''
   print("In listUserActivities")
   cliente = usuario['id_usuario']
   resp = encuesta.listSelectedActivities(cliente)
+  return jsonify(resp)
+
+@app.route('/inquest/<answer>', methods = ['DELETE'])
+@privated
+def deleteActivity(usuario, answer):
+  '''
+     deleteActivity: Elimina una respuesta de la encuesta \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+  '''
+  print("In deleteActivity:", answer)
+  resp = encuesta.deleteEncuestaById(answer)
   return jsonify(resp)

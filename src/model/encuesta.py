@@ -128,3 +128,20 @@ def listSelectedActivities(usuario):
   except Exception:
     traceback.print_exc()
     return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+
+### ELIMINA
+def deleteEncuestaById(idEnc):
+  '''
+     deleteEncuestaById: Elimina una respuesta a la encuesta de la DB \n
+     @params: 
+       idEnc: Id de la respuesta de la encuesta a eliminar en la DB 
+  '''
+  print("In deleteEncuestaById:", idEnc)
+  try:
+    resp = Encuesta.query.filter(Encuesta.id == idEnc).first()
+    db.session.delete(resp)
+    db.session.commit()
+    return {'response': 'OK', 'message': 'Encuesta eliminada correctamente'}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar el usuario: ' + str(idEnc)}
