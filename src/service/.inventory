@@ -189,9 +189,16 @@ route: /consultor, method = 'GET'
     Devuelve las empresa del consultor logueado
     token: campo con el token de autenticación en el backend
 
-route: /consultor/<company>/<user>, method = 'POST'
+route: /consultor, method = 'POST'
     Asocia una empresa al consultor enviado
     token: campo con el token de autenticación en el backend
-    company: Nit de la empresa a consultar
-    user: id_udusuario del consultor a vincular
+    Objeto JSON {
+        'empresa'    : nit, 
+        'id_usuario' : id_usuario]
+    }
 
+route: /consultor/<company>/<user>, method = 'DELETE'
+    Inactiva un consultor en una empresa
+    token: campo con el token de autenticación en el backend
+    company: Nit de la empresa
+    user: id_usuario

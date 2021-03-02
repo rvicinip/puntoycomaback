@@ -1,3 +1,11 @@
+'''
+   frecuency:
+      Administra los accesos a datos de las frecuencias de las empresas clientes de Venaycia.com 
+
+   copyright 2021 - Vitt Inversiones SAS - vitt.co:
+      licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
+   author: Wiliam Arévalo Camacho
+'''
 ### Se importan los plugins necesarios
 from src.utility import xlsReader
 from src.mysqlConnector.frecuencia import Frecuencia

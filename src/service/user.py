@@ -1,7 +1,6 @@
 '''
-   user
-
-   Realiza todas las transacciones y tareas necesarias para mantener los datos de los usuarios en el sistema
+   user:
+      Administra los servicios para mantener los datos de los usuarios en el sistema
 
    :copyright: Vitt Inversiones SAS - vitt.co
    :license: Velasquez Naranjo y Cia SAS - Venaycia.com

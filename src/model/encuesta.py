@@ -1,7 +1,6 @@
 '''
-   encuesta
-
-   Gestiona en la DB las respuestas de las preguntas por parte de los clientes
+   encuesta:
+      Administra los accesos a datos de las respuestas a la encuesta por parte de los clientes
 
    :copyright: Vitt Inversiones SAS - vitt.co
    :license: Velasquez Naranjo y Cia SAS - Venaycia.com
@@ -13,6 +12,8 @@ from src.mysqlConnector.encuesta import Encuesta
 from src import db
 import traceback
 
+# Métodos CRUD en las coleeciones diccionario, empresa y frecuencias
+### CREA
 def createSelectedActivity(activity):
   '''
      selectActivity: Crea una actividad en la lista de un usuario \n
@@ -20,6 +21,9 @@ def createSelectedActivity(activity):
        actividad: Objeto Json de la actividad seleccionada por el usuario
   '''
   try:
+    valida= getEncuestaByUser(activity['actividad'], activity['usuario'])
+    if 'data' in valida:
+      return {'response': 'ERROR', 'message': 'El usuario ' + str(activity['usuario'] + ' ya respondió la actividad ' + activity['actividad'])}
     actividad = Encuesta(activity)
     db.session.add(actividad)
     db.session.commit()
@@ -46,11 +50,30 @@ def createSelectedActivities(usuario, actividades):
     resp.append(crea['data'])
   return {'response': 'OK', 'data': resp}
 
+## LEE
+def getEncuestaByUser(idAct, idUser):
+  '''
+     getEncuestaByUser: Busca respuestas a la encuesta en la DB por el campo id_actividad \n
+     @params:
+       idAct: Id de actividae al a buscar en la DB 
+       idUser: id_usuario con el que está asociada la respuesta
+  '''
+  print("In getEncuestaByUser:", idAct)
+  try:
+    resp = Encuesta.query.filter(Encuesta.actividad == idAct, Encuesta.usuario == idUser).first()
+    if resp:
+      return {'response': 'OK', 'data': resp.toJSON()}
+    return {'response': 'ERROR', 'message': 'No se encontró la respuesta a la encuesta ' + str(idUser)}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
+
+
 def getEncuestaById(idEnc):
   '''
-     getEncuestaById: Busca una empresa en la coleeción de empresas por el 'nit' \n
+     getEncuestaById: Busca una respuesta a la encuesta en la DB \n
      @params:
-       idAct: Id de actividad a buscar en la DB 
+       idAct: Id de respuesta de la encuesta a buscar en la DB 
   '''
   print("In getEncuestaById:", idEnc)
   try:
@@ -62,6 +85,26 @@ def getEncuestaById(idEnc):
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idEnc)}
 
+def listSelectedActivities(usuario):
+  '''
+     listSelectedActivities: Lista las respuestas de la encuesta de un usuario en su reporte \n
+     @params: 
+       usuario: id_usuario del usuario asociado a la respuesta
+  '''
+  print("In listSelectedActivities")
+  try:
+    resp = []
+    acts = Encuesta.query.filter(Encuesta.usuario == usuario)
+    for act in acts:
+      resp.append(act.toJSON())
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+
+## ACTUALIZA
 def updateSelectedActivity(encuesta):
   '''
      updateSelectedActivity: Actualiza una actividad agregando las respuesta de tiempo y frecuencia \n
@@ -109,25 +152,6 @@ def updateSelectedActivities(usuario, actividades):
       else:
         acts.append(data)
   return {'response': 'OK', 'fallo': fallo, 'data': acts}
-
-def listSelectedActivities(usuario):
-  '''
-     listSelectedActivities: Lista las respuestas de las actividades de un usuario en su reporte \n
-     @params: 
-       usuario: id_usuario del usuario asociado a la actividad
-  '''
-  print("In listSelectedActivities")
-  try:
-    resp = []
-    acts = Encuesta.query.filter(Encuesta.usuario == usuario)
-    for act in acts:
-      resp.append(act.toJSON())
-    if len(resp) > 0:
-      return {'response': 'OK', 'data': resp}
-    return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
-  except Exception:
-    traceback.print_exc()
-    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
 
 ### ELIMINA
 def deleteEncuestaById(idEnc):

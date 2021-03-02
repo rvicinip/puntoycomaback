@@ -1,7 +1,6 @@
 '''
-   login
-
-   Realiza las verificaciones y tareas necesarias para garantizar el acceso sólo a los usuarios registrados en el sistema
+   login:
+      Administra los servicios que realizan las verificaciones y tareas necesarias para garantizar el acceso sólo a los usuarios registrados en el sistema
 
    :copyright: Vitt Inversiones SAS - vitt.co
    :license: Velasquez Naranjo y Cia SAS - Venaycia.com

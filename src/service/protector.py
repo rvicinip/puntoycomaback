@@ -1,6 +1,6 @@
 '''
-__init__
-   Inicializa los servicios ofrecidos por la app y contiene métodos medianeros para la gestión de las rutas
+protector:
+   Decorador para asegurar las rutas del backend garantizando las seguridad de la información al acceso de las mismas
 
    :copyright: Vitt Inversiones SAS - vitt.co
    :license: Velasquez Naranjo y Cia SAS - Venaycia.com

@@ -1,3 +1,11 @@
+'''
+   diccionary:
+      Administra los accesos a datos del diccionario de una empresa cliente de Venaycia.com 
+
+   copyright 2021 - Vitt Inversiones SAS - vitt.co:
+      licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
+   author: Wiliam Arévalo Camacho
+'''
 ### Se importan los plugins necesarios
 from operator import itemgetter
 from src.utility import xlsReader

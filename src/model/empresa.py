@@ -1,7 +1,6 @@
 '''
-   empresa
-
-   Administra los acceso de la DB a la colección de empresa donde se guardan los datos de las empresas del sistema
+   empresa:
+      Administra los accesos a datos de la colección de empresa donde se guardan los datos de las empresas del sistema
 
    :copyright: Vitt Inversiones SAS - vitt.co
    :license: Velasquez Naranjo y Cia - venaycia.com

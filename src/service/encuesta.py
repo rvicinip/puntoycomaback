@@ -1,7 +1,6 @@
 '''
-   encuesta
-
-   Realiza las tareas necesarias para gestionar las respuestas de las preguntas por parte de los clientes
+   encuesta:
+      Administra los servicios de las respuestas a la encuesta por parte de los clientes
 
    :copyright: Vitt Inversiones SAS - vitt.co
    :license: Velasquez Naranjo y Cia SAS - Venaycia.com

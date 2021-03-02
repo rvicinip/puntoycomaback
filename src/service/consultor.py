@@ -9,21 +9,40 @@
 from src.model import consultor
 from flask import jsonify, request
 from src import app
+from src.utility import validator
 from .protector import privated
 
-@app.route('/consultor/<company>/<user>', methods = ['POST'])
+@app.route('/consultor', methods = ['POST'])
 @privated
-def addCompaniesConsultor(usuario, company, user):
+def addCompaniesConsultor(usuario):
     '''
         addCompaniesConsultor: Asocia una empresas a un consultor \n
-        @params:
-          :company: Nit de la empreesa a asociar
-          :user: id_usuario del consultar a asociar con la empresa
     '''
-    print("In addCompaniesConsultor")   
+    print("In addCompaniesConsultor")
+    dato = request.json
+    campos = ['empresa', 'id_usuario']
+    valida = validator.validateFields(campos, dato)
+    if valida['response'] == 'ERROR':
+      return jsonify(valida)
+    if usuario['perfil'] != 'consult':
+       return jsonify({'response': 'ERROR', 'message': 'No tiene los privilegios de consultor, no puede realizar esta acción'})
+    resp = consultor.asociateCompany(dato['nit'], dato['id_usuario'])
+    return jsonify(resp)
+
+@app.route('/consultor/<company>/<user>', methods = ['DELETE'])
+@privated
+def deleteConsultor(usuario, company, user):
+    '''
+        deleteConsultor: Remueve un consultor de una empresas \n
+        @params:
+          :company: Nit de la empreesa
+          :user: id_usuario del consultar a remover de la empresa
+    '''
+    print("In deleteConsultor")
+    
     if usuario['perfil'] != 'consult':
        return {'response': 'ERROR', 'message': 'No tiene los privilegios de consultor, no puede realizar esta acción'}
-    resp = consultor.asociateCompany(company, user)
+    resp = consultor.removeConsultor(company, user)
     return jsonify(resp)
 
 @app.route('/consultor', methods = ['GET'])

@@ -1,6 +1,5 @@
 '''
-   BPMBackend
-
+   BPMBackend:
    Aplicación para la gestión de la información de BPM que utiliza Venaycia.com en sus líenas de negocio
 
    :copyright: Vitt Inversiones SAS - vitt.co

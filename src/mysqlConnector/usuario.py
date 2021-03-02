@@ -1,3 +1,11 @@
+'''
+   usuario:
+      Modelo de datos de la entidad usuario en la DB MySQL
+
+   copyright 2021 - Vitt Inversiones SAS - vitt.co:
+      licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
+   author: Wiliam Arévalo Camacho
+'''
 from src import db, ma
 
 class Usuario(db.Model):

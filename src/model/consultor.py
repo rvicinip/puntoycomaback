@@ -22,6 +22,11 @@ def asociateCompany(emp, cons):
   '''
   print("In asociateCompany:", emp)
   try:
+    valida = isConsultorInCompany(cons, emp)
+    if 'data' in valida:
+      estado = valida['data']['estado']
+      estado = 'Activo' if estado == 'A' else 'Inactivo'
+      return {'response': 'ERROR', 'message': 'El consultor se encuentra ' + estado + ' en la empresa ' + emp}  
     veriEmp = empresa.getCompanyByNIT(emp)
     if not 'data' in veriEmp:
       return {'response': 'ERROR', 'message': 'No existe la empresa con el NIT ' + emp}  
@@ -67,3 +72,44 @@ def getCompaniesConsultor(idCons):
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar las empresas'}
+
+def isConsultorInCompany(idCons, idEmpr):
+  '''
+     isConsultorInCompany: Busca si una empresa está asociada a un consultor en la DB \n
+     @params: 
+       idCons: id_usuario del consultor a buscar
+       idEmpr: nit de la empresa cliente
+  '''
+  print("In isConsultorInCompany")
+  try:
+    resp = Consultores.query.filter(Consultores.consultor == idCons, Consultores.empresa == idEmpr).first()
+    if resp:
+      return {'response': 'OK', 'data': resp.toJSON()}
+    return {'response': 'ERROR', 'message': 'El consultor no se encuentra asociado a esta empresa'}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar las empresas'}
+
+### ACTUALIZA
+def removeConsultor(emp, cons):
+  '''
+     removeConsultor: Asocia una empresa a un consultor \n
+     @params: 
+       emp: Nit de la empresa a asociar
+       cons: id_usuario del consultor a eleminar
+  '''
+  print("In removeConsultor:", emp)
+  try:
+    veriEmp = empresa.getCompanyByNIT(emp)
+    if not 'data' in veriEmp:
+      return {'response': 'ERROR', 'message': 'No existe la empresa con el NIT ' + emp}  
+    veriCons = user.getUserByUsuario(cons)
+    if not 'data' in veriCons:
+      return {'response': 'ERROR', 'message': 'No existe el consultor con el Id de usuario ' + cons}
+    c = Consultores.query.filter(Consultores.empresa == emp, Consultores.consultor == cons).update({
+                                 Consultores.estado : 'D'})
+    db.session.commit()
+    return {'response': 'OK', 'message': 'Consultor eliminado de la empresa '+ emp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al asociar el usuario ' + cons}

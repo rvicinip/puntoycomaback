@@ -1,3 +1,11 @@
+'''
+   consultores:
+      Modelo de datos de la entidad consultores en la DB MySQL
+
+   copyright 2021 - Vitt Inversiones SAS - vitt.co:
+      licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
+   author: Wiliam Arévalo Camacho
+'''
 from src import db, ma
 
 class Consultores(db.Model):

@@ -1,3 +1,11 @@
+'''
+   encuesta:
+      Modelo de datos de la entidad encuesta en la DB MySQL
+
+   copyright 2021 - Vitt Inversiones SAS - vitt.co:
+      licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
+   author: Wiliam Arévalo Camacho
+'''
 from src import db, ma
 
 class Encuesta(db.Model):

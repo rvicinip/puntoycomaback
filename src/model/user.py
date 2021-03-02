@@ -1,7 +1,6 @@
 '''
-   user
-
-   Administra los acceso de la DB a la colección de usuario donde se guardan los datos de los usuarios del sistema
+   user:
+      Administra los accesos a datos a la colección de usuario donde se guardan los datos de los usuarios del sistema
 
    :copyright: Vitt Inversiones SAS - vitt.co
    :license: Vitt Inversiones SAS - vitt.co
