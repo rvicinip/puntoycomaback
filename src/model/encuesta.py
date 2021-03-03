@@ -112,16 +112,15 @@ def updateSelectedActivity(encuesta):
        encuesta: Objeto Json de la encuesta seleccionada por el usuario
   '''
   try:
-    verifica = getEncuestaById(encuesta['id'])
+    verifica = getEncuestaById(encuesta['actividad'])
     if verifica['response'] == 'OK':
       value = verifica['data']
       if value['usuario'] != encuesta['usuario']:
         return {'response': 'ERROR', 'message': 'El usuario ' + str(encuesta['usuario']) + ' no puede modificar esta encuesta'}
-      resp = Encuesta.query.filter(Encuesta.id == encuesta['id']).update({
-                                  Encuesta.actividad  : encuesta['actividad'],
-                                  Encuesta.tiempo     : encuesta['tiempo'],
-                                  Encuesta.frecuencia : encuesta['frecuencia'],
-                                  Encuesta.umedida    : encuesta['umedida']})
+      resp = Encuesta.query.filter(Encuesta.actividad == encuesta['actividad'], Encuesta.usuario == encuesta['usuario']).update({
+                                   Encuesta.cantidad   : encuesta['cantidad'],
+                                   Encuesta.frecuencia : encuesta['frecuencia'],
+                                   Encuesta.umedida    : encuesta['umedida']})
       db.session.commit()
       return {'response': 'OK', 'message': str(resp) + ' Encuesta actualizada'}
     return {'response': 'ERROR', 'message': 'No se existe la encuesta' + str(encuesta['id'])}
@@ -154,18 +153,19 @@ def updateSelectedActivities(usuario, actividades):
   return {'response': 'OK', 'fallo': fallo, 'data': acts}
 
 ### ELIMINA
-def deleteEncuestaById(idEnc):
+def deleteEncuestaById(idActiv, idUser):
   '''
      deleteEncuestaById: Elimina una respuesta a la encuesta de la DB \n
      @params: 
-       idEnc: Id de la respuesta de la encuesta a eliminar en la DB 
+       idActiv: Id de la actividad en la respuesta de la encuesta a eliminar en la DB 
+       idUser: id_usuario de usuario que realiza la respuesta
   '''
-  print("In deleteEncuestaById:", idEnc)
+  print("In deleteEncuestaById:", idActiv)
   try:
-    resp = Encuesta.query.filter(Encuesta.id == idEnc).first()
+    resp = Encuesta.query.filter(Encuesta.actividad == idActiv, Encuesta.usuario == idUser).first()
     db.session.delete(resp)
     db.session.commit()
     return {'response': 'OK', 'message': 'Encuesta eliminada correctamente'}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar el usuario: ' + str(idEnc)}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar la respuesta de la actividad: ' + str(idActiv)}

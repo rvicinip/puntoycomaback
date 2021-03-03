@@ -14,7 +14,7 @@ MYSQL = "mysql+pymysql://{username}:{password}@{server}/{dbname}".format(
                                                              dbname = 'bpmdb')
 ### DB Nombre de la DB que utiliza el sistema
 ## DB = 'BPM'
-DB = 'bpmdb'
+## DB = 'bpmdb'
 ### EMAIL_USER Nombre de usuario del correo de donde se envía el mensaje
 EMAIL_USER = 'desarrollo@venaycia.com'
 ### EMAIL_KEY Contraseña del correo electrónico

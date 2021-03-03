@@ -22,7 +22,7 @@ def createUserActivity(usuario):
        usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
   '''
   print("In createUserActivity")
-  campos = ['actividad', 'tiempo', 'frecuencia', 'cantidad', 'umedida']
+  campos = ['actividad', 'frecuencia', 'cantidad', 'umedida']
   datos = request.json
   valida = validateFields(campos, datos)
   if valida['response'] == 'ERROR':
@@ -40,7 +40,7 @@ def updateUserActivity(usuario):
        usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
   '''
   print("In updateUserActivity")
-  campos = ['id', 'actividad', 'tiempo', 'frecuencia', 'cantidad', 'umedida']
+  campos = ['actividad', 'frecuencia', 'cantidad', 'umedida']
   datos = request.json
   valida = validateFields(campos, datos)
   if valida['response'] == 'ERROR':
@@ -66,14 +66,14 @@ def listUserActivities(usuario):
   resp = encuesta.listSelectedActivities(cliente)
   return jsonify(resp)
 
-@app.route('/inquest/<answer>', methods = ['DELETE'])
+@app.route('/inquest/<actividad>', methods = ['DELETE'])
 @privated
-def deleteActivity(usuario, answer):
+def deleteActivity(usuario, actividad):
   '''
      deleteActivity: Elimina una respuesta de la encuesta \n
      @params:
-       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+       actividad: Id de la actividad a borrar
   '''
-  print("In deleteActivity:", answer)
-  resp = encuesta.deleteEncuestaById(answer)
+  print("In deleteActivity:", actividad)
+  resp = encuesta.deleteEncuestaById(actividad, usuario['id_usuario'])
   return jsonify(resp)
