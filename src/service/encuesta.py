@@ -10,8 +10,20 @@
 from flask import jsonify, request
 from src import app
 from src.model import encuesta
+from src.model import user
 from src.utility.validator import validateFields
 from .protector import privated
+
+@app.route('/coount/<user>', methods = ['GET'])
+def contador(user):
+  '''
+     contador: Crea las actividades del usuario para empezar las respuestas de reporte de tiempos \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+  '''
+  print("In contador")
+  resp = encuesta.countAnswers(user)
+  return jsonify(resp)
 
 @app.route('/inquest/answer', methods = ['POST'])
 @privated
@@ -28,6 +40,37 @@ def createUserActivity(usuario):
   if valida['response'] == 'ERROR':
     return jsonify(valida)
   datos['usuario'] = usuario['id_usuario']
+  valor = encuesta.getEncuestaByUser(datos['actividad'], datos['usuario'])
+  if 'data' in valor:
+    c = int(valor['data']['cantidad']) 
+    if c > 0 :
+      return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + c})
+    return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario'})
+
+  resp = encuesta.createSelectedActivity(datos)
+  return jsonify(resp)
+
+@app.route('/inquest', methods = ['POST'])
+@privated
+def createEncuesta(usuario):
+  '''
+     createEncuesta: Crea las actividades seleccionadas por el usuario creando la encuesta de reporte de tiempos \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+  '''
+  print("In createEncuesta")
+  campos = ['actividad']
+  datos = request.json
+  valida = validateFields(campos, datos)
+  if valida['response'] == 'ERROR':
+    return jsonify(valida)
+  datos['usuario']   = usuario['id_usuario']
+  datos['cantidad']  = 0
+  valor = encuesta.getEncuestaByUser(datos['actividad'], datos['usuario'])
+  if 'data' in valor:
+    if int(valor['data']['cantidad']) > 0 :
+      return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + int(valor['data']['cantidad'])})
+    return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario'})
   resp = encuesta.createSelectedActivity(datos)
   return jsonify(resp)
 
@@ -76,4 +119,16 @@ def deleteActivity(usuario, actividad):
   '''
   print("In deleteActivity:", actividad)
   resp = encuesta.deleteEncuestaById(actividad, usuario['id_usuario'])
+  return jsonify(resp)
+
+@app.route('/inquest/close', methods = ['POST'])
+@privated
+def closeInquest(usuario):
+  '''
+     closeInquest: Elimina una respuesta de la encuesta \n
+     @params:
+       actividad: Id de la actividad a borrar
+  '''
+  print("In closeInquest:")
+  resp = user.statusInquest(usuario, 'TTerminado')
   return jsonify(resp)

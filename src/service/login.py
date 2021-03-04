@@ -42,15 +42,6 @@ def login():
       return jsonify({'response': 'OK', 'data': usuario, 'token': token.decode('utf-8')})
    return jsonify(valida)
 
-@app.route('/exit', methods = ['POST', 'GET'])
-@privated
-def logout(usuario):
-    '''
-       logout: Cierra la sesión de un usuario \n
-    '''
-    print("In logout", usuario)
-    return jsonify({'response': 'OK', 'message': 'Sesión terminada'})
-
 @app.route('/user/clave', methods = ['POST'])
 @privated
 def changePassword(usuario):

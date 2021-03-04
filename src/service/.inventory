@@ -3,19 +3,34 @@
 #############
 route: /company, method: 'POST'
     Recibe los datos de una empresa cliente para guardarlos en la DB
-    {'nit', 'nombre','niveles'}
-
-route: /company/<idCompany>, method: 'GET'
-    Recupera los datos de una empresa en la DB
-    idCompany: Id mongo de la empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON{
+        'nit', 
+        'nombre',
+        'niveles'}
 
 route: /company, method: 'PUT'
     Actualiza los datos de una empresa en la DB
-    {'niveles', 'nombre'}
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON{
+        'nit',
+        'niveles', 
+        'nombre'}
+
+route: /company, method: 'GET'
+    Recupera todas las empresas en la DB
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Id mongo de la empresa
+
+route: /company/<idCompany>, method: 'GET'
+    Recupera los datos de una empresa en la DB
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
 
 route: /company/<idCompany>, method: 'DELETE'
     Actualiza una empresa llevandola a estado 'D' de inactiva o eliminada en la DB
-    idCompany: Id mongo de la empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
 
 route: /files/<idCompany>, method: 'POST'
     Recibe los archivos de una empresa para procesarlos y guardarlos en la DB
@@ -27,56 +42,72 @@ route: /files/<idCompany>, method: 'POST'
 
 route: /files/dictionary/<idCompany>/<niveles>, method: 'POST'
     Recibe el archivo diccionario de una empresa para guardarlo en la DB
-    idCompany: Id mongo de la empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
     niveles: Define la cantidad de nivels que tiene el diccionario
     files{'diccionario'}
 
 route: /files/employes/<idCompany>, method: 'POST'
     Recibe el archivo empleado de una empresa para procesarlos y guardarlos en la DB
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     idCompany: Id mongo de la empresa
     files{'usuarios'}
 
 route: /files/frecuency/<idCompany>, method: 'POST'
     Recibe el archivo frecuencias de una empresa para procesarlo y guardarlo en la DB
-    idCompany: Id mongo de la empresa
+    idCompany: Nit de la empresa
     files{'frecuencias'}
 
 route: /full/company/<idCompany>, method: 'GET'
     Recupera todos los datos de una empresa junto con su diccionario, frecuecias y empleados
-    idCompany: Id mongo de la empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
 
 route: /full/datos/<idCompany>, method: 'GET'
-    Recupera el diccionario con las frecuecias de la empresa
-    idCompany: Id mongo de la empresa
+    Recupera el diccionario y las frecuecias de la empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
 
 route: /full/dictionary/<idCompany>, method: 'GET'
-    Recupera todos los datos de una empresa junto con su diccionario
-    idCompany: Id mongo de la empresa
+    Recupera todos el diccionario de una empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
 
 route: /full/frecuency/<idCompany>, method: 'GET'
-    Recupera todos los datos de una empresa junto con sus frecuencias
-    idCompany: Id mongo de la empresa
+    Recupera todos las frecuencias de una empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
 
 route: /full/employes/<idCompany>, method: 'GET'
-    Recupera todos los datos de una empresa junto con sus empleados
-    idCompany: Id mongo de la empresa
+    Recupera todos los empleados de una empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    idCompany: Nit de la empresa
 
 #############
    USUARIO
 #############
 route: /user, method: 'POST'
     Crea un usuario de la empresa en la coleeción de usaurio
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON{
+        'id_usuario', 
+        'nombre', 
+        'empresa', 
+        'clave'}
 
 route: /users/<company>, method: 'GET'
     Obtiene los usuarios de una empresa en la colección de usaurio
-    company: Id mongo de la empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    company: Nit de la empresa
 
 ###########
    LOGIN
 ###########
 route: /access, method: 'POST'
     realiza las validaciones de usuario para permitir o no el ingreso a la aplicacion
-    {'id_usuario', 'clave'}
+    Objeto JSON{
+        'id_usuario', 
+        'clave'}
     ### Petición ###
     curl --location --request POST 'http://localhost/access' \
     --header 'Content-Type: application/json' \
@@ -106,7 +137,11 @@ route: /access, method: 'POST'
 
 route: /user/clave, method: 'POST'
     Actualiza la contraseña de un usuario
-    {'id_usuario', 'clave', 'nueva_clave'}
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON{
+        'id_usuario', 
+        'clave', 
+        'nueva_clave'}
     ### Petición ###
     curl --location --request POST 'localhost/user/clave' \
     --header 'token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjoiMTIzNDU2NzgiLCJleHAiOjE2MTI3MTQ0ODd9.dg7KbSHEOJvIq5Yelr4p6nHzDUaxg9zLiSMFGbP4tKU' \
@@ -122,12 +157,9 @@ route: /user/clave, method: 'POST'
         "response": "OK"
     }
 
-route: /exit, methods = 'POST', 'GET'
-    Cierra la sesión de un usuario
-
 route: /user/forget/<idUsuario>, method = 'POST'
     Genera un código para habilitar la actualización de la contraseña de un usuario
-    idUsuario: id del usuario que utiliza para ingresar al sistema
+    idUsuario: id_usuario que utiliza para ingresar al sistema
     ### Petición ###
     curl --location --request POST 'localhost/user/forget/12345678'
     ### Respuesta ###
@@ -138,13 +170,17 @@ route: /user/forget/<idUsuario>, method = 'POST'
 
 route: /user/restore, method = 'POST'
     Valida el código y habilita la actualización de la contraseña de un usuario
-    {'id_usuario', 'codigo'}curl --location --request POST 'localhost/user/restore' \
+    Objeto JSON{
+        'id_usuario',
+        'nueva_clave',
+        'codigo'}
+    curl --location --request POST 'localhost/user/restore' \
     --header 'Content-Type: application/json' \
     --data-raw '{
         "id_usuario": "12345678",
         "nueva_clave": "Entrada21",
         "codigo": "183409"
-    }'
+    }
     ### Petición ###
     {
         "message": "Contraseña actualizada",
@@ -156,42 +192,42 @@ route: /user/restore, method = 'POST'
 ##############
 
 route: /inquest/answer, method = 'POST'
-    Crea las actividades del usuario para empezar las respuestas de reporte de tiempos 
-    usuario: Objeto Json con los datos del usuario cliente ( Se obtiene del token)
+    Crea las actividades del usuario con las respuestas de reporte de tiempos 
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     Objeto JSON: {
 	  'actividad'  : actividad,
       'cantidad'   : cantidad,
-      'tiempo'     : tiempo,
       'umedida'    : umedida,
       'frecuencia' : frecuencia}
-  
+
+route: /inquest, method = 'POST'
+    Crea las actividades del usuario para empezar las respuestas de reporte de tiempos 
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON: {
+	  'actividad'  : actividad}
+
 route: /inquest/answer, method = 'PUT'
     Actualiza las actividades del usuario guardando las respuestas de reporte de tiempos 
-     Objeto Json con los datos del usuario cliente (Se obtienen del token)
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     Objeto JSON{
 	  'id'         : id,
       'actividad'  : actividad,
       'usuario'    : usuario,
       'cantidad'   : cantidad,
-      'tiempo'     : tiempo,
       'umedida'    : umedida,
       'frecuencia' : frecuencia}
 
 route: /inquest/list, method = 'GET'
     Lista las actividades del usuario con las respuestas de reporte de tiempos \n
-    usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
 
 ###############
    CONSULTOR
 ###############
 
-route: /consultor, method = 'GET'
-    Devuelve las empresa del consultor logueado
-    token: campo con el token de autenticación en el backend
-
 route: /consultor, method = 'POST'
     Asocia una empresa al consultor enviado
-    token: campo con el token de autenticación en el backend
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     Objeto JSON {
         'empresa'    : nit, 
         'id_usuario' : id_usuario]
@@ -199,6 +235,10 @@ route: /consultor, method = 'POST'
 
 route: /consultor/<company>/<user>, method = 'DELETE'
     Inactiva un consultor en una empresa
-    token: campo con el token de autenticación en el backend
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     company: Nit de la empresa
     user: id_usuario
+
+route: /consultor, method = 'GET'
+    Devuelve las empresa del consultor logueado
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)

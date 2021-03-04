@@ -13,9 +13,9 @@ class Encuesta(db.Model):
     usuario    = db.Column(db.Integer, nullable = False)
     actividad  = db.Column(db.Integer, nullable = False)
     cantidad   = db.Column(db.Integer, nullable = False)
-    tiempo     = db.Column(db.Float, nullable = False)
-    umedida    = db.Column(db.Integer, nullable = False)
-    frecuencia = db.Column(db.Integer, nullable = False)
+    tiempo     = db.Column(db.Float)
+    umedida    = db.Column(db.Integer)
+    frecuencia = db.Column(db.Integer)
     jornada    = db.Column(db.Float)
     fteAct     = db.Column(db.Float)
     fteUser    = db.Column(db.Float)
@@ -39,14 +39,14 @@ class Encuesta(db.Model):
         self.actividad  = enc['actividad']
         self.usuario    = enc['usuario']
         self.cantidad   = enc['cantidad']
-        self.tiempo     = enc['tiempo']
-        self.umedida    = enc['umedida']
-        self.frecuencia = enc['frecuencia']
-        self.jornada    = enc['jornada']  if ('jornada' in enc)  else None 
-        self.fteAct     = enc['fteAct']   if ('fteAct' in enc)   else None 
-        self.fteUser    = enc['FteUser']  if ('FteUser' in enc)  else None 
-        self.valorAct   = enc['valorAct'] if ('valorAct' in enc) else None 
-        self.estado     = enc['estado']   if ('estado' in enc)   else None      ## Ternario valor_si if condicion else valor_no
+        self.tiempo     = enc['tiempo']     if ('tiempo' in enc)      else None 
+        self.umedida    = enc['umedida']    if ('umedida' in enc)     else None 
+        self.frecuencia = enc['frecuencia'] if ('frecuencia' in enc)  else None 
+        self.jornada    = enc['jornada']    if ('jornada' in enc)     else None 
+        self.fteAct     = enc['fteAct']     if ('fteAct' in enc)      else None 
+        self.fteUser    = enc['FteUser']    if ('FteUser' in enc)     else None 
+        self.valorAct   = enc['valorAct']   if ('valorAct' in enc)    else None 
+        self.estado     = enc['estado']     if ('estado' in enc)      else None      ## Ternario valor_si if condicion else valor_no
     
     def toJSON(self):
         return{

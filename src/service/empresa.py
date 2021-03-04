@@ -81,7 +81,7 @@ def deleteCompany(usuario, idCompany):
    '''
        deleteCompany: Actualiza una empresa llevandola a estado 'D' de inactiva o eliminada en la DB \n
        @params: 
-         idCompany: Id mongo de la empresa
+         idCompany: Nit de la empresa
    '''
    print("In deleteCompany:", idCompany)
    if usuario['perfil'] == 'client':

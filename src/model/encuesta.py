@@ -9,6 +9,7 @@
 ### Se importan los plugins necesarios
 from src.utility.validator import validateFields
 from src.mysqlConnector.encuesta import Encuesta
+from src.model import user
 from src import db
 import traceback
 
@@ -21,9 +22,11 @@ def createSelectedActivity(activity):
        actividad: Objeto Json de la actividad seleccionada por el usuario
   '''
   try:
-    valida= getEncuestaByUser(activity['actividad'], activity['usuario'])
-    if 'data' in valida:
-      return {'response': 'ERROR', 'message': 'El usuario ' + str(activity['usuario'] + ' ya respondió la actividad ' + activity['actividad'])}
+    valida = countAnswers(activity['usuario'])
+    if not 'data' in valida:
+      iniciar = user.statusInquest(activity['usuario'], 'Desarrollo')
+      if iniciar['response'] == 'ERROR':
+        return iniciar
     actividad = Encuesta(activity)
     db.session.add(actividad)
     db.session.commit()
@@ -51,6 +54,22 @@ def createSelectedActivities(usuario, actividades):
   return {'response': 'OK', 'data': resp}
 
 ## LEE
+def countAnswers(idUser):
+  '''
+     countAnswers: Cuenta las respuesta que tiene un usuario \n
+     @params:
+       idUser: id_usuario con el que está asociada la respuesta
+  '''
+  print("In countAnswers:", idUser)
+  try:
+    resp = Encuesta.query.filter(Encuesta.usuario == idUser).count()
+    if resp > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response': 'ERROR', 'message': 'No se encontraron resultados'}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
+
 def getEncuestaByUser(idAct, idUser):
   '''
      getEncuestaByUser: Busca respuestas a la encuesta en la DB por el campo id_actividad \n

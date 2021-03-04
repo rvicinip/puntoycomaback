@@ -268,10 +268,26 @@ def updatePasswordByCodigo(user):
            Usuario.clave  : user['clave'],
            Usuario.codigo : 0})
     db.session.commit()
-    return {'response': 'OK', 'message': 'Usuario actualizado', 'data': user}
+    return {'response': 'OK', 'message': 'Usuario actualizado'}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + user['id_usuario']}
+
+def statusInquest(user, status):
+  '''
+     statusInquest: Actualiza el estado estadoEncuesta cuando un usuario inicio a contestar la encuesta \n
+     @params: 
+        usuario: id_usuario que inicio a realizar la encuesta
+  '''
+  print("In statusInquest")
+  try:
+    resp = Usuario.query.filter(Usuario.id_usuario == user).update({
+           Usuario.estadoEncuesta  : status})
+    db.session.commit()
+    return {'response': 'OK', 'message': 'Usuario actualizado'}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al iniciar la encuesta del usuario ' + user}
 
 ### ELIMINA
 def deleteUserById(idUsuario):
