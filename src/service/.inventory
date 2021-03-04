@@ -100,6 +100,15 @@ route: /users/<company>, method: 'GET'
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     company: Nit de la empresa
 
+route: /users/status/<company>, method: 'GET'
+    Obtiene los indices de cada estado de los empleados de una empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    company: Nit de la empresa
+
+route: /users/close-inquest, method: 'PUT'
+    Cierra la encuesta que está realizando el usuario
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+
 ###########
    LOGIN
 ###########

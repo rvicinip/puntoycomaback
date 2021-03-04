@@ -275,9 +275,10 @@ def updatePasswordByCodigo(user):
 
 def statusInquest(user, status):
   '''
-     statusInquest: Actualiza el estado estadoEncuesta cuando un usuario inicio a contestar la encuesta \n
+     statusInquest: Actualiza el  estadoEncuesta de un usuario \n
      @params: 
-        usuario: id_usuario que inicio a realizar la encuesta
+        user: id_usuario que inicio a realizar la encuesta
+        status: Estado de la encuesta ("Pendiente", "Desarrollo", "Terminado")
   '''
   print("In statusInquest")
   try:
@@ -288,6 +289,36 @@ def statusInquest(user, status):
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al iniciar la encuesta del usuario ' + user}
+
+def statusList(idEmp):
+  '''
+     statusList: Devuelve el contador de los usuario en cada estado
+     @params: 
+        idEmp: NIt de la empresa
+  '''
+  print("In statusList")
+  try:
+    lEmp = Usuario.query.filter(Usuario.empresa == idEmp)
+    pend = 0
+    desa = 0
+    term = 0
+    tot  = 0
+    for e in lEmp:
+      tot += 1
+      if e.estadoEncuesta == 'Pendiente':
+        pend += 1
+      elif e.estadoEncuesta == 'Desarrollo':
+        desa += 1
+      elif e.estadoEncuesta == 'Terminado':
+        term += 1
+    resp = {'Pendiente'  : pend,
+            'Desarrollo' : desa,
+            'Terminado'  : term,
+            'Total'      : tot}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error consultado los estados de la empresa ' + idEmp}
 
 ### ELIMINA
 def deleteUserById(idUsuario):

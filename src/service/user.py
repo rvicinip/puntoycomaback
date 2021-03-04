@@ -27,7 +27,6 @@ def createUser(usuario):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    resp = user.addUserEmpresa(dato)
-   print("createUser - resp", resp)
    return jsonify(resp)
 
 @app.route('/users/<company>', methods = ['GET'])
@@ -40,5 +39,26 @@ def obtainUsers(usuario, company):
     '''
     print("In obtainUsers:", company)
     resp = user.getUsersByCompany(company)
-    print("obtainUsers", resp)
+    return jsonify(resp)
+
+@app.route('/users/status/<company>', methods = ['GET'])
+@privated
+def statusIndices(usuario, company):
+    '''
+       statusIndices: Obtiene los indices de cada estado de los empleados de una empresa \n
+       @params: 
+         company: Nit de la empresa
+    '''
+    print("In statusIndices:", company)
+    resp = user.statusList(company)
+    return jsonify(resp)
+
+@app.route('/users/close-inquest', methods = ['PUT'])
+@privated
+def closeUserInquest(usuario):
+    '''
+       closeUserInquest: Cierra la encuesta que está realizando el usuario
+    '''
+    print("In closeUserInquest")
+    resp = user.statusInquest(usuario['id_usuaruio'], 'Terminado')
     return jsonify(resp)

@@ -38,6 +38,8 @@ def login():
       if ingreso['response'] == 'ERROR':
         return jsonify(ingreso)
       usuario = ingreso['data']
+      if usuario['perfil'] == 'client' and usuario['estadoEncuesta'] == 'Terminado':
+         return jsonify({'response': 'ERROR', 'message': 'Su encuesta se encuentra finalizada, comuniquese con el consultor'})
       token = jwt.encode({'user' : usuario['id_usuario'], 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=5)}, app.config['SECRET_KEY'])
       return jsonify({'response': 'OK', 'data': usuario, 'token': token.decode('utf-8')})
    return jsonify(valida)
