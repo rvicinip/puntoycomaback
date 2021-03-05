@@ -69,7 +69,7 @@ def createEncuesta(usuario):
   valor = encuesta.getEncuestaByUser(datos['actividad'], datos['usuario'])
   if 'data' in valor:
     if int(valor['data']['cantidad']) > 0 :
-      return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + int(valor['data']['cantidad'])})
+      return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + str(valor['data']['cantidad'])})
     return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario'})
   resp = encuesta.createSelectedActivity(datos)
   return jsonify(resp)
