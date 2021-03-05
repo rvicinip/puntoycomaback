@@ -72,7 +72,7 @@ def createEncuesta(usuario):
       return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + str(valor['data']['cantidad'])})
     return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario'})
   resp = encuesta.createSelectedActivity(datos)
-  return jsonify({'encuesta': resp})
+  return jsonify(resp)
 
 @app.route('/inquest/answer', methods = ['PUT'])
 @privated

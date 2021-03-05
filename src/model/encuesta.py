@@ -32,7 +32,7 @@ def createSelectedActivity(activity):
     actividad = Encuesta(activity)
     db.session.add(actividad)
     db.session.commit()
-    return {'response': 'OK', 'message': 'Respuesta de encuesta creada', 'data': actividad.toJSON()}    
+    return {'response': 'OK', 'message': 'Respuesta de encuesta creada', 'data': {'encuesta': actividad.toJSON()}}    
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Se presentó un error al crear la encuesta'}
@@ -157,7 +157,7 @@ def listEncuestaByUsuario(usuario):
       if encuesta['umedida'] is not None:
         umed = Frecuencia.query.filter(Frecuencia.id == encuesta['umedida']).first()
         e['umedida'] = umed.nombre
-      e['Encuesta']    = encuesta
+      e['encuesta']    = encuesta
       e['diccionario'] = {'nombre'       : enc[1],
                           'id_actividad' : enc[2],
                           'descripcion'  : enc[3]}
