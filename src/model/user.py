@@ -9,8 +9,9 @@
 ### Se importan los plugins necesarios
 from random import randint
 from src.utility import mailer
-from src.mysqlConnector.usuario import Usuario
 from src.utility import xlsReader
+from src.mysqlConnector.usuario import Usuario
+from src.model import encuesta
 from src import db
 import bcrypt
 import traceback
@@ -67,7 +68,7 @@ def addUserEmpresa(user):
     if not 'data' in verifica:
       db.session.add(usu)
       db.session.commit()
-      return {'response': 'OK', 'message': 'Usuario creado correctamente'}
+      return {'response': 'OK', 'message': 'Usuario creado correctamente', 'data': usu.toJSON()}
     return {'response': 'ERROR', 'message': 'Ya existe el usuario', 'data': verifica['data']}
   except Exception:
     traceback.print_exc()
@@ -205,6 +206,36 @@ def validatePassword(user):
     traceback.print_exc()
     return {'response':'ERROR', 'message':'Se presentó un error validando el usuario'}
 
+def statusList(idEmp):
+  '''
+     statusList: Devuelve el contador de los usuario en cada estado
+     @params: 
+        idEmp: NIt de la empresa
+  '''
+  print("In statusList")
+  try:
+    lEmp = Usuario.query.filter(Usuario.empresa == idEmp)
+    pend = 0
+    desa = 0
+    term = 0
+    tot  = 0
+    for e in lEmp:
+      tot += 1
+      if e.estadoEncuesta == 'Pendiente':
+        pend += 1
+      elif e.estadoEncuesta == 'Desarrollo':
+        desa += 1
+      elif e.estadoEncuesta == 'Terminado':
+        term += 1
+    resp = {'Pendiente'  : pend,
+            'Desarrollo' : desa,
+            'Terminado'  : term,
+            'Total'      : tot}
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error consultado los estados de la empresa ' + idEmp}
+
 ### ACTUALIZA
 def updateUserById(user):
   '''
@@ -288,37 +319,26 @@ def statusInquest(user, status):
     return {'response': 'OK', 'message': 'Usuario actualizado'}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al iniciar la encuesta del usuario ' + user}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al iniciar la encuesta del usuario ' + str(user)}
 
-def statusList(idEmp):
+def closeInquest(user):
   '''
-     statusList: Devuelve el contador de los usuario en cada estado
+     closeInquest: Cierra la encuesta para el usuario \n
      @params: 
-        idEmp: NIt de la empresa
+        user: id_usuario que cierra la encuesta
   '''
-  print("In statusList")
+  print("In closeInquest")
   try:
-    lEmp = Usuario.query.filter(Usuario.empresa == idEmp)
-    pend = 0
-    desa = 0
-    term = 0
-    tot  = 0
-    for e in lEmp:
-      tot += 1
-      if e.estadoEncuesta == 'Pendiente':
-        pend += 1
-      elif e.estadoEncuesta == 'Desarrollo':
-        desa += 1
-      elif e.estadoEncuesta == 'Terminado':
-        term += 1
-    resp = {'Pendiente'  : pend,
-            'Desarrollo' : desa,
-            'Terminado'  : term,
-            'Total'      : tot}
-    return {'response': 'OK', 'data': resp}
+    encs = encuesta.countInquests(user)
+    if 'data' in encs:
+      conteo = encs['data']
+      if int(conteo['pendiente']) > 0:
+        return {'response': 'ERROR', 'message': 'Existes respuestas pendientes, por favor completar'}
+      resp = statusInquest(user, "Termiando")
+      return resp
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error consultado los estados de la empresa ' + idEmp}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al cerrar la encuesta del usuario ' + str(user)}
 
 ### ELIMINA
 def deleteUserById(idUsuario):

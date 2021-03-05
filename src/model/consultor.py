@@ -11,6 +11,7 @@ from src.model import empresa
 from src.model import user
 from src import db
 import traceback
+
 # Métodos CRUD en las coleeciones diccionario, empresa y frecuencias
 ### CREA
 def asociateCompany(emp, cons):
@@ -29,20 +30,20 @@ def asociateCompany(emp, cons):
       return {'response': 'ERROR', 'message': 'El consultor se encuentra ' + estado + ' en la empresa ' + emp}  
     veriEmp = empresa.getCompanyByNIT(emp)
     if not 'data' in veriEmp:
-      return {'response': 'ERROR', 'message': 'No existe la empresa con el NIT ' + emp}  
+      return {'response': 'ERROR', 'message': 'No existe la empresa con el NIT ' + str(emp)}  
     veriCons = user.getUserByUsuario(cons)
     if not 'data' in veriCons:
-      return {'response': 'ERROR', 'message': 'No existe el consultor con el Id de usuario ' + cons}
+      return {'response': 'ERROR', 'message': 'No existe el consultor con el Id de usuario ' + str(cons)}
     perfil = veriCons['data']['perfil']
     if perfil != 'consult':
-      return {'response': 'ERROR', 'message': 'No se puede asociar el usuario ' + cons + ' a la empresa ' + emp + ' no tiene los privilegios de consultor'}
+      return {'response': 'ERROR', 'message': 'No se puede asociar el usuario ' + str(cons) + ' a la empresa ' + str(emp) + ' no tiene los privilegios de consultor'}
     c = Consultores(emp, cons, 'A')
     db.session.add(c)
     db.session.commit()
-    return {'response': 'OK', 'message': 'Consultor asociado a la empresa '+ emp}
+    return {'response': 'OK', 'message': 'Consultor asociado a la empresa '+ str(emp), 'data': c.toJSON()}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al asociar el usuario ' + cons}
+    return {'response': 'ERROR', 'message': 'Se presentó un error al asociar el usuario ' + str(cons)}
 
 ### LEE
 def getCompaniesConsultor(idCons):

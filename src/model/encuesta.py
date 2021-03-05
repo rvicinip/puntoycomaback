@@ -32,46 +32,12 @@ def createSelectedActivity(activity):
     actividad = Encuesta(activity)
     db.session.add(actividad)
     db.session.commit()
-    return {'response': 'OK', 'message': 'Respuesta de encuesta creada', 'data': actividad}    
+    return {'response': 'OK', 'message': 'Respuesta de encuesta creada', 'data': actividad.toJSON()}    
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Se presentó un error al crear la encuesta'}
 
-def createSelectedActivities(usuario, actividades):
-  '''
-     selectActivities: Crea la lista de actividades seleccionadas por un usuario para su reporte \n
-     @params: 
-       usuario: Id mongo del usuario asociado a la actividad
-       actividades: Lista de Id mongo de la actividades seleccionadas por el usuario
-  '''
-  resp = []
-  encuesta = {}
-  encuesta['usuario'] = usuario
-  for act in actividades:
-    encuesta['actividad'] = act
-    crea = createSelectedActivity(encuesta)
-    if not 'data' in crea:
-        return crea
-    resp.append(crea['data'])
-  return {'response': 'OK', 'data': resp}
-
-## LEE
-def countAnswers(idUser):
-  '''
-     countAnswers: Cuenta las respuesta que tiene un usuario \n
-     @params:
-       idUser: id_usuario con el que está asociada la respuesta
-  '''
-  print("In countAnswers:", idUser)
-  try:
-    resp = Encuesta.query.filter(Encuesta.usuario == idUser).count()
-    if resp > 0:
-      return {'response': 'OK', 'data': resp}
-    return {'response': 'ERROR', 'message': 'No se encontraron resultados'}
-  except Exception:
-    traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
-
+### LEE
 def getEncuestaByUser(idAct, idUser):
   '''
      getEncuestaByUser: Busca respuestas a la encuesta en la DB por el campo id_actividad \n
@@ -88,7 +54,6 @@ def getEncuestaByUser(idAct, idUser):
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
-
 
 def getEncuestaById(idEnc):
   '''
@@ -162,6 +127,45 @@ def listEncuestaByUsuario(usuario):
   except Exception:
     traceback.print_exc()
     return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+
+def countAnswers(idUser):
+  '''
+     countAnswers: Cuenta las respuesta que tiene un usuario \n
+     @params:
+       idUser: id_usuario con el que está asociada la respuesta
+  '''
+  print("In countAnswers:", idUser)
+  try:
+    resp = Encuesta.query.filter(Encuesta.usuario == idUser).count()
+    if resp > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response': 'ERROR', 'message': 'No se encontraron resultados'}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
+
+def countInquests(user):
+  '''
+     closeInquest: Cuenta las respuestas de la encuesta del usuario que no tienen cantidad \n
+     @params: 
+        user: id_usuario que realiza la encuesta
+  '''
+  print("In closeInquest")
+  try:
+    resp = {}
+    encs = Encuesta.query.filter(Encuesta.usuario == user)
+    pend = 0
+    tot  = 0
+    for enc in encs:
+      tot += 1
+      if enc.cantidad <= 0:
+        pend += 1
+    resp['pendiente'] = pend
+    resp['total']     = tot
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar las respuestas de ' + str(user)}
 
 ## ACTUALIZA
 def updateSelectedActivity(encuesta):

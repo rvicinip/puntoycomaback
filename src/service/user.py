@@ -60,5 +60,5 @@ def closeUserInquest(usuario):
        closeUserInquest: Cierra la encuesta que está realizando el usuario
     '''
     print("In closeUserInquest")
-    resp = user.statusInquest(usuario['id_usuaruio'], 'Terminado')
+    resp = user.closeInquest(usuario['id_usuaruio'])
     return jsonify(resp)

@@ -30,7 +30,7 @@ def addCompany(emp):
     comp = Empresa(emp)
     db.session.add(comp)
     db.session.commit()
-    return {'response': 'OK', 'message': 'Empresa creada ', 'data': emp}
+    return {'response': 'OK', 'message': 'Empresa creada ', 'data': comp.toJSON()}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
