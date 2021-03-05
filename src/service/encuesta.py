@@ -106,7 +106,7 @@ def listUserActivities(usuario):
   '''
   print("In listUserActivities")
   cliente = usuario['id_usuario']
-  resp = encuesta.listSelectedActivities(cliente)
+  resp = encuesta.listEncuestaByUsuario(cliente)
   return jsonify(resp)
 
 @app.route('/inquest/<actividad>', methods = ['DELETE'])

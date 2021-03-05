@@ -145,17 +145,17 @@ def listEncuestaByUsuario(usuario):
           Encuesta.usuario == usuario,
           Diccionario.id == Encuesta.actividad,
           Frecuencia.id == Encuesta.frecuencia)
-    print("encs", encs)
     resp = []
     for enc in encs:
+      umed = Frecuencia.query.filter(Frecuencia.id == enc[0].umedida).first()
       e = {}
       e['Encuesta']    = enc[0].toJSON()
+      e['frecuencia']  = enc[4]
+      e['umedida']     = umed.nombre
       e['diccionario'] = {'nombre'       : enc[1],
                           'id_actividad' : enc[2],
                           'descripcion'  : enc[3]}
-      e['frecuencia']  = enc[4]
       resp.append(e)
-    print(resp)
     if len(resp) > 0:
       return {'response': 'OK', 'data': resp}
     return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
