@@ -32,7 +32,7 @@ def createSelectedActivity(activity):
     actividad = Encuesta(activity)
     db.session.add(actividad)
     db.session.commit()
-    return {'response': 'OK', 'message': 'Respuesta de encuesta creada'}    
+    return {'response': 'OK', 'message': 'Respuesta de encuesta creada', 'data': actividad}    
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Se presentó un error al crear la encuesta'}
@@ -136,6 +136,8 @@ def listEncuestaByUsuario(usuario):
     encs = db.session.query(
       Encuesta,
       Diccionario.nombre,
+      Diccionario.id_actividad,
+      Diccionario.descripcion,
       Frecuencia.nombre).select_from(
         Encuesta, 
         Frecuencia, 
@@ -148,8 +150,10 @@ def listEncuestaByUsuario(usuario):
     for enc in encs:
       e = {}
       e['Encuesta']    = enc[0].toJSON()
-      e['diccionario'] = enc[1]
-      e['frecuencia']  = enc[2]
+      e['diccionario'] = {'nombre'       : enc[1],
+                          'id_actividad' : enc[2],
+                          'descripcion'  : enc[3]}
+      e['frecuencia']  = enc[4]
       resp.append(e)
     print(resp)
     if len(resp) > 0:
@@ -158,6 +162,7 @@ def listEncuestaByUsuario(usuario):
   except Exception:
     traceback.print_exc()
     return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+
 ## ACTUALIZA
 def updateSelectedActivity(encuesta):
   '''
