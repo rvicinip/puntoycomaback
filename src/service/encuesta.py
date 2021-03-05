@@ -44,7 +44,7 @@ def createUserActivity(usuario):
   if 'data' in valor:
     c = int(valor['data']['cantidad']) 
     if c > 0 :
-      return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + c})
+      return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + str(c)})
     return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario'})
 
   resp = encuesta.createSelectedActivity(datos)
@@ -131,4 +131,16 @@ def closeInquest(usuario):
   '''
   print("In closeInquest:")
   resp = user.statusInquest(usuario, 'TTerminado')
+  return jsonify(resp)
+
+@app.route('/prueba/list', methods = ['GET'])
+@privated
+def listPrueba(usuario):
+  '''
+     listPrueba: Lista las actividades del usuario con las respuestas de reporte de tiempos \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+  '''
+  print("In listPrueba")
+  resp = encuesta.listEncuestaByUsuario(usuario['id_usuario'])
   return jsonify(resp)

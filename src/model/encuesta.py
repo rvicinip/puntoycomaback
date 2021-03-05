@@ -9,6 +9,8 @@
 ### Se importan los plugins necesarios
 from src.utility.validator import validateFields
 from src.mysqlConnector.encuesta import Encuesta
+from src.mysqlConnector.frecuencia import Frecuencia
+from src.mysqlConnector.diccionario import Diccionario
 from src.model import user
 from src import db
 import traceback
@@ -123,6 +125,39 @@ def listSelectedActivities(usuario):
     traceback.print_exc()
     return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
 
+def listEncuestaByUsuario(usuario):
+  '''
+     listEncuestaByUsuario: Lista las respuestas de la encuesta de un usuario en su reporte \n
+     @params: 
+       usuario: id_usuario del usuario asociado a la respuesta
+  '''
+  print("In listEncuestaByUsuario")
+  try:
+    encs = db.session.query(
+      Encuesta,
+      Diccionario.nombre,
+      Frecuencia.nombre).select_from(
+        Encuesta, 
+        Frecuencia, 
+        Diccionario).filter(
+          Encuesta.usuario == usuario,
+          Diccionario.id == Encuesta.actividad,
+          Frecuencia.id == Encuesta.frecuencia)
+    print("encs", encs)
+    resp = []
+    for enc in encs:
+      e = {}
+      e['Encuesta']    = enc[0].toJSON()
+      e['diccionario'] = enc[1]
+      e['frecuencia']  = enc[2]
+      resp.append(e)
+    print(resp)
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
 ## ACTUALIZA
 def updateSelectedActivity(encuesta):
   '''
