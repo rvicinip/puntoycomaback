@@ -90,7 +90,7 @@ def listSelectedActivities(usuario):
     traceback.print_exc()
     return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
 
-def listEncuestaByUsuario(usuario):
+def listEncuestaByUsuariOld(usuario):
   '''
      listEncuestaByUsuario: Lista las respuestas de la encuesta de un usuario en su reporte \n
      @params: 
@@ -117,6 +117,47 @@ def listEncuestaByUsuario(usuario):
       e['Encuesta']    = enc[0].toJSON()
       e['frecuencia']  = enc[4]
       e['umedida']     = umed.nombre
+      e['diccionario'] = {'nombre'       : enc[1],
+                          'id_actividad' : enc[2],
+                          'descripcion'  : enc[3]}
+      resp.append(e)
+    if len(resp) > 0:
+      return {'response': 'OK', 'data': resp}
+    return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+
+def listEncuestaByUsuario(usuario):
+  '''
+     listEncuestaByUsuario: Lista las respuestas de la encuesta de un usuario en su reporte \n
+     @params: 
+       usuario: id_usuario del usuario asociado a la respuesta
+  '''
+  print("In listEncuestaByUsuario")
+  try:
+    encuestas = db.session.query(
+                Encuesta,
+                Diccionario.nombre,
+                Diccionario.id_actividad,
+                Diccionario.descripcion).select_from(
+                  Encuesta, 
+                  Diccionario).filter(
+                    Encuesta.usuario == usuario,
+                    Diccionario.id == Encuesta.actividad)
+    resp = []
+    for enc in encuestas:
+      e = {}
+      e['frecuencia'] = None
+      e['umedida'] = None
+      encuesta = enc[0].toJSON()
+      if encuesta['frecuencia'] is not None:
+        frec = Frecuencia.query.filter(Frecuencia.id == encuesta['frecuencia']).first()
+        e['frecuencia'] = frec.nombre
+      if encuesta['umedida'] is not None:
+        umed = Frecuencia.query.filter(Frecuencia.id == encuesta['umedida']).first()
+        e['umedida'] = umed.nombre
+      e['Encuesta']    = encuesta
       e['diccionario'] = {'nombre'       : enc[1],
                           'id_actividad' : enc[2],
                           'descripcion'  : enc[3]}
