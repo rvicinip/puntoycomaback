@@ -126,7 +126,7 @@ def closeInquest(usuario):
      closeInquest: Elimina una respuesta de la encuesta \n
   '''
   print("In closeInquest:")
-  resp = user.statusInquest(usuario, 'Terminado')
+  resp = user.closeInquest(usuario['id_usuario'])
   return jsonify(resp)
 
 @app.route('/prueba/list', methods = ['GET'])
