@@ -187,11 +187,11 @@ def countAnswers(idUser):
 
 def countInquests(user):
   '''
-     closeInquest: Cuenta las respuestas de la encuesta del usuario que no tienen cantidad \n
+     countInquests: Cuenta las respuestas de la encuesta del usuario que no tienen cantidad \n
      @params: 
         user: id_usuario que realiza la encuesta
   '''
-  print("In closeInquest")
+  print("In countInquests")
   try:
     resp = {}
     encs = Encuesta.query.filter(Encuesta.usuario == user)

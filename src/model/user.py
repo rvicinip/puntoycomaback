@@ -321,20 +321,20 @@ def statusInquest(user, status):
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al iniciar la encuesta del usuario ' + str(user)}
 
-def closeInquest(user):
+def closeUserInquest(user):
   '''
-     closeInquest: Cierra la encuesta para el usuario \n
+     closeUserInquest: Cierra la encuesta para el usuario \n
      @params: 
         user: id_usuario que cierra la encuesta
   '''
-  print("In closeInquest")
+  print("In closeUserInquest")
   try:
     encs = encuesta.countInquests(user)
     if 'data' in encs:
       conteo = encs['data']
       if int(conteo['pendiente']) > 0:
         return {'response': 'ERROR', 'message': 'Existes respuestas pendientes, por favor completar'}
-      resp = statusInquest(user, "Termiando")
+      resp = statusInquest(user, "Terminado")
       return resp
   except Exception:
     traceback.print_exc()

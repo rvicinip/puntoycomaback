@@ -119,14 +119,14 @@ def deleteActivity(usuario, actividad):
   resp = encuesta.deleteEncuestaById(actividad, usuario['id_usuario'])
   return jsonify(resp)
 
-@app.route('/inquest/close', methods = ['POST'])
+@app.route('/inquest/close', methods = ['GET'])
 @privated
 def closeInquest(usuario):
   '''
      closeInquest: Elimina una respuesta de la encuesta \n
   '''
-  print("In closeInquest:")
-  resp = user.closeInquest(usuario['id_usuario'])
+  print("In closeInquest")
+  resp = user.closeUserInquest(usuario['id_usuario'])
   return jsonify(resp)
 
 @app.route('/prueba/list', methods = ['GET'])
