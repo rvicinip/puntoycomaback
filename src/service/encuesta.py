@@ -88,12 +88,10 @@ def updateUserActivity(usuario):
   valida = validateFields(campos, datos)
   if valida['response'] == 'ERROR':
     return jsonify(valida)
-  cliente = usuario['id_usuario']
-  acts = datos['actividades']
-  vals = acts[0]
-  if vals['cliente'] != usuario['id']:
-      return jsonify({'response':'ERROR', 'message': 'El usuario no coincide'})
-  resp = encuesta.updateSelectedActivity(cliente, acts)
+  print("datos['usuario']", datos['usuario'], "usuario['id_usuario']", usuario['id_usuario'], "revisa", str(datos['usuario']) == str(usuario['id_usuario']))
+  if not str(datos['usuario']) == str(usuario['id_usuario']):
+      return jsonify({'response':'ERROR', 'message': 'El usuario logueado no tiene permisos para modificar esta respuesta'})
+  resp = encuesta.updateSelectedActivity(datos)
   return jsonify(resp)
 
 @app.route('/inquest/list', methods = ['GET'])

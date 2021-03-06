@@ -66,7 +66,7 @@ def getEncuestaById(idEnc):
     resp = Encuesta.query.filter(Encuesta.id == idEnc, Encuesta.estado == 'A').first()
     if resp:
       return {'response': 'OK', 'data': resp.toJSON()}
-    return {'response': 'ERROR', 'message': 'No se encontró la respuesta a la encuesta ' + str(idEnc)}
+    return {'response': 'ERROR', 'message': 'No se encontró la respuesta a la encuesta: ' + str(idEnc)}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idEnc)}
@@ -216,18 +216,19 @@ def updateSelectedActivity(encuesta):
        encuesta: Objeto Json de la encuesta seleccionada por el usuario
   '''
   try:
-    verifica = getEncuestaById(encuesta['actividad'])
+    print("In updateSelectedActivity")
+    verifica = getEncuestaById(encuesta['id'])
     if verifica['response'] == 'OK':
       value = verifica['data']
-      if value['usuario'] != encuesta['usuario']:
+      if not str(value['usuario']) == str(encuesta['usuario']):
         return {'response': 'ERROR', 'message': 'El usuario ' + str(encuesta['usuario']) + ' no puede modificar esta encuesta'}
-      resp = Encuesta.query.filter(Encuesta.actividad == encuesta['actividad'], Encuesta.usuario == encuesta['usuario']).update({
+      resp = Encuesta.query.filter(Encuesta.id == encuesta['id']).update({
                                    Encuesta.cantidad   : encuesta['cantidad'],
                                    Encuesta.frecuencia : encuesta['frecuencia'],
                                    Encuesta.umedida    : encuesta['umedida']})
       db.session.commit()
-      return {'response': 'OK', 'message': str(resp) + ' Encuesta actualizada'}
-    return {'response': 'ERROR', 'message': 'No se existe la encuesta' + str(encuesta['id'])}
+      return {'response': 'OK', 'message': str(resp) + ' Respuesta actualizada'}
+    return verifica
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Se presentó un error actualziando la actividad'}
@@ -266,10 +267,13 @@ def deleteEncuestaById(idActiv, idUser):
   '''
   print("In deleteEncuestaById:", idActiv)
   try:
-    resp = Encuesta.query.filter(Encuesta.actividad == idActiv, Encuesta.usuario == idUser).first()
-    db.session.delete(resp)
-    db.session.commit()
-    return {'response': 'OK', 'message': 'Encuesta eliminada correctamente'}
+    
+    resp = Encuesta.query.filter(Encuesta.id == idActiv, Encuesta.usuario == idUser).first()
+    if resp:
+      db.session.delete(resp)
+      db.session.commit()
+      return {'response': 'OK', 'message': 'Encuesta eliminada correctamente'}
+    return {'response': 'ERROR', 'message': 'NO se encuentra la encuesta ' + str(idActiv)}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar la respuesta de la actividad: ' + str(idActiv)}

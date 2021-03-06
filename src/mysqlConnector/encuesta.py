@@ -46,7 +46,7 @@ class Encuesta(db.Model):
         self.fteAct     = enc['fteAct']     if ('fteAct' in enc)      else None 
         self.fteUser    = enc['FteUser']    if ('FteUser' in enc)     else None 
         self.valorAct   = enc['valorAct']   if ('valorAct' in enc)    else None 
-        self.estado     = enc['estado']     if ('estado' in enc)      else None      ## Ternario valor_si if condicion else valor_no
+        self.estado     = enc['estado']     if ('estado' in enc)      else 'A'      ## Ternario valor_si if condicion else valor_no
     
     def toJSON(self):
         return{
