@@ -124,11 +124,9 @@ def deleteActivity(usuario, actividad):
 def closeInquest(usuario):
   '''
      closeInquest: Elimina una respuesta de la encuesta \n
-     @params:
-       actividad: Id de la actividad a borrar
   '''
   print("In closeInquest:")
-  resp = user.statusInquest(usuario, 'TTerminado')
+  resp = user.statusInquest(usuario, 'Terminado')
   return jsonify(resp)
 
 @app.route('/prueba/list', methods = ['GET'])

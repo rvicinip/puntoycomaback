@@ -226,6 +226,9 @@ route: /inquest/answer, method = 'PUT'
       'umedida'    : umedida,
       'frecuencia' : frecuencia}
 
+route: /inquest/close', methods = 'POST'
+    Elimina una respuesta de la encuesta
+    
 route: /inquest/list, method = 'GET'
     Lista las actividades del usuario con las respuestas de reporte de tiempos \n
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
@@ -234,7 +237,7 @@ route: /inquest/<actividad>, method = 'DELETE'
     Elimina una respuesta de la encuesta \n
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     actividad: Id de la actividad a borrar
-    
+
 ###############
    CONSULTOR
 ###############
