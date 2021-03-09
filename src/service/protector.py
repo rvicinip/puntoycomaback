@@ -22,12 +22,12 @@ def privated(f):
         if 'token' in request.headers:
             token = request.headers['token']
         if not token:
-            return jsonify({'response': 'ERROR','message' : 'No se recibió el Token'}), 402
+            return jsonify({'response': 'ERROR','message' : 'No se recibió el Token'}), 401
         try: 
             data = jwt.decode(token, app.config['SECRET_KEY'])
             usuario = user.getUserByUsuario(data['user'])
             if usuario['response'] == 'ERROR':
-                return jsonify({'response': 'ERROR', 'message': 'El usuario no está registrado en el sistema'})
+                return jsonify(usuario), 400
         except Exception:
             traceback.print_exc()
             return jsonify({'response': 'ERROR','message' : 'Token no válido'}), 401

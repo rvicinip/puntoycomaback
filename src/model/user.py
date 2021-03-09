@@ -201,7 +201,7 @@ def validatePassword(user):
     us = verifica['data']
     if bcrypt.checkpw(str(user['clave']).encode(), str(us['clave']).encode()):
       return {'response':'OK', 'data': us}
-    return {'response':'ERROR', 'message':'Contraseña errada'}
+    return {'response':'ERROR', 'message':'La actual contraseña está errada'}
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message':'Se presentó un error validando el usuario'}
@@ -334,8 +334,13 @@ def closeUserInquest(user):
       conteo = encs['data']
       if int(conteo['pendiente']) > 0:
         return {'response': 'ERROR', 'message': 'Existes respuestas pendientes, por favor completar'}
+      act = encuesta.calculateIndices(user)
+      if act['response'] == 'ERROR':
+        return act
       resp = statusInquest(user, "Terminado")
-      return resp
+      if resp['response'] == 'ERROR':
+        return resp
+      return {'response': 'OK', 'message': 'El proceso de cierre de la encuesta se realizó correctamente'}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al cerrar la encuesta del usuario ' + str(user)}

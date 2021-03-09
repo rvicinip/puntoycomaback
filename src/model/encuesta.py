@@ -12,6 +12,8 @@ from src.mysqlConnector.encuesta import Encuesta
 from src.mysqlConnector.frecuencia import Frecuencia
 from src.mysqlConnector.diccionario import Diccionario
 from src.model import user
+from src.model import frecuencia
+from src.model import empresa
 from src import db
 import traceback
 
@@ -29,6 +31,15 @@ def createSelectedActivity(activity):
       iniciar = user.statusInquest(activity['usuario'], 'Desarrollo')
       if iniciar['response'] == 'ERROR':
         return iniciar
+    frec = frecuencia.getFrecuenciaById(activity['frecuenacia'])
+    if not 'data' in frec:
+      return {'response':'ERROR', 'message': 'No se encontró la frecuencia ' + activity['frecuenacia']}
+    vrFrec = float(frec['valor'])
+    umed = frecuencia.getFrecuenciaById(activity['umedida'])
+    if not 'data' in umed:
+      return {'response':'ERROR', 'message': 'No se encontró la Unidad de Medida ' + activity['umedida']}
+    vrUmed = float(umed['valor'])
+    activity['tiempo'] = (float(activity['cantidad']) * vrUmed) / vrFrec
     actividad = Encuesta(activity)
     db.session.add(actividad)
     db.session.commit()
@@ -80,12 +91,12 @@ def listSelectedActivities(usuario):
   print("In listSelectedActivities")
   try:
     resp = []
-    acts = Encuesta.query.filter(Encuesta.usuario == usuario)
+    acts = Encuesta.query.filter(Encuesta.usuario == usuario, Encuesta.estado == 'A')
     for act in acts:
       resp.append(act.toJSON())
     if len(resp) > 0:
       return {'response': 'OK', 'data': resp}
-    return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
+    return {'response' : 'ERROR', 'message' : 'No se encontraron respuestas activas asociadas al usuario ' + str(usuario)}
   except Exception:
     traceback.print_exc()
     return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
@@ -229,6 +240,45 @@ def updateSelectedActivity(encuesta):
       db.session.commit()
       return {'response': 'OK', 'message': str(resp) + ' Respuesta actualizada'}
     return verifica
+  except Exception:
+    traceback.print_exc()
+    return {'response':'ERROR', 'message': 'Se presentó un error actualziando la actividad'}
+
+def calculateIndices(usuario):
+  '''
+     calculateIndices: Actualiza las respuestas de un usuario calculando los valores de los indices \n
+     @params: 
+       usuario: ii_usuario que realiza la acción de cierre de encuesta
+  '''
+  try:
+    print("In calculateIndices")
+    usu = user.getUserByUsuario(usuario)
+    if not 'data' in usu:
+      return usu
+    company = usu['empresa']
+    encuestas = listSelectedActivities(usuario)
+    if not 'data' in encuestas:
+      return encuestas
+    encs = encuestas['data']
+    jornada = float(0)
+    for enc in encs:
+      jornada += float(enc['tiempo'])
+    jorEmpr = frecuencia.getFrecuencia(company, 'Dia', 1)
+    if not 'data' in jorEmpr:
+      return jorEmpr
+    jEmp = int(jorEmpr['data']['val'])
+    for e in encs:
+      cant   = float(e.cantidad)
+      fteUsu = cant / jornada
+      fteAct = cant / jorEmpr
+      vrAct  = cant * int(usu['salario']) 
+      resp = Encuesta.query.filter(Encuesta.id == e.id).update({
+                                   Encuesta.fteAct   : fteAct,
+                                   Encuesta.fteUser  : fteUsu,
+                                   Encuesta.valorAct : vrAct,
+                                   Encuesta.estado   : 'T'})
+      db.session.commit()
+    return {'response': 'OK', 'message': ' Cálculos realizados correctamente'}
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Se presentó un error actualziando la actividad'}

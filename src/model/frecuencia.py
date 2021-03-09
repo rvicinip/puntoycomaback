@@ -12,22 +12,25 @@ from src.mysqlConnector.frecuencia import Frecuencia
 from src import db
 import traceback
 
-def getFrecuencia(emp, frec):
+def getFrecuencia(emp, nomb, tipo):
   '''
-     getFrecuencia: Crea los registro de un diccionario, asociaciados a una empresa \n
+     getFrecuencia: Otiene una frecuencia acorde con los paramentros recibido \n
      @params: 
        company: id de la empresa a la que pertenece la actividad
        frecuency: Nombre de la frecuencia 'nombre'
+       tipo: tipo de frecuencia (Unidad de Medida (1), Frecuencia (2))
   '''
-  print("In getFrecuencia:", frec, emp)
+  print("In getFrecuencia:", nomb, emp)
   try:
-    resp = Frecuencia.query.filter(Frecuencia.nombre == frec, Frecuencia.empresa == emp).first()
+    resp = Frecuencia.query.filter(Frecuencia.nombre == nomb, 
+                                   Frecuencia.empresa == emp,
+                                   Frecuencia.tipo == tipo).first()
     if resp:
-      return {'response' : 'OK', 'data': resp}
-    return {'response' : 'ERROR', 'message' : 'No se encontró la frecuencia ' + frec + ' para la empresa ' + emp}
+      return {'response' : 'OK', 'data': resp.toJSON()}
+    return {'response' : 'ERROR', 'message' : 'No se encontró la frecuencia ' + nomb + ' para la empresa ' + str(emp)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + frec}
+    return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + nomb}
 
 def getFrecuenciasByCompany(emp):
   '''
@@ -47,6 +50,22 @@ def getFrecuenciasByCompany(emp):
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + emp}
+
+def getFrecuenciaById(idFrec):
+  '''
+     getFrecuenciaById: Otiene una frecuencia por su id \n
+     @params: 
+       idFrec: Id de la frecuencia en la DB
+  '''
+  print("In getFrecuenciaById:", idFrec)
+  try:
+    resp = Frecuencia.query.filter(Frecuencia.id == idFrec).first()
+    if resp:
+      return {'response' : 'OK', 'data': resp.toJSON()}
+    return {'response' : 'ERROR', 'message' : 'No se encontró la frecuencia ' + idFrec}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error consultando la frecuencia ' + idFrec}
 
 def addFrecuacia(frecs, emp):
   '''
@@ -73,8 +92,8 @@ def addFrecuacia(frecs, emp):
         frec.clear()
       frec['valor'] = valor
       frec['tipo'] = int(frec['tipo'])
-      revisa = getFrecuencia(frec['nombre'], frec['empresa'])
-      if revisa['response'] != 'OK':
+      revisa = getFrecuencia(frec['nombre'], frec['empresa'], frec['tipo'])
+      if not revisa['response'] == 'OK':
         if frec:
           resp = Frecuencia(frec)
           db.session.add(resp)
