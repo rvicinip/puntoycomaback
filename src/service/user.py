@@ -27,6 +27,7 @@ def createUser(usuario):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    resp = user.addUserEmpresa(dato)
+   print("End createUser:", resp)
    return jsonify(resp)
 
 @app.route('/users/<company>', methods = ['GET'])
@@ -39,6 +40,7 @@ def obtainUsers(usuario, company):
     '''
     print("In obtainUsers:", company)
     resp = user.getUsersByCompany(company)
+    print("End obtainUsers:", resp)
     return jsonify(resp)
 
 @app.route('/users/status/<company>', methods = ['GET'])
@@ -51,6 +53,7 @@ def statusIndices(usuario, company):
     '''
     print("In statusIndices:", company)
     resp = user.statusList(company)
+    print("End statusIndices:", resp)
     return jsonify(resp)
 
 @app.route('/users/close-inquest', methods = ['PUT'])
@@ -61,4 +64,5 @@ def closeUserInquest(usuario):
     '''
     print("In closeUserInquest")
     resp = user.closeInquest(usuario['id_usuaruio'])
+    print("End closeUserInquest:", resp)
     return jsonify(resp)

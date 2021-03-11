@@ -34,6 +34,7 @@ def createCompany(usuario):
    ## Guarda una nueva empresa en la DB
    dato['estado'] = 'A' ## A Identifica que la empresa está activa
    resp = empresa.addCompany(dato)
+   print("End createCompany:", resp)
    return jsonify(resp)
 
 @app.route('/company', methods = ['PUT'])
@@ -51,6 +52,7 @@ def updateCompany(usuario):
    if valida['response'] == 'ERROR':
       return jsonify(valida)
    resp = empresa.updateCompany(dato)
+   print("End updateCompany:", resp)
    return jsonify(resp)
 
 @app.route('/company', methods = ['GET'])
@@ -61,6 +63,7 @@ def getCompanies(usuario):
    '''
    print("In getCompanies")
    resp = empresa.getAllCompanies()
+   print("End getCompanies", resp)
    return jsonify(resp)
 
 @app.route('/company/<idCompany>', methods = ['GET'])
@@ -73,6 +76,7 @@ def getCompany(usuario, idCompany):
    '''
    print("In getCompany:", idCompany)
    resp = empresa.getCompanyByNIT(idCompany)
+   print("End getCompany:", resp)
    return jsonify(resp)
 
 @app.route('/company/<idCompany>', methods = ['DELETE'])
@@ -87,6 +91,7 @@ def deleteCompany(usuario, idCompany):
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para realizar esta acción'})
    resp = empresa.deleteCompany(idCompany)
+   print("End deleteCompany:", resp)
    return jsonify(resp)
 
 @app.route('/files/<idCompany>', methods = ['POST'])
@@ -126,6 +131,7 @@ def manageFiles(usuario, idCompany):
          usus.pop('response')
       else:
          return jsonify(usus)
+      print("End manageFiles: OK")
       return jsonify({'diccionario': dicc, 'tiempos': frec, 'usuario': usus})
    except Exception:
       traceback.print_exc()
@@ -155,6 +161,7 @@ def loadDictionary(usuario, idCompany):
          dicc.pop('response')
       else:
          return jsonify(dicc)
+      print("End loadDictionary: OK")
       return jsonify({'response': 'OK', 'data': dicc})
    except Exception:
       traceback.print_exc()
@@ -184,6 +191,7 @@ def loadEmployes(usuario, idCompany):
          usus.pop('response')
       else:
          return jsonify(usus)
+      print("End loadEmployes: OK")
       return jsonify({'response': 'OK', 'data': usus})
    except Exception:
       traceback.print_exc()
@@ -213,6 +221,7 @@ def loadFrecuency(usuario, idCompany):
          frec.pop('response')
       else:
          return jsonify(frec)
+      print("In loadFrecuency: OK")
       return jsonify({'response': 'OK', 'data': frec})
    except Exception:
       traceback.print_exc()
@@ -228,6 +237,7 @@ def getCompanyFull(usuario, idCompany):
    '''
    print("In getCompanyFull:", idCompany)
    resp = empresa.getFullCompanyByNIT(idCompany)
+   print("End getCompanyFull:", resp)
    return jsonify(resp)
 
 @app.route('/full/datos/<idCompany>', methods = ['GET'])
@@ -240,6 +250,7 @@ def getDiccionarioFrecuencia(usuario, idCompany):
    '''
    print("In getDiccionarioFrecuencia:", idCompany)
    resp = empresa.getDictsFrecs(idCompany)
+   print("End getDiccionarioFrecuencia:", resp)
    return jsonify(resp)
 
 @app.route('/full/dictionary/<idCompany>', methods = ['GET'])
@@ -252,6 +263,7 @@ def getDictionary(usuario, idCompany):
    '''
    print("In getDictionary:", idCompany)
    resp = diccionario.getDiccionarioByCompany(idCompany)
+   print("End getDictionary:", resp)
    return jsonify(resp)
 
 @app.route('/full/frecuency/<idCompany>', methods = ['GET'])
@@ -264,6 +276,7 @@ def getFrecuency(usuario, idCompany):
    '''
    print("In getFrecuency:", idCompany)
    resp = frecuencia.getFrecuenciasByCompany(idCompany)
+   print("End getFrecuency:", resp)
    return jsonify(resp)
 
 @app.route('/full/employes/<idCompany>', methods = ['GET'])
@@ -278,4 +291,5 @@ def getEmployes(usuario, idCompany):
    if usuario['perfil'] == 'client':
       return jsonify({'response': 'ERROR', 'message': 'No tiene autorización para acceder a esta información'})
    resp = user.getUsersByCompany(idCompany)
+   print("End getDictionary:", resp)
    return jsonify(resp)

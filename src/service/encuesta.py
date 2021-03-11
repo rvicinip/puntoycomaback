@@ -23,6 +23,7 @@ def contador(user):
   '''
   print("In contador")
   resp = encuesta.countAnswers(user)
+  print("End contador:", resp)
   return jsonify(resp)
 
 @app.route('/inquest/answer', methods = ['POST'])
@@ -46,8 +47,8 @@ def createUserActivity(usuario):
     if c > 0 :
       return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + str(c)})
     return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario'})
-
   resp = encuesta.createSelectedActivity(datos)
+  print("End createUserActivity: ", resp)
   return jsonify(resp)
 
 @app.route('/inquest', methods = ['POST'])
@@ -72,6 +73,7 @@ def createEncuesta(usuario):
       return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario con cantidad ' + str(valor['data']['cantidad'])})
     return jsonify({'response':'ERROR', 'message': 'Ya existe esta actividad para el usuario'})
   resp = encuesta.createSelectedActivity(datos)
+  print("End createEncuesta:", resp)
   return jsonify(resp)
 
 @app.route('/inquest/answer', methods = ['PUT'])
@@ -92,6 +94,7 @@ def updateUserActivity(usuario):
   if not str(datos['usuario']) == str(usuario['id_usuario']):
       return jsonify({'response':'ERROR', 'message': 'El usuario logueado no tiene permisos para modificar esta respuesta'})
   resp = encuesta.updateSelectedActivity(datos)
+  print("End updateUserActivity:", resp)
   return jsonify(resp)
 
 @app.route('/inquest/list', methods = ['GET'])
@@ -105,6 +108,7 @@ def listUserActivities(usuario):
   print("In listUserActivities")
   cliente = usuario['id_usuario']
   resp = encuesta.listEncuestaByUsuario(cliente)
+  print("End listUserActivities:", resp)
   return jsonify(resp)
 
 @app.route('/inquest/<actividad>', methods = ['DELETE'])
@@ -117,6 +121,7 @@ def deleteActivity(usuario, actividad):
   '''
   print("In deleteActivity:", actividad)
   resp = encuesta.deleteEncuestaById(actividad, usuario['id_usuario'])
+  print("End deleteActivity:", resp)
   return jsonify(resp)
 
 @app.route('/inquest/close', methods = ['GET'])
@@ -127,6 +132,7 @@ def closeInquest(usuario):
   '''
   print("In closeInquest")
   resp = user.closeUserInquest(usuario['id_usuario'])
+  print("End closeInquest:", resp)
   return jsonify(resp)
 
 @app.route('/prueba/list', methods = ['GET'])
@@ -139,4 +145,5 @@ def listPrueba(usuario):
   '''
   print("In listPrueba")
   resp = encuesta.listEncuestaByUsuario(usuario['id_usuario'])
+  print("End listPrueba:", resp)
   return jsonify(resp)

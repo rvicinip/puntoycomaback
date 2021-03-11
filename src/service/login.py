@@ -43,6 +43,7 @@ def login():
       if not usuario['estado'] == 'A':
          return jsonify({'response': 'ERROR', 'message': 'El usuario no se encuentra activo para ingresar'})
       token = jwt.encode({'user' : usuario['id_usuario'], 'exp' : datetime.datetime.utcnow() + datetime.timedelta(days=5)}, app.config['SECRET_KEY'])
+      print("End login: OK")
       return jsonify({'response': 'OK', 'data': usuario, 'token': token.decode('utf-8')})
    return jsonify(valida)
 
@@ -65,6 +66,7 @@ def changePassword(usuario):
       return jsonify({'response':'ERROR', 'message': 'Usuario autenticado no corresponde, por favor verifíque'})
    ## Actualiza la clave del usuario
    resp = user.updateUserPassword(dato)
+   print("End changePassword:", resp)
    return jsonify(resp)
 
 @app.route('/user/forget/<idUsuario>', methods = ['POST'])
@@ -81,6 +83,7 @@ def forgetPassword(idUsuario):
    resp = user.recallUserPassword(idUsuario)
    if resp['response'] == 'NOMAIL':
       return jsonify({'response': 'ERROR', 'message': 'El usuario ' + resp['data']['id_usuario'] + ' no tiene correo electrónico para recuperar la contraseña'})
+   print("End forgetPassword", resp)
    return jsonify(resp)
 
 @app.route('/user/restore', methods = ['POST'])
@@ -97,4 +100,5 @@ def restorePassword():
       return jsonify(valida)
    print("valida", valida)
    resp = user.validateCodigo(dato)
+   print("End restorePassword:", resp)
    return jsonify(resp)

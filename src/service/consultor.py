@@ -27,6 +27,7 @@ def addCompaniesConsultor(usuario):
     if usuario['perfil'] != 'consult':
        return jsonify({'response': 'ERROR', 'message': 'No tiene los privilegios de consultor, no puede realizar esta acción'})
     resp = consultor.asociateCompany(dato['nit'], dato['id_usuario'])
+    print("End addCompaniesConsultor:", resp)
     return jsonify(resp)
 
 @app.route('/consultor/<company>/<user>', methods = ['DELETE'])
@@ -43,6 +44,7 @@ def deleteConsultor(usuario, company, user):
     if usuario['perfil'] != 'consult':
        return {'response': 'ERROR', 'message': 'No tiene los privilegios de consultor, no puede realizar esta acción'}
     resp = consultor.removeConsultor(company, user)
+    print("End deleteConsultor:", resp)
     return jsonify(resp)
 
 @app.route('/consultor', methods = ['GET'])
@@ -51,6 +53,7 @@ def getCompaniesConsultor(usuario):
    '''
        getCompaniesConsultor: Recupera todas las empresas asociadas al usuario en login \n
    '''
-   print("In getCompaniesConsultor")    
+   print("In getCompaniesConsultor")
    resp = consultor.getCompaniesConsultor(usuario['id_usuario'])
+   print("End getCompaniesConsultor:", resp)
    return jsonify(resp)
