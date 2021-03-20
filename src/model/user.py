@@ -118,7 +118,7 @@ def getUserByUsuario(idUser):
     return {'response': 'ERROR', 'message': 'No se encontró el usuario ' + str(idUser)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de usuario'}
 
 def getUsersByCompany(idCompany):
   '''
@@ -198,10 +198,12 @@ def validatePassword(user):
   print("In validatePassword:", user['id_usuario'])
   try:
     verifica = getUserByUsuario(user['id_usuario'])
-    us = verifica['data']
-    if bcrypt.checkpw(str(user['clave']).encode(), str(us['clave']).encode()):
-      return {'response':'OK', 'data': us}
-    return {'response':'ERROR', 'message':'La actual contraseña está errada'}
+    if 'data' in verifica:
+      us = verifica['data']
+      if bcrypt.checkpw(str(user['clave']).encode(), str(us['clave']).encode()):
+        return {'response':'OK', 'data': us}
+      return {'response':'ERROR', 'message':'La actual contraseña está errada'}
+    return {'response':'ERROR', 'message':'No se encontró el Usuario: ' + str(user['id_usuario'])}
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message':'Se presentó un error validando el usuario'}
@@ -246,17 +248,17 @@ def updateUserById(user):
   print("In updateUserById:", user['id_usuario'])
   try:
     resp = Usuario.query.filter(Usuario.id_usuario == user['id_usuario']).update({
-           Usuario.nombre     : user['nombre'],
-           Usuario.empresa    : user['empresa'],
-           Usuario.email      : user['email'],
-           Usuario.cargo      : user['cargo'],
-           Usuario.salario    : user['salario'],
-           Usuario.jornada    : user['jornada'],
-           Usuario.perfil     : user['perfil'],
-           Usuario.ccostos    : user['ccostos'],
-           Usuario.termino    : user['termino'],
-           Usuario.estado     : user['estado'],
-           Usuario.codigo     : user['codigo']})
+           Usuario.nombre       : user['nombre'],
+           Usuario.empresa      : user['empresa'],
+           Usuario.email        : user['email'],
+           Usuario.cargo        : user['cargo'],
+           Usuario.salario      : user['salario'],
+           Usuario.jornada      : user['jornada'],
+           Usuario.perfil       : user['perfil'],
+           Usuario.centrocosto  : user['centrocosto'],
+           Usuario.tipocontrato : user['termino'],
+           Usuario.estado       : user['estado'],
+           Usuario.codigo       : user['codigo']})
     db.session.commit()
     return {'response': 'OK', 'message': str(resp) + ' Usuario actualizado', 'data': user}
   except Exception:
@@ -282,7 +284,7 @@ def updateUserPassword(user):
     return verifica
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al modificar el usuario: ' + user['id_usuario']}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de usuario'}
 
 def updatePasswordByCodigo(user):
   '''
@@ -319,7 +321,7 @@ def statusInquest(user, status):
     return {'response': 'OK', 'message': 'Usuario actualizado'}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al iniciar la encuesta del usuario ' + str(user)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de usuario'}
 
 def closeUserInquest(user):
   '''
@@ -333,7 +335,7 @@ def closeUserInquest(user):
     if 'data' in encs:
       conteo = encs['data']
       if int(conteo['pendiente']) > 0:
-        return {'response': 'ERROR', 'message': 'Existes respuestas pendientes, por favor completar'}
+        return {'response': 'ERROR', 'message': 'Existen respuestas pendientes, por favor completar'}
       act = encuesta.calculateIndices(user)
       if act['response'] == 'ERROR':
         return act

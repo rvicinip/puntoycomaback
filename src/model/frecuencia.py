@@ -49,7 +49,7 @@ def getFrecuenciasByCompany(emp):
     return {'response' : 'ERROR', 'message' : 'No se encontraron frecuencias para la empresa ' + emp}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + emp}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de frecuencia'}
 
 def getFrecuenciaById(idFrec):
   '''

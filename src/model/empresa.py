@@ -67,7 +67,7 @@ def getCompanyByNIT(idEmp):
     return {'response': 'ERROR', 'message': 'No se encontró la empresa ' + str(idEmp)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idEmp)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de empresa'}
 
 def getFullCompanyByNIT(idEmp):
   '''

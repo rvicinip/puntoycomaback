@@ -35,7 +35,6 @@ route: /company/<idCompany>, method: 'DELETE'
 route: /files/<idCompany>, method: 'POST'
     Recibe los archivos de una empresa para procesarlos y guardarlos en la DB
     idCompany: Id mongo de la empresa
-    niveles: Define la cantidad de nivels que tiene el diccionario
     files{'usuarios'}
     files{'diccionario'}
     files{'frecuencias'}

@@ -13,6 +13,7 @@ from src.mysqlConnector.frecuencia import Frecuencia
 from src.mysqlConnector.diccionario import Diccionario
 from src.model import user
 from src.model import frecuencia
+from src.model import diccionario
 from src.model import empresa
 from src import db
 import traceback
@@ -31,22 +32,13 @@ def createSelectedActivity(activity):
       iniciar = user.statusInquest(activity['usuario'], 'Desarrollo')
       if iniciar['response'] == 'ERROR':
         return iniciar
-    frec = frecuencia.getFrecuenciaById(activity['frecuenacia'])
-    if not 'data' in frec:
-      return {'response':'ERROR', 'message': 'No se encontró la frecuencia ' + activity['frecuenacia']}
-    vrFrec = float(frec['valor'])
-    umed = frecuencia.getFrecuenciaById(activity['umedida'])
-    if not 'data' in umed:
-      return {'response':'ERROR', 'message': 'No se encontró la Unidad de Medida ' + activity['umedida']}
-    vrUmed = float(umed['valor'])
-    activity['tiempo'] = (float(activity['cantidad']) * vrUmed) / vrFrec
     actividad = Encuesta(activity)
     db.session.add(actividad)
     db.session.commit()
     return {'response': 'OK', 'message': 'Respuesta de encuesta creada', 'data': {'encuesta': actividad.toJSON()}}    
   except Exception:
     traceback.print_exc()
-    return {'response':'ERROR', 'message': 'Se presentó un error al crear la encuesta'}
+    return {'response':'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 ### LEE
 def getEncuestaByUser(idAct, idUser):
@@ -64,7 +56,7 @@ def getEncuestaByUser(idAct, idUser):
     return {'response': 'ERROR', 'message': 'No se encontró la respuesta a la encuesta ' + str(idUser)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 def getEncuestaById(idEnc):
   '''
@@ -80,7 +72,7 @@ def getEncuestaById(idEnc):
     return {'response': 'ERROR', 'message': 'No se encontró la respuesta a la encuesta: ' + str(idEnc)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idEnc)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 def listSelectedActivities(usuario):
   '''
@@ -99,45 +91,89 @@ def listSelectedActivities(usuario):
     return {'response' : 'ERROR', 'message' : 'No se encontraron respuestas activas asociadas al usuario ' + str(usuario)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+    return {'response': 'OK', 'message': 'Error de base de datos de encuesta'}
 
-def listEncuestaByUsuariOld(usuario):
+def listEncuestaByCompany(company):
   '''
-     listEncuestaByUsuario: Lista las respuestas de la encuesta de un usuario en su reporte \n
+     listEncuestaByCompany: Lista las respuestas de las encuestas de los empleados de empresa \n
      @params: 
-       usuario: id_usuario del usuario asociado a la respuesta
+       company: Nit de la empresa
   '''
-  print("In listEncuestaByUsuario")
+  print("In listEncuestaByCompany")
+  header = ['id_usuario',	'nombre', 'salario', 'jornada',	'Cargo',	'tipo contrato',	'tipo',	
+              'macro proceso', 'proceso', 'actividad', 'mas', 'ceno', 'tipo', 'cadenaVr',	'unidad tiempo',
+              'frecuencia', 'cantidad',	'tiempo', 'jornada', 'fte actividad',	'fte usuario',	'valor act']
   try:
-    encs = db.session.query(
-      Encuesta,
-      Diccionario.nombre,
-      Diccionario.id_actividad,
-      Diccionario.descripcion,
-      Frecuencia.nombre).select_from(
-        Encuesta, 
-        Frecuencia, 
-        Diccionario).filter(
-          Encuesta.usuario == usuario,
-          Diccionario.id == Encuesta.actividad,
-          Frecuencia.id == Encuesta.frecuencia)
     resp = []
-    for enc in encs:
-      umed = Frecuencia.query.filter(Frecuencia.id == enc[0].umedida).first()
-      e = {}
-      e['Encuesta']    = enc[0].toJSON()
-      e['frecuencia']  = enc[4]
-      e['umedida']     = umed.nombre
-      e['diccionario'] = {'nombre'       : enc[1],
-                          'id_actividad' : enc[2],
-                          'descripcion'  : enc[3]}
-      resp.append(e)
-    if len(resp) > 0:
-      return {'response': 'OK', 'data': resp}
-    return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
+    empres = empresa.getCompanyByNIT(company)
+    if not 'data' in empres:
+      return empres
+    empr = empres['data']
+    empleados = user.getUsersByCompany(company)
+    if not 'data' in empleados:
+      return empleados
+    emps = empleados['data']
+    resp = []
+    for emp in emps:
+      dato = {}
+      dato['id_usuario']   = emp['id_usuario']
+      dato['nombre']       = emp['nombre']
+      dato['salario']      = emp['salario']
+      dato['jornada']      = emp['jornada']
+      dato['cargo']        = emp['cargo']
+      dato['tipocontrato'] = emp['tipocontrato']
+      encuestas = listEncuestaByUsuario(emp['id_usuario'])
+      if 'data' in encuestas:
+        encs = encuestas['data']
+        for enc in encs:
+          dato['valorAct']   = enc['valorAct']
+          dato['fteUsuario'] = enc['fteUser']
+          dato['fteAct']     = enc['fteAct']
+          dato['jornal']     = enc['jornada']
+          dato['tiempo']     = enc['tiempo']
+          dato['cantidad']   = enc['cantidad']
+          umed = frecuencia.getFrecuenciaById(enc['umedida'])
+          if 'data' in umed:
+            umd = umed['data']
+            dato['unidadtiempo'] = umd['nombre']
+          else:
+            return {'response': 'ERROR', 'message': 'Información Incompleta - NO se encontró la unidad de tiempo ' + str(enc['umedida'])}
+          frec = frecuencia.getFrecuenciaById(enc['frecuencia'])
+          if 'data' in frec:
+            frc = frec['data']
+            dato['frecuencia'] = frc['nombre']
+          else:
+            return {'response': 'ERROR', 'message': 'Información Incompleta - NO se encontró la frecuencia ' + str(enc['frecuencia'])}
+          actividad = diccionario.getActivity(company, enc['actividad'])
+          if 'data' in actividad:
+            act = actividad['data']
+            dato['tipo']         = act['tipo']
+            dato['actividad']    = act['nombre']
+            dato['mas']          = act['mas']
+            dato['ceno']         = act['ceno']
+            dato['cadenaValor']  = act['cadena_de_valor']            
+            for i in range (int(empr['niveles'])-1):
+              if act['id_padre'] > 0:
+                padre = diccionario.getActivity(company, act['id_padre'])
+                if 'data' in padre:
+                  proc = padre['data']
+                  dato['nivel' + str(int(empr['niveles']) - (i +1 ))] = proc['nombre']
+                else:
+                  return {'response': 'ERROR', 'message': 'Información Incompleta - NO se encontró la actividad ' + str(act['id_padre'])}
+          else:
+            return {'response': 'ERROR', 'message': 'Información Incompleta - NO se encontró la actividad ' + str(enc['actividad'])}
+      else:
+        return {'response': 'ERROR', 'message': 'Información Incompleta - NO se encontró encuesta para el empleador ' + str(emp['id_usuario'])}
+      resp.append(dato)
+    header = ['id_usuario', 'id_usuario', 'nombre', 'salario', 'jornada', 'cargo', 'tipocontrato', 'valorAct', 'fteUsuario',
+              'fteAct', 'jornal', 'tiempo', 'cantidad', 'unidadtiempo', 'frecuencia', 'tipo', 'actividad', 'mas', 'ceno',
+              'cadenaVr']
+    for i in range (int(empr['niveles'])-1):
+      header.append('nivel' + str(int(empr['niveles']) - (i +1 )))
+    return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
-    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 def listEncuestaByUsuario(usuario):
   '''
@@ -178,7 +214,7 @@ def listEncuestaByUsuario(usuario):
     return {'response' : 'ERROR', 'message' : 'No se encontraron actividades asociadas al usuario ' + str(usuario)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'OK', 'message': 'Se presentó un error al consultar la encuesta del usuario ' + str(usuario)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 def countAnswers(idUser):
   '''
@@ -194,7 +230,7 @@ def countAnswers(idUser):
     return {'response': 'ERROR', 'message': 'No se encontraron resultados'}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar el usuario: ' + str(idUser)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 def countInquests(user):
   '''
@@ -217,7 +253,19 @@ def countInquests(user):
     return {'response': 'OK', 'data': resp}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar las respuestas de ' + str(user)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de encuesta'}
+
+def generateDesnomalizadaTable(company):
+  '''
+     generateDesnomalizadaTable: Genera los valores para construir la tabla desnomalizada que se descargará \n
+     @params: 
+       company: Nit de la empresa
+  '''
+  print('In generateDesnomalizadaTable:', company)
+  header = ['id_usuario',	'nombre', 'salario', 'jornada',	'Cargo',	'tipo contrato',	'tipo',	
+            'macro proceso', 'proceso', 'actividad', 'mas', 'ceno', 'tipo', 'PHVA',	'unidad tiempo',
+            'frecuencia', 'cantidad',	'tiempo', 'jornada', 'FTE ACTIVIDAD',	'FTE USUARIO',	'VALOR ACT']
+  table = get
 
 ## ACTUALIZA
 def updateSelectedActivity(encuesta):
@@ -228,6 +276,15 @@ def updateSelectedActivity(encuesta):
   '''
   try:
     print("In updateSelectedActivity")
+    frec = frecuencia.getFrecuenciaById(encuesta['frecuencia'])
+    if not 'data' in frec:
+      return frec
+    vrFrec = float(frec['data']['valor'])
+    umed = frecuencia.getFrecuenciaById(encuesta['umedida'])
+    if not 'data' in umed:
+      return umed
+    vrUmed = float(umed['data']['valor'])
+    encuesta['tiempo'] = (float(encuesta['cantidad']) * vrUmed) / vrFrec
     verifica = getEncuestaById(encuesta['id'])
     if verifica['response'] == 'OK':
       value = verifica['data']
@@ -236,13 +293,14 @@ def updateSelectedActivity(encuesta):
       resp = Encuesta.query.filter(Encuesta.id == encuesta['id']).update({
                                    Encuesta.cantidad   : encuesta['cantidad'],
                                    Encuesta.frecuencia : encuesta['frecuencia'],
+                                   Encuesta.tiempo : encuesta['tiempo'],
                                    Encuesta.umedida    : encuesta['umedida']})
       db.session.commit()
       return {'response': 'OK', 'message': str(resp) + ' Respuesta actualizada'}
     return verifica
   except Exception:
     traceback.print_exc()
-    return {'response':'ERROR', 'message': 'Se presentó un error actualziando la actividad'}
+    return {'response':'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 def calculateIndices(usuario):
   '''
@@ -255,7 +313,7 @@ def calculateIndices(usuario):
     usu = user.getUserByUsuario(usuario)
     if not 'data' in usu:
       return usu
-    company = usu['empresa']
+    company = usu['data']['empresa']
     encuestas = listSelectedActivities(usuario)
     if not 'data' in encuestas:
       return encuestas
@@ -266,14 +324,19 @@ def calculateIndices(usuario):
     jorEmpr = frecuencia.getFrecuencia(company, 'Dia', 1)
     if not 'data' in jorEmpr:
       return jorEmpr
-    jEmp = int(jorEmpr['data']['val'])
+    mesada = frecuencia.getFrecuencia(company, 'Mes', 1)
+    if not 'data' in mesada:
+      return mesada
+    jEmp = int(jorEmpr['data']['valor'])
+    mes  = int(mesada['data']['valor'])
     for e in encs:
-      cant   = float(e.cantidad)
+      cant   = float(e['cantidad'])
       fteUsu = cant / jornada
-      fteAct = cant / jorEmpr
-      vrAct  = cant * int(usu['salario']) 
-      resp = Encuesta.query.filter(Encuesta.id == e.id).update({
+      fteAct = cant / jEmp
+      vrAct  = cant * (int(usu['data']['salario'])/mes)
+      resp = Encuesta.query.filter(Encuesta.id == e['id']).update({
                                    Encuesta.fteAct   : fteAct,
+                                   Encuesta.jornada  : jornada,
                                    Encuesta.fteUser  : fteUsu,
                                    Encuesta.valorAct : vrAct,
                                    Encuesta.estado   : 'T'})
@@ -281,7 +344,7 @@ def calculateIndices(usuario):
     return {'response': 'OK', 'message': ' Cálculos realizados correctamente'}
   except Exception:
     traceback.print_exc()
-    return {'response':'ERROR', 'message': 'Se presentó un error actualziando la actividad'}
+    return {'response':'ERROR', 'message': 'Error de base de datos de encuesta'}
 
 def updateSelectedActivities(usuario, actividades):
   '''
@@ -326,4 +389,4 @@ def deleteEncuestaById(idActiv, idUser):
     return {'response': 'ERROR', 'message': 'NO se encuentra la encuesta ' + str(idActiv)}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al eliminar la respuesta de la actividad: ' + str(idActiv)}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de encuesta'}

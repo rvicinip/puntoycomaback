@@ -9,6 +9,7 @@
 '''
 ### Se importan los plugins necesarios
 import pandas as xls
+from pandas import ExcelWriter
 import traceback
 
 def readXLS(document, hoja):
@@ -61,3 +62,17 @@ def validateXLS(hoja, fields):
   except Exception:
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error validando los campos ' + fields}  
+
+def writeXLS(header, data):
+  '''
+     writeXLS: Transdorma una lista de objetos Json en un libro XLS \n
+     @params: 
+       header: Lista de las cabeceras de las columnas
+       data: Contenido de las columnas
+  '''
+  print("In readXLS")
+  try:
+    df = xls.DataFrame()
+    print
+  except Exception:
+    print

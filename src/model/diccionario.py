@@ -49,7 +49,7 @@ def getDiccionarioByCompany(emp):
     return {'response': 'ERROR', 'message': 'No se encontró el diccionario de la empresa ' + emp}
   except Exception:
     traceback.print_exc()
-    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar la empresa: ' + emp}
+    return {'response': 'ERROR', 'message': 'Error de base de datos de diccionario'}
 
 def addDiccionario(dicti, emp):
   '''

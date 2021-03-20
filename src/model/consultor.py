@@ -57,16 +57,16 @@ def getCompaniesConsultor(idCons):
     usu = user.getUserByUsuario(idCons)
     if not 'data' in usu:
         return usu
-    if usu['data']['perfil'] != 'consult':
+    consultor = usu['data']
+    if not consultor['perfil'] == 'consult':
       return {'response': 'ERROR', 'message': 'El usuario no tiene privilegios de consultor'}
-    consultor = usu.toJSON()
     resp = []
     emps = Consultores.query.filter(Consultores.consultor == idCons, Consultores.estado == 'A')
     for e in emps:
       emp = empresa.getCompanyByNIT(e.empresa)
       if 'data' in emp:
-        consultor['empresa'] = emp['empresa']
-        resp.append(e.toJSON())
+        consultor['empresa'] = emp['data']
+        resp.append(consultor)
     if len(resp) > 0:
       return {'response': 'OK', 'data': resp}
     return {'response': 'ERROR', 'message': 'No se encontraron empresas para el consultor ' + idCons}

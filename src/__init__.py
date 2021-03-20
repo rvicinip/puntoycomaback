@@ -29,8 +29,14 @@ app.config['EMAIL_KEY'] = EMAIL_KEY
 ### Configuración de SqlAlchemy para conectarse a la DB de MySQL
 app.config['SQLALCHEMY_DATABASE_URI'] = MYSQL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True, "pool_recycle": 300}
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
+# Prevenir --> pymysql.err.OperationalError) (2006, "MySQL server has gone away (BrokenPipeError(32, 'Broken pipe')
+class SQLAlchemy(SQLAlchemy):
+   def apply_pool_defaults(self, app, options):
+      super(SQLAlchemy, self).apply_pool_defaults(app, options)
+      options["pool_pre_ping"] = True
 ### Vincular las clases del sistema
 from src.service import login, user, empresa, encuesta
 ### Versión de la aplicación

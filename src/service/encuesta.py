@@ -90,7 +90,6 @@ def updateUserActivity(usuario):
   valida = validateFields(campos, datos)
   if valida['response'] == 'ERROR':
     return jsonify(valida)
-  print("datos['usuario']", datos['usuario'], "usuario['id_usuario']", usuario['id_usuario'], "revisa", str(datos['usuario']) == str(usuario['id_usuario']))
   if not str(datos['usuario']) == str(usuario['id_usuario']):
       return jsonify({'response':'ERROR', 'message': 'El usuario logueado no tiene permisos para modificar esta respuesta'})
   resp = encuesta.updateSelectedActivity(datos)
