@@ -6,7 +6,7 @@
       licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
    author: Wiliam Arévalo Camacho
 '''
-from src.mysqlConnector.consultores import Consultores
+from src.mysqlConnector.consultor import Consultor
 from src.model import empresa
 from src.model import user
 from src import db
@@ -37,7 +37,7 @@ def asociateCompany(emp, cons):
     perfil = veriCons['data']['perfil']
     if perfil != 'consult':
       return {'response': 'ERROR', 'message': 'No se puede asociar el usuario ' + str(cons) + ' a la empresa ' + str(emp) + ' no tiene los privilegios de consultor'}
-    c = Consultores(emp, cons, 'A')
+    c = Consultor(emp, cons, 'A')
     db.session.add(c)
     db.session.commit()
     return {'response': 'OK', 'message': 'Consultor asociado a la empresa '+ str(emp), 'data': c.toJSON()}
@@ -61,7 +61,7 @@ def getCompaniesConsultor(idCons):
     if not consultor['perfil'] == 'consult':
       return {'response': 'ERROR', 'message': 'El usuario no tiene privilegios de consultor'}
     resp = []
-    emps = Consultores.query.filter(Consultores.consultor == idCons, Consultores.estado == 'A')
+    emps = Consultor.query.filter(Consultor.consultor == idCons, Consultor.estado == 'A')
     for e in emps:
       emp = empresa.getCompanyByNIT(e.empresa)
       if 'data' in emp:
@@ -83,7 +83,7 @@ def isConsultorInCompany(idCons, idEmpr):
   '''
   print("In isConsultorInCompany")
   try:
-    resp = Consultores.query.filter(Consultores.consultor == idCons, Consultores.empresa == idEmpr).first()
+    resp = Consultor.query.filter(Consultor.consultor == idCons, Consultor.empresa == idEmpr).first()
     if resp:
       return {'response': 'OK', 'data': resp.toJSON()}
     return {'response': 'ERROR', 'message': 'El consultor no se encuentra asociado a esta empresa'}
@@ -107,8 +107,8 @@ def removeConsultor(emp, cons):
     veriCons = user.getUserByUsuario(cons)
     if not 'data' in veriCons:
       return {'response': 'ERROR', 'message': 'No existe el consultor con el Id de usuario ' + cons}
-    c = Consultores.query.filter(Consultores.empresa == emp, Consultores.consultor == cons).update({
-                                 Consultores.estado : 'D'})
+    c = Consultor.query.filter(Consultor.empresa == emp, Consultor.consultor == cons).update({
+                                 Consultor.estado : 'D'})
     db.session.commit()
     return {'response': 'OK', 'message': 'Consultor eliminado de la empresa '+ emp}
   except Exception:

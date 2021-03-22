@@ -15,6 +15,7 @@ from src.model import user
 from src.model import frecuencia
 from src.model import diccionario
 from src.model import empresa
+from src.utility import xlsReader
 from src import db
 import traceback
 
@@ -100,9 +101,6 @@ def listEncuestaByCompany(company):
        company: Nit de la empresa
   '''
   print("In listEncuestaByCompany")
-  header = ['id_usuario',	'nombre', 'salario', 'jornada',	'Cargo',	'tipo contrato',	'tipo',	
-              'macro proceso', 'proceso', 'actividad', 'mas', 'ceno', 'tipo', 'cadenaVr',	'unidad tiempo',
-              'frecuencia', 'cantidad',	'tiempo', 'jornada', 'fte actividad',	'fte usuario',	'valor act']
   try:
     resp = []
     empres = empresa.getCompanyByNIT(company)
@@ -263,9 +261,10 @@ def generateDesnomalizadaTable(company):
   '''
   print('In generateDesnomalizadaTable:', company)
   header = ['id_usuario',	'nombre', 'salario', 'jornada',	'Cargo',	'tipo contrato',	'tipo',	
-            'macro proceso', 'proceso', 'actividad', 'mas', 'ceno', 'tipo', 'PHVA',	'unidad tiempo',
-            'frecuencia', 'cantidad',	'tiempo', 'jornada', 'FTE ACTIVIDAD',	'FTE USUARIO',	'VALOR ACT']
-  table = get
+            'macro proceso', 'proceso', 'actividad', 'mas', 'ceno', 'tipo', 'cadenaVr',	'unidad tiempo',
+            'frecuencia', 'cantidad',	'tiempo', 'jornada', 'fte actividad',	'fte usuario',	'valor act']
+  table = listEncuestaByCompany(company)
+  xls = xlsReader.writeXLS(header, table)
 
 ## ACTUALIZA
 def updateSelectedActivity(encuesta):

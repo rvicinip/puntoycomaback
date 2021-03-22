@@ -72,7 +72,7 @@ def writeXLS(header, data):
   '''
   print("In readXLS")
   try:
-    df = xls.DataFrame()
+    df = xls.DataFrame(data)
     print
   except Exception:
     print

@@ -1,6 +1,6 @@
 '''
-   consultores:
-      Modelo de datos de la entidad consultores en la DB MySQL
+   consultor:
+      Modelo de datos de la entidad consultor en la DB MySQL
 
    copyright 2021 - Vitt Inversiones SAS - vitt.co:
       licensed to Velasquez Naranjo y Cia SAS - Venaycia.com
@@ -8,7 +8,7 @@
 '''
 from src import db, ma
 
-class Consultores(db.Model):
+class Consultor(db.Model):
     id        = db.Column(db.Integer, primary_key = True, nullable = False, autoincrement = True)
     empresa   = db.Column(db.Integer, nullable = False)
     consultor = db.Column(db.Integer, nullable = False)
