@@ -92,7 +92,7 @@ def addDiccionario(dicti, emp):
           lista.append(resp.toJSON())
       else:
         err.append({'response': 'Ya existe una actividad con ese id en la empresa', 'data': dic})
-    return {'response': 'OK','data': lista, 'error': err}
+    return {'response': 'OK','data': 'Se agregaron ' + str(len(lista)) + ' registros del diccionario, ' + str(len(err)) + ' registros no se pudieron agregar'}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando el diccionario ' + dicti.filename}

@@ -38,6 +38,6 @@ class SQLAlchemy(SQLAlchemy):
       super(SQLAlchemy, self).apply_pool_defaults(app, options)
       options["pool_pre_ping"] = True
 ### Vincular las clases del sistema
-from src.service import login, user, empresa, encuesta
+from src.service import login, user, empresa, encuesta, consultor
 ### Versión de la aplicación
 __version__ = "1.0.0"

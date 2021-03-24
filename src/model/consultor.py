@@ -63,13 +63,17 @@ def getCompaniesConsultor(idCons):
     resp = []
     emps = Consultor.query.filter(Consultor.consultor == idCons, Consultor.estado == 'A')
     for e in emps:
+      con = e.toJSON()
       emp = empresa.getCompanyByNIT(e.empresa)
       if 'data' in emp:
-        consultor['empresa'] = emp['data']
-        resp.append(consultor)
+        c = emp['data']
+        con['nit']     = c['nit']
+        con['nombre']  = c['nombre']
+        con['usuario'] = consultor['nombre']
+        resp.append(con)
     if len(resp) > 0:
       return {'response': 'OK', 'data': resp}
-    return {'response': 'ERROR', 'message': 'No se encontraron empresas para el consultor ' + idCons}
+    return {'response': 'ERROR', 'message': 'No se encontraron empresas para el consultor ' + str(idCons)}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar las empresas'}

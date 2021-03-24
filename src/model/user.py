@@ -86,7 +86,7 @@ def addEmpleados(user, idEmp):
     lector = xlsReader.readXLS(user, 1) ## Archivo, Hojas a leer
     if 'ERROR' in lector:
       return {'response': 'ERROR', 'message': lector['ERROR']}
-    campos = ['id_usuario',	'clave',	'nombre',	'salario',	'jornada',	'cargo',	'tipo']
+    campos = ['id_usuario',	'clave',	'nombre',	'salario',	'jornada',	'cargo']
     valida = xlsReader.validateXLS(lector, campos)
     if 'ERROR' in valida:
       return {'response': 'ERROR', 'message': valida['ERROR'], 'data': valida['data']}
@@ -98,7 +98,7 @@ def addEmpleados(user, idEmp):
         err.append({'response': resp['message'], 'data': usu})
       else:
         lista.append(resp['data'])
-    return {'response': 'OK', 'data': lista, 'error': err}
+    return {'response': 'OK', 'data': 'Se agregaron ' + str(len(lista)) + ' usuarios, ' + str(len(err)) + ' usuarios no se pudieron agregar'}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando los empleados ' + user.filename}

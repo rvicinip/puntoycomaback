@@ -92,7 +92,7 @@ def addFrecuacia(frecs, emp):
         frec.clear()
       frec['valor'] = valor
       frec['tipo'] = int(frec['tipo'])
-      revisa = getFrecuencia(frec['nombre'], frec['empresa'], frec['tipo'])
+      revisa = getFrecuencia(frec['empresa'], frec['nombre'], frec['tipo'])
       if not revisa['response'] == 'OK':
         if frec:
           resp = Frecuencia(frec)
@@ -101,7 +101,7 @@ def addFrecuacia(frecs, emp):
           lista.append(resp.toJSON())
       else:
         err.append({'response': 'Ya existe esta frecuencia en la empresa', 'data': frec})
-    return {'response': 'OK', 'data': lista, 'error': err}
+    return {'response': 'OK', 'data': 'Se agregaron ' + str(len(lista)) + ' registros de frecuencias, ' + str(len(err)) + ' registros no se pudieron agregar'}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error procesando la frecuencia ' + frecs.filename}

@@ -82,8 +82,12 @@ def codeTransform(field):
          field: Campo a validar 
    '''
    print('In codeTransform:', field)
+   if field is None:
+      return str(0)
    value = str(field)
-   if not value or value.lower() == 'nan' or value == '0.0':
+   if not value:
+      return str(0)
+   if value.lower() == 'nan' or value == '0.0':
       return str(0)
    if ',' in value:
       value = str(value).replace(',', '.')
