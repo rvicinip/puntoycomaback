@@ -293,3 +293,21 @@ def getEmployes(usuario, idCompany):
    resp = user.getUsersByCompany(idCompany)
    print("End getDictionary:", resp)
    return jsonify(resp)
+
+@app.route('/company/close', methods = ['POST'])
+@privated
+def closeCompany(usuario):
+   '''
+       closeCompany: Cierra el proceso de una empresa \n
+   '''
+   print("In closeCompany")
+   if usuario['perfil'] == 'client':
+      return jsonify({'response': 'ERROR', 'message': 'No tiene privilegios para realizar esta acción'})
+   dato = request.json
+   campos = ['empresa']
+   valida = validateFields(campos, dato)
+   if valida['response'] == 'ERROR':
+      return jsonify(valida)
+   resp = empresa.closeCompany(dato['empresa'])
+   print("End closeCompany:", resp)
+   return jsonify(resp)

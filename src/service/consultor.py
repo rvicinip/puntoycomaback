@@ -57,3 +57,19 @@ def getCompaniesConsultor(usuario):
    resp = consultor.getCompaniesConsultor(usuario['id_usuario'])
    print("End getCompaniesConsultor:", resp)
    return jsonify(resp)
+
+@app.route('/consultors/<company>', methods = ['GET'])
+@privated
+def getConsultors(usuario, company):
+    '''
+        getConsultors: Trae los consultores asociados a una empresas \n
+        @params:
+          :company: Nit de la empreesa
+    '''
+    print("In getConsultors")
+    
+    if usuario['perfil'] != 'director':
+       return {'response': 'ERROR', 'message': 'No tiene los privilegios para realizar esta acción'}
+    resp = consultor.getConsultorsCompany(company)
+    print("End getConsultors:", resp)
+    return jsonify(resp)

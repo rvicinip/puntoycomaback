@@ -63,16 +63,20 @@ def validateXLS(hoja, fields):
     traceback.print_exc()
     return {'ERROR': 'Se presentó un error validando los campos'}  
 
-def writeXLS(header, data):
+def writeXLS(header, data, fileName):
   '''
      writeXLS: Transdorma una lista de objetos Json en un libro XLS \n
      @params: 
-       header: Lista de las cabeceras de las columnas
-       data: Contenido de las columnas
+       header   : Lista de las cabeceras de las columnas
+       data     : Contenido de las columnas
+       fileName : Nombre del archivo
   '''
   print("In readXLS")
   try:
     df = xls.DataFrame(data)
-    print
+    writer = ExcelWriter('../../files/' + fileName)
+    df.to_excel(writer, sheet_name = 'encuestas', columns = header, index = False)
+    writer.save()
+    return {"response": "OK", "data": writer.path}
   except Exception:
-    print
+    return {"response": "ERROR", "message": "Se presentó un error al crear el archivo " + fileName}

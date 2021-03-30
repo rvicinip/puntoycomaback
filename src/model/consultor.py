@@ -48,7 +48,7 @@ def asociateCompany(emp, cons):
 ### LEE
 def getCompaniesConsultor(idCons):
   '''
-     getCompaniesConsultor: Busca todas las empresas en DB \n
+     getCompaniesConsultor: Busca todas las empresas de un consultor en la DB \n
      @params: 
        cons: id_usuario del consultor a buscar
   '''
@@ -94,6 +94,30 @@ def isConsultorInCompany(idCons, idEmpr):
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al consultar las empresas'}
+
+def getConsultorsCompany(idEmp):
+  '''
+     getConsultorsCompany: Busca todos los consultores de una empresa en la DB \n
+     @params: 
+       idEmp: Nit de la empresa a buscar
+  '''
+  print("In getConsultorsCompany")
+  try:
+    emp = empresa.getCompanyByNIT(idEmp)
+    if not 'data' in emp:
+        return emp
+    resp = emp['data']
+    usus = []
+    cons = Consultor.query.filter(Consultor.empresa == idEmp, Consultor.estado == 'A')
+    for c in cons:
+      usu = user.getUserByUsuario(c.consultor)      
+      if 'data' in usu:
+        usus.append(usu['data'])
+    resp['consultores'] = usus
+    return {'response': 'OK', 'data': resp}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al consultar los consultores de la empresa ' + str(idEmp)}
 
 ### ACTUALIZA
 def removeConsultor(emp, cons):

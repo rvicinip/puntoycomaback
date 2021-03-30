@@ -8,7 +8,7 @@
 '''
 ### Se importan los plugins necesarios
 from src.mysqlConnector.empresa import Empresa
-from src.model import user, frecuencia, diccionario
+from src.model import user, frecuencia, diccionario, consultor
 from src import db
 import traceback
 
@@ -97,7 +97,7 @@ def getDictsFrecs(idEmp):
   '''
      getDictsFrecs: Busca el diccionario y las frecuencias de una empresa acorde a su 'nit' \n
      @params: 
-       idMongo: id Mongo de la empresa a buscar en la DB 
+       idEmp: id Mongo de la empresa a buscar en la DB 
   '''
   print("In getDictsFrecs:", idEmp)
   try:
@@ -137,6 +137,24 @@ def updateCompany(emp):
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un error al crear el usuario'}
+
+def closeCompany(idEmp):
+  '''
+     closeCompany: Modifica una empresa en la DB \n
+     @params: 
+       empresa: objeto Json con los campos a actualizar en la DB 
+  '''
+  print("In closeCompany:", idEmp)
+  try:
+    verifica = getCompanyByNIT(idEmp)
+    if not 'data' in verifica:
+      return verifica
+    resp = Empresa.query.filter(Empresa.nit == idEmp).update({Empresa.estado: 'T'})
+    db.session.commit()
+    return {'response': 'OK', 'message': str(resp) + ' Empresa actualizada'}
+  except Exception:
+    traceback.print_exc()
+    return {'response': 'ERROR', 'message': 'Se presentó un error al cerrar la empresa'}
 
 def deleteCompany(idEmp):
   '''

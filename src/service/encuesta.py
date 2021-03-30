@@ -123,26 +123,51 @@ def deleteActivity(usuario, actividad):
   print("End deleteActivity:", resp)
   return jsonify(resp)
 
-@app.route('/inquest/close', methods = ['GET'])
+@app.route('/inquest/close', methods = ['POST'])
 @privated
 def closeInquest(usuario):
   '''
-     closeInquest: Elimina una respuesta de la encuesta \n
+     closeInquest: cierra la encuesta de un usuario \n
   '''
   print("In closeInquest")
   resp = user.closeUserInquest(usuario['id_usuario'])
   print("End closeInquest:", resp)
   return jsonify(resp)
 
-@app.route('/prueba/list', methods = ['GET'])
+@app.route('/export/inquest', methods = ['POST'])
 @privated
-def listPrueba(usuario):
+def generateTable(usuario):
   '''
-     listPrueba: Lista las actividades del usuario con las respuestas de reporte de tiempos \n
+     generateTable: Lista las actividades del usuario con las respuestas de reporte de tiempos y la exporta en un XLS \n
      @params:
        usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
   '''
-  print("In listPrueba")
-  resp = encuesta.listEncuestaByUsuario(usuario['id_usuario'])
-  print("End listPrueba:", resp)
+  print("In generateTable")
+  ## Validad que se enviarion todos los campos
+  dato = request.json
+  campos = ['empresa']
+  valida = validateFields(campos, dato)
+  if valida['response'] == 'ERROR':
+    return jsonify(valida)
+  resp = encuesta.generateDesnomalizadaTable(dato['empresa'])
+  print("End generateTable:", resp)
+  return jsonify(resp)
+
+@app.route('/inquest/open', methods = ['POST'])
+@privated
+def openInquest(usuario):
+  '''
+     openInquest: Abre la encuesta de un usuario que ya había terminado el resporte \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+  '''
+  print("In openInquest")
+  ## Validad que se enviarion todos los campos
+  dato = request.json
+  campos = ['usuario']
+  valida = validateFields(campos, dato)
+  if valida['response'] == 'ERROR':
+    return jsonify(valida)
+  resp = encuesta.openInquest(dato['usuario'])
+  print("End openInquest:", resp)
   return jsonify(resp)

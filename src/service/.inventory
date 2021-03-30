@@ -20,7 +20,6 @@ route: /company, method: 'PUT'
 route: /company, method: 'GET'
     Recupera todas las empresas en la DB
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
-    idCompany: Id mongo de la empresa
 
 route: /company/<idCompany>, method: 'GET'
     Recupera los datos de una empresa en la DB
@@ -82,6 +81,12 @@ route: /full/employes/<idCompany>, method: 'GET'
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     idCompany: Nit de la empresa
 
+route: /company/close, method = 'POST'
+    Cierra el proceso de una empresa
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON {
+        'empresa'    : nit}
+
 #############
    USUARIO
 #############
@@ -108,6 +113,10 @@ route: /users/close-inquest, method: 'PUT'
     Cierra la encuesta que está realizando el usuario
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
 
+route: /users/status/<company>, methods = 'GET'
+    Obtiene los indices de cada estado de los empleados de una empresa \n
+    company: Nit de la empresa
+    
 ###########
    LOGIN
 ###########
@@ -226,7 +235,7 @@ route: /inquest/answer, method = 'PUT'
       'frecuencia' : frecuencia}
 
 route: /inquest/close, methods = 'POST'
-    Elimina una respuesta de la encuesta
+    Cierra el proceso de encuesta para el usuario logueado
 
 route: /inquest/list, method = 'GET'
     Lista las actividades del usuario con las respuestas de reporte de tiempos \n
@@ -237,6 +246,24 @@ route: /inquest/<actividad>, method = 'DELETE'
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     actividad: Id de la actividad a borrar
 
+route: /inquest/close, method = 'POST'
+    cierra la encuesta de un usuario
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON{
+	  'id_usuario' : id_usuario}
+
+route: /export/inquest, method = 'POST'
+    Lista las actividades del usuario con las respuestas de reporte de tiempos y la exporta en un XLS
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON{
+	  'empresa' : nit}
+
+route: /inquest/open, method = 'POST'
+    Abre la encuesta de un usuario que ya había terminado el resporte \n
+    token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+    Objeto JSON{
+	  'usuario' : id_usuario}
+
 ###############
    CONSULTOR
 ###############
@@ -246,8 +273,7 @@ route: /consultor, method = 'POST'
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
     Objeto JSON {
         'empresa'    : nit, 
-        'id_usuario' : id_usuario]
-    }
+        'id_usuario' : id_usuario}
 
 route: /consultor/<company>/<user>, method = 'DELETE'
     Inactiva un consultor en una empresa
@@ -258,3 +284,7 @@ route: /consultor/<company>/<user>, method = 'DELETE'
 route: /consultor, method = 'GET'
     Devuelve las empresa del consultor logueado
     token: campo con el token de autenticación en el backend (Va en la cabecera de la Petición)
+
+route: /consultors/<company>, methods = 'GET'
+    Trae los consultores asociados a una empresas \n
+    company: Nit de la empreesa

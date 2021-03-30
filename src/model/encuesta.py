@@ -11,10 +11,7 @@ from src.utility.validator import validateFields
 from src.mysqlConnector.encuesta import Encuesta
 from src.mysqlConnector.frecuencia import Frecuencia
 from src.mysqlConnector.diccionario import Diccionario
-from src.model import user
-from src.model import frecuencia
-from src.model import diccionario
-from src.model import empresa
+from src.model import user, frecuencia, diccionario, empresa
 from src.utility import xlsReader
 from src import db
 import traceback
@@ -264,7 +261,9 @@ def generateDesnomalizadaTable(company):
             'macro proceso', 'proceso', 'actividad', 'mas', 'ceno', 'tipo', 'cadenaVr',	'unidad tiempo',
             'frecuencia', 'cantidad',	'tiempo', 'jornada', 'fte actividad',	'fte usuario',	'valor act']
   table = listEncuestaByCompany(company)
-  xls = xlsReader.writeXLS(header, table)
+  archivo = 'encuesta' + company + '.xlsx'
+  xls = xlsReader.writeXLS(header, table, archivo)
+  return xls
 
 ## ACTUALIZA
 def updateSelectedActivity(encuesta):
@@ -297,6 +296,24 @@ def updateSelectedActivity(encuesta):
       db.session.commit()
       return {'response': 'OK', 'message': str(resp) + ' Respuesta actualizada'}
     return verifica
+  except Exception:
+    traceback.print_exc()
+    return {'response':'ERROR', 'message': 'Error de base de datos de encuesta'}
+
+def openInquest(idUser):
+  '''
+     openInquest: Abre la encuesta concluida de un usuario \n
+     @params: 
+       idUser: id_usuario del usuario a abrirle la encuesta
+  '''
+  try:
+    print("In openInquest")
+    resp = Encuesta.query.filter(Encuesta.usuario == idUser).update({Encuesta.estado : 'A'})
+    db.session.commit()
+    usu = user.statusInquest(idUser, "Desarrollo")
+    if usu['response'] == 'ERROR':
+      return usu
+    return {'response': 'OK', 'message': str(resp) + ' Respuestas actualizadas'}
   except Exception:
     traceback.print_exc()
     return {'response':'ERROR', 'message': 'Error de base de datos de encuesta'}
