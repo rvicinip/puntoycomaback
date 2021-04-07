@@ -16,7 +16,7 @@ from .protector import privated
 @privated
 def addCompaniesConsultor(usuario):
     '''
-        addCompaniesConsultor: Asocia una empresas a un consultor \n
+        addCompaniesConsultor: Asocia una empresa a un consultor \n
     '''
     print("In addCompaniesConsultor")
     dato = request.json

@@ -13,18 +13,16 @@ import traceback
 
 def sendMail(correo, mensaje):
     '''
-       senMail: Envía un correo electrónico a los datos recibidos
+       sendMail: Envía un correo electrónico a los datos recibidos
     '''
     print('In sendMail:', correo)
     sender = app.config['EMAIL_USER']
-    to = correo
-    message = mensaje
     ## Envía el correo electrónico
     try:
         server = smtplib.SMTP('smtp.gmail.com:587')
         server.starttls()
         server.login(app.config['EMAIL_USER'], app.config['EMAIL_KEY'])
-        server.sendmail(sender, to, message)
+        server.sendmail(sender, correo, mensaje)
         server.quit()
         return {'response':'OK', 'message': 'Correo enviado a ' + correo}
     except Exception:

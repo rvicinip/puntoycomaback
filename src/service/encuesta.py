@@ -11,6 +11,7 @@ from flask import jsonify, request
 from src import app
 from src.model import encuesta
 from src.model import user
+from src.utility.mailer import sendMail
 from src.utility.validator import validateFields
 from .protector import privated
 
@@ -110,6 +111,22 @@ def listUserActivities(usuario):
   print("End listUserActivities:", resp)
   return jsonify(resp)
 
+@app.route('/inquest/list/<id_usuario>', methods = ['GET'])
+@privated
+def listActivitiesByUser(usuario, id_usuario):
+  '''
+     listActivitiesByUser: Lista las actividades de un usuario con las respuestas de reporte de tiempos \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+       id_usuario: id del usuario al cual se le consultarán las actividades
+  '''
+  print("In listActivitiesByUser")
+  if usuario['perfil'] == 'client':
+    return jsonify({'response': 'ERROR', 'message': "El usuario no tiene privilegios para realizar esta acción"})
+  resp = encuesta.listEncuestaByUsuario(id_usuario)
+  print("End listActivitiesByUser:", resp)
+  return jsonify(resp)
+
 @app.route('/inquest/<actividad>', methods = ['DELETE'])
 @privated
 def deleteActivity(usuario, actividad):
@@ -123,7 +140,7 @@ def deleteActivity(usuario, actividad):
   print("End deleteActivity:", resp)
   return jsonify(resp)
 
-@app.route('/inquest/close', methods = ['POST'])
+@app.route('/inquest/close', methods = ['GET'])
 @privated
 def closeInquest(usuario):
   '''
@@ -171,3 +188,30 @@ def openInquest(usuario):
   resp = encuesta.openInquest(dato['usuario'])
   print("End openInquest:", resp)
   return jsonify(resp)
+
+@app.route('/remember', methods = ['POST'])
+@privated
+def rememberInquest(usuario):
+  '''
+     rememberInquest: Envia correo de recordando diligenciar la encuesta \n
+     @params:
+       usuario: Objeto Json con los datos del usuario cliente (Se obtiene del token)
+  '''
+  print("In rememberInquest")
+  ## Validad que se enviarion todos los campos
+  dato = request.json
+  campos = ['usuarios']
+  valida = validateFields(campos, dato)
+  mensaje = "Vena lo invita a realizar el reporte de las actividades. Su compromiso nos permite realizar el estudio y generar información verídica para la empresa"
+  enviado = 0
+  if valida['response'] == 'ERROR':
+    return jsonify(valida)
+  for u in dato['usuarios']:
+    usuario = user.getUserByUsuario(u)
+    if usuario['response'] == 'OK':
+      mail = usuario['data']['email']
+      resp = sendMail(mail, mensaje)
+      if resp['response'] == 'OK':
+        enviado += 1
+  print("End rememberInquest: enviados " + str(enviado))
+  return jsonify({'response': 'OK', 'message': 'Se enviaron ' + str(enviado) + ' correos'})
