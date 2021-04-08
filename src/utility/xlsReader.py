@@ -79,4 +79,5 @@ def writeXLS(header, data, fileName):
     writer.save()
     return {"response": "OK", "data": writer.path}
   except Exception:
+    traceback.print_exc()
     return {"response": "ERROR", "message": "Se presentó un error al crear el archivo " + fileName}

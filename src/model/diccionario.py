@@ -26,7 +26,7 @@ def getActivity(emp, act):
     resp = Diccionario.query.filter(Diccionario.empresa == emp, Diccionario.id_actividad == act).first()
     if resp:
       return {'response': 'OK', 'data': resp.toJSON()}
-    return {'response': 'ERROR', 'message': 'No se encontró la actividad ' + act}
+    return {'response': 'ERROR', 'message': 'No se encontró la actividad ' + str(act)}
   except Exception:
     traceback.print_exc()
     return {'response': 'ERROR', 'message': 'Se presentó un consultando la actividad ' + act}

@@ -121,35 +121,27 @@ def listEncuestaByCompany(company):
       if 'data' in encuestas:
         encs = encuestas['data']
         for enc in encs:
-          dato['valorAct']   = enc['valorAct']
-          dato['fteUsuario'] = enc['fteUser']
-          dato['fteAct']     = enc['fteAct']
-          dato['jornal']     = enc['jornada']
-          dato['tiempo']     = enc['tiempo']
-          dato['cantidad']   = enc['cantidad']
-          umed = frecuencia.getFrecuenciaById(enc['umedida'])
-          if 'data' in umed:
-            umd = umed['data']
-            dato['unidadtiempo'] = umd['nombre']
-          else:
-            return {'response': 'ERROR', 'message': 'Información Incompleta - NO se encontró la unidad de tiempo ' + str(enc['umedida'])}
-          frec = frecuencia.getFrecuenciaById(enc['frecuencia'])
-          if 'data' in frec:
-            frc = frec['data']
-            dato['frecuencia'] = frc['nombre']
-          else:
-            return {'response': 'ERROR', 'message': 'Información Incompleta - NO se encontró la frecuencia ' + str(enc['frecuencia'])}
-          actividad = diccionario.getActivity(company, enc['actividad'])
+          e = enc['encuesta']
+          d = enc['diccionario']
+          dato['frecuencia']   = enc['frecuencia']
+          dato['unidadtiempo'] = enc['umedida']
+          dato['valorAct']     = e['valorAct']
+          dato['fteUsuario']   = e['FteUser']
+          dato['fteAct']       = e['fteAct']
+          dato['jornal']       = e['jornada']
+          dato['tiempo']       = e['tiempo']
+          dato['cantidad']     = e['cantidad']
+          actividad = diccionario.getActivity(company, d['id_actividad'])
           if 'data' in actividad:
             act = actividad['data']
-            dato['tipo']         = act['tipo']
-            dato['actividad']    = act['nombre']
-            dato['mas']          = act['mas']
-            dato['ceno']         = act['ceno']
-            dato['cadenaValor']  = act['cadena_de_valor']            
+            dato['tipo']        = act['tipo']
+            dato['actividad']   = act['nombre']
+            dato['mas']         = act['mas']
+            dato['ceno']        = act['ceno']
+            dato['cadenaValor'] = act['cadena_de_valor']            
             for i in range (int(empr['niveles'])-1):
-              if act['id_padre'] > 0:
-                padre = diccionario.getActivity(company, act['id_padre'])
+              if len(act['padre']) > 1 and act['nivel'] > 1:
+                padre = diccionario.getActivity(company, act['padre'])
                 if 'data' in padre:
                   proc = padre['data']
                   dato['nivel' + str(int(empr['niveles']) - (i +1 ))] = proc['nombre']

@@ -200,18 +200,15 @@ def rememberInquest(usuario):
   print("In rememberInquest")
   ## Validad que se enviarion todos los campos
   dato = request.json
-  campos = ['usuarios']
-  valida = validateFields(campos, dato)
+  campos = ['usuario']
   mensaje = "Vena lo invita a realizar el reporte de las actividades. Su compromiso nos permite realizar el estudio y generar información verídica para la empresa"
-  enviado = 0
+  valida = validateFields(campos, dato)
   if valida['response'] == 'ERROR':
     return jsonify(valida)
-  for u in dato['usuarios']:
-    usuario = user.getUserByUsuario(u)
-    if usuario['response'] == 'OK':
-      mail = usuario['data']['email']
-      resp = sendMail(mail, mensaje)
-      if resp['response'] == 'OK':
-        enviado += 1
-  print("End rememberInquest: enviados " + str(enviado))
-  return jsonify({'response': 'OK', 'message': 'Se enviaron ' + str(enviado) + ' correos'})
+  usuario = user.getUserByUsuario(dato['usuario'])
+  if usuario['response'] == 'ERROR':
+    return jsonify(usuario)
+  mail = usuario['data']['email']
+  resp = sendMail(mail, mensaje)
+  print("End rememberInquest:", resp)
+  return jsonify(resp)
